@@ -36,7 +36,7 @@ public class HW0 {
         for (int i = 0; i < a.length; i +=1) {
             for (int j= 0; j < a.length; j +=1) {
                 for (int k=0; k < a.length; k+=1) {
-                    if (a[i]+a[j]+a[k] == 0 && a[i] != a[j] && a[j] != a[k])
+                    if (a[i]+a[j]+a[k] == 0 && i != j && j != k)
                         return true;
                 }
             }
@@ -47,9 +47,10 @@ public class HW0 {
     public static void main(String[] args) {
         //call the max function to see if it returns the value that we want
         int [] numbers = new int[]{-6, 2, 4};
+        int [] num = new int[]{-6, 3, 10, 200};
         System.out.println(max(numbers));
         System.out.println(whileMax(numbers));
-        System.out.println(threeSumDistinct(numbers));
+        System.out.println(threeSumDistinct(num));
         System.out.println(threeSum(numbers));
     }
 }
