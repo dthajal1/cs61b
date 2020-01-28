@@ -36,7 +36,7 @@ public class HW0 {
         for (int i = 0; i < a.length; i +=1) {
             for (int j= 0; j < a.length; j +=1) {
                 for (int k=0; k < a.length; k+=1) {
-                    if (a[i]+a[j]+a[k] == 0 && i != j && j != k)
+                    if (a[i]+a[j]+a[k] == 0 && i != j && j != k && i !=k)
                         return true;
                 }
             }
