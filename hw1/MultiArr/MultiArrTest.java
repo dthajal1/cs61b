@@ -5,12 +5,19 @@ public class MultiArrTest {
 
     @Test
     public void testMaxValue() {
-        //TODO: Your code here!
+        int[][] arr = {{1, 2}, {4, 8}};
+        int[][] arr2 = {{6, 20}, {-5, 9}};
+        assertEquals(8, MultiArr.maxValue(arr));
+        assertEquals(20, MultiArr.maxValue(arr2));
+
     }
 
     @Test
     public void testAllRowSums() {
-        //TODO: Your code here!
+        assertArrayEquals(new int[]{2, 0}, MultiArr.allRowSums(new int[][]{{1, 1},{0,0}}));
+
+        assertArrayEquals(new int[]{3, 7}, MultiArr.allRowSums(new int[][]{{1, 2}, {3, 4}}));
+
     }
 
 
