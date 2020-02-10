@@ -64,7 +64,7 @@ import static signpost.Utils.*;
  *  0) and all cells with fixed sequence numbers appear at the
  *  corresponding position in that sequence.
  *
- *  @author
+ *  @author Diraj Thajali
  */
 class Model implements Iterable<Model.Sq> {
 
@@ -521,6 +521,15 @@ class Model implements Iterable<Model.Sq> {
          */
         boolean connectable(Sq s1) {
             // FIXME
+            //my code
+            /* if correct dir from this square and
+            if direction() != 0
+
+            if not predecessor and not successor and it's not the first cell and not the last cell
+
+            if this.sequenceNum() and this.sequenceNum() == S1.sequenceNum() -1
+            */
+            //end
             return true;
         }
 
