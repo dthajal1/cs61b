@@ -13,8 +13,8 @@ public class ListsTest {
      */
 
     @Test
-    public void testNaturalRuns(){
-        int [] arr1 = new int[] {1, 2 ,8, 4, 6, 1, 2, 5, 8, 3, 2};
+    public void testNaturalRuns() {
+        int [] arr1 = new int[] {1, 2, 8, 4, 6, 1, 2, 5, 8, 3, 2};
         int [][] res1 = new int[][] {{1, 2, 8}, {4, 6}, {1, 2, 5, 8}, {3}, {2}};
         IntList L = IntList.list(arr1);
         IntListList result = IntListList.list(res1);

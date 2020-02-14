@@ -14,7 +14,7 @@ class Arrays {
     Just for testing purpose
      */
     public static void main(String[] args) {
-        int[] a = new int[] { 1,2, 3};
+        int[] a = new int[] {1, 2, 3};
         int[][] result = new int[8][];
         result[0] = a;
         System.out.println(result[0]);
@@ -30,9 +30,9 @@ class Arrays {
         for (int i = 0; i < A.length; i += 1) {
             result[i] = A[i];
         }
-        for (int j = 0; j < B.length; j +=1 ) {
-            result[A.length+j] = B[j];
-            }
+        for (int j = 0; j < B.length; j += 1) {
+            result[A.length + j] = B[j];
+        }
         return result;
     }
 
@@ -41,7 +41,7 @@ class Arrays {
      *  beginning with item #START. */
     static int[] remove(int[] A, int start, int len) {
         /* *Replace this body with the solution. */
-        int[] result = new int[A.length-len];
+        int[] result = new int[A.length - len];
         int i = 0;
         int count = 0;
         while (i < A.length) {
@@ -53,7 +53,7 @@ class Arrays {
             } else {
                 result[count] = A[i];
                 count += 1;
-                i+=1;
+                i += 1;
             }
         }
         return result;
@@ -67,7 +67,7 @@ class Arrays {
      *  {{1, 3, 7}, {5}, {4, 6, 9, 10}}. */
     static int[][] naturalRuns(int[] A) {
         /* *Replace this body with the solution. */
-        if (A == null){
+        if (A == null) {
             return new int[][]{};
         }
         int counter = 0;
@@ -76,21 +76,21 @@ class Arrays {
                 counter += 1;
             }
         }
-        int[][] result = new int[counter+1][];
+        int[][] result = new int[counter + 1][];
         int count = 0;
         int i = 0;
         int[] ans = new int[]{A[0]};
-        while (i < A.length-1){
+        while (i < A.length - 1) {
             if (A[i] < A[i + 1]) {
-                ans = catenate(ans, new int[]{A[i+1]});
-                i +=1;
+                ans = catenate(ans, new int[]{A[i + 1]});
+                i += 1;
             } else {
                 result[count] = ans;
-                ans = new int[]{A[i+1]};
-                i+=1;
+                ans = new int[]{A[i + 1]};
+                i += 1;
                 count += 1;
+            }
         }
-    }
         result[count] = ans;
         return result;
     }

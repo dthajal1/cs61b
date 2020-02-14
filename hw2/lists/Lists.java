@@ -42,34 +42,34 @@ class Lists {
         IntListList newL = new IntListList();
         IntListList newLPointer = newL;
         while (fPointer.tail.tail != null) {
-                if (fPointer == sPointer) {
-                    sPointer = sPointer.tail;
-                }
-                if (fPointer.head < fPointer.tail.head) {
-                    fPointer = fPointer.tail;
-                    sPointer = sPointer.tail;
-                } else {
-                    newLPointer.head = L;
-                    newLPointer.tail = new IntListList();
-                    newLPointer = newLPointer.tail;
-                    IntList point = fPointer;
-                    L = sPointer;
-                    sPointer = sPointer.tail;
-                    fPointer = fPointer.tail;
-                    point.tail = null;
-                }
+            if (fPointer == sPointer) {
+                sPointer = sPointer.tail;
             }
-            if (fPointer.head < sPointer.head) {
+            if (fPointer.head < fPointer.tail.head) {
                 fPointer = fPointer.tail;
-                newLPointer.head = L;
+                sPointer = sPointer.tail;
             } else {
                 newLPointer.head = L;
                 newLPointer.tail = new IntListList();
                 newLPointer = newLPointer.tail;
-                fPointer.tail = null;
+                IntList point = fPointer;
                 L = sPointer;
-                newLPointer.head = L;
+                sPointer = sPointer.tail;
+                fPointer = fPointer.tail;
+                point.tail = null;
             }
+        }
+        if (fPointer.head < sPointer.head) {
+            fPointer = fPointer.tail;
+            newLPointer.head = L;
+        } else {
+            newLPointer.head = L;
+            newLPointer.tail = new IntListList();
+            newLPointer = newLPointer.tail;
+            fPointer.tail = null;
+            L = sPointer;
+            newLPointer.head = L;
+        }
         return newL;
     }
 }

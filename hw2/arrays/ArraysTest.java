@@ -1,6 +1,6 @@
 package arrays;
 
-import org.checkerframework.common.value.qual.StaticallyExecutable;
+//import org.checkerframework.common.value.qual.StaticallyExecutable;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -12,7 +12,7 @@ public class ArraysTest {
     /** FIXME
      */
     @Test
-    public void testCatenate(){
+    public void testCatenate() {
         int[] a = new int[] {1, 2, 3, 4};
         int[] b = new int[] {5, 6, 7, 8};
         int[] aWithB = new int[] {1, 2, 3, 4, 5, 6, 7, 8};
@@ -27,7 +27,7 @@ public class ArraysTest {
     }
 
     @Test
-    public void testRemove(){
+    public void testRemove() {
         int[] e = new int[] {1, 2, 3, 4, 5, 6, 7};
         int[] removedFromE = new int[] {1, 2, 6, 7};
 

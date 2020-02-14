@@ -63,7 +63,7 @@ public class MatrixUtils {
 //    }
 
     public static double min(double a, double b) {
-        if (a < b){
+        if (a < b) {
             return a;
         } else {
             return b;
@@ -76,16 +76,16 @@ public class MatrixUtils {
         result[0] = m[0];
         double[][] copiedM = copy(m);
         for (int i = 1; i < m.length; i += 1) {
-            for (int j= 0; j< m[0].length; j+=1){
-                if (j == 0) {//can only go to up and upright
-                    if (m[i-1][j] < m[i-1][j+1]){
-                        result[i][j] = m[i][j] + copiedM[i-1][j];
+            for (int j = 0; j < m[0].length; j += 1) {
+                if (j == 0) { //can only go to up and upright
+                    if (m[i - 1][j] < m[i - 1][j + 1]) {
+                        result[i][j] = m[i][j] + copiedM[i - 1][j];
                         copiedM = copy(result);
                     } else {
-                        result[i][j] = m[i][j] + copiedM[i-1][j+1];
+                        result[i][j] = m[i][j] + copiedM[i - 1][j + 1];
                         copiedM = copy(result);
-                        }
-                 }else if (j == m[0].length -1) {// can only go up and upleft
+                    }
+                } else if (j == m[0].length - 1) { // can only go up and upleft
                     if (m[i - 1][j] < m[i - 1][j - 1]) {
                         result[i][j] = m[i][j] + copiedM[i - 1][j];
                         copiedM = copy(result);
@@ -111,8 +111,7 @@ public class MatrixUtils {
 
         //find where to move:  up(i-1, j), up and right(i-1, j+1) or up and left(i-1, j-1)
         //if moving up is valid get(m, i-1, j);
-
-        }
+    }
 
 
     /** Non-destructively accumulates a matrix M along the specified
@@ -137,10 +136,10 @@ public class MatrixUtils {
      *  for project 1, but in a more complex way.
      *
      */
-    public static double[][] accumulateHelper(double[][] m){
+    public static double[][] accumulateHelper(double[][] m) {
         double[][] result = copy(m);
-        for (int i= 0; i < m.length; i +=1) {
-            for (int j= 0; j < m[0].length; j +=1){
+        for (int i = 0; i < m.length; i += 1) {
+            for (int j = 0; j < m[0].length; j += 1) {
                 result[i][j] = m[j][i];
             }
         }
@@ -148,7 +147,7 @@ public class MatrixUtils {
     }
 
     public static double[][] accumulate(double[][] m, Orientation orientation) {
-        if (orientation == Orientation.VERTICAL){
+        if (orientation == Orientation.VERTICAL) {
             return accumulateVertical(m);
         } else {
             return accumulateVertical(accumulateHelper(m));
