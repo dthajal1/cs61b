@@ -17,6 +17,7 @@ public class MatrixUtils {
      *  See http://goo.gl/73xqAu for more.
      */
 
+
     enum Orientation { VERTICAL, HORIZONTAL };
 
     /** Non-destructively accumulates an energy matrix in the vertical
@@ -53,10 +54,66 @@ public class MatrixUtils {
      *  2162923   2124919   2124919   2124919
      *
      */
+//    public static double get(double[][] e, int r, int c) {
+//        if (r >= 0 && c >= 00 && r < e.length && c < e[0].length) {
+//            return e[r][c];
+//        } else {
+//            return Double.POSITIVE_INFINITY;
+//        }
+//    }
+
+    public static double min(double a, double b) {
+        if (a < b){
+            return a;
+        } else {
+            return b;
+        }
+    }
+
 
     public static double[][] accumulateVertical(double[][] m) {
-        return null; //your code here
-    }
+        double [][] result = new double[m.length][m[0].length];
+        result[0] = m[0];
+        double[][] copiedM = copy(m);
+        for (int i = 1; i < m.length; i += 1) {
+            for (int j= 0; j< m[0].length; j+=1){
+                if (j == 0) {//can only go to up and upright
+                    if (m[i-1][j] < m[i-1][j+1]){
+                        result[i][j] = m[i][j] + copiedM[i-1][j];
+                        copiedM = copy(result);
+                    } else {
+                        result[i][j] = m[i][j] + copiedM[i-1][j+1];
+                        copiedM = copy(result);
+                        }
+                 }else if (j == m[0].length -1) {// can only go up and upleft
+                    if (m[i - 1][j] < m[i - 1][j - 1]) {
+                        result[i][j] = m[i][j] + copiedM[i - 1][j];
+                        copiedM = copy(result);
+                    } else {
+                        result[i][j] = m[i][j] + copiedM[i - 1][j - 1];
+                        copiedM = copy(result);
+                    }
+                } else {
+                    if (m[i - 1][j] < min(m[i - 1][j + 1], m[i - 1][j - 1])) {
+                        result[i][j] = m[i][j] + copiedM[i - 1][j];
+                        copiedM = copy(result);
+                    } else if (m[i - 1][j + 1] < min(m[i - 1][j], m[i - 1][j - 1])) {
+                        result[i][j] = m[i][j] + copiedM[i - 1][j + 1];
+                        copiedM = copy(result);
+                    } else {
+                        result[i][j] = m[i][j] + copiedM[i - 1][j - 1];
+                        copiedM = copy(result);
+                    }
+                }
+            }
+        }
+        return result;
+
+        //find where to move:  up(i-1, j), up and right(i-1, j+1) or up and left(i-1, j-1)
+        //if moving up is valid get(m, i-1, j);
+
+        }
+
 
     /** Non-destructively accumulates a matrix M along the specified
      *  ORIENTATION.
@@ -80,9 +137,22 @@ public class MatrixUtils {
      *  for project 1, but in a more complex way.
      *
      */
+    public static double[][] accumulateHelper(double[][] m){
+        double[][] result = copy(m);
+        for (int i= 0; i < m.length; i +=1) {
+            for (int j= 0; j < m[0].length; j +=1){
+                result[i][j] = m[j][i];
+            }
+        }
+        return result;
+    }
 
     public static double[][] accumulate(double[][] m, Orientation orientation) {
-        return null; //your code here
+        if (orientation == Orientation.VERTICAL){
+            return accumulateVertical(m);
+        } else {
+            return accumulateVertical(accumulateHelper(m));
+        }
     }
 
     /** Finds the vertical seam VERTSEAM of the given matrix M.
@@ -129,6 +199,13 @@ public class MatrixUtils {
 
     /** does nothing. ARGS not used. use for whatever purposes you'd like */
     public static void main(String[] args) {
+        double[] a = new double[]{1000000, 10, 1000000, 1};
+//                {1000000, 75990, 30003, 1000000},
+//                {1000000, 30002, 103046, 1000000},
+//                {1000000, 29515, 38273, 1000000},
+//                {1000000, 73403, 35399, 1000000},
+//                {1000000, 1000000, 1000000, 1000000}};
+//        System.out.println(a[0].length);
         /* sample calls to functions in this class are below
 
         Rescaler sc = new Rescaler("4x6.png");
