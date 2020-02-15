@@ -1,5 +1,6 @@
 package signpost;
 
+import java.lang.invoke.SwitchPoint;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Formatter;
@@ -520,17 +521,16 @@ class Model implements Iterable<Model.Sq> {
          *    they are not part of the same connected sequence.
          */
         boolean connectable(Sq s1) {
-            // FIXME
-            //my code
-            /* if correct dir from this square and
-            if direction() != 0
-
-            if not predecessor and not successor and it's not the first cell and not the last cell
-
-            if this.sequenceNum() and this.sequenceNum() == S1.sequenceNum() -1
-            */
-            //end
-            return true;
+            if (allSuccessors(this.x, this.y, this._dir).contains(s1.pl) && s1._predecessor == null && this._successor == null && s1.sequenceNum() != 1 &&  this.sequenceNum()!= size()) {
+                if (this.sequenceNum()!=0 &&s1.sequenceNum()!=0) {
+                    if (this.sequenceNum() == s1.sequenceNum() - 1) {
+                        return true;
+                    }
+                } else if (this.head() != s1.head() ){
+                    return true;
+            }
+            }
+            return false;
         }
 
         /** Connect this square to S1, if both are connectable; otherwise do
@@ -559,6 +559,36 @@ class Model implements Iterable<Model.Sq> {
             //        + If both this square and S1 are unnumbered, set the
             //          group of this square's head to the result of joining
             //          the two groups.
+            this._successor = s1;
+            s1._predecessor = this;
+            if (this._sequenceNum != 0 && this._successor != null) {
+                Sq sPointer = this;
+                while (sPointer.successor() != null) {
+                    sPointer._successor._sequenceNum = sPointer._sequenceNum + 1;
+                    sPointer = sPointer._successor;
+                }
+//                sPointer._successor = null;
+            }else if (s1._sequenceNum != 0 && s1._predecessor != null) { //0 if not assigned
+                Sq s1Pointer = s1;
+                while (s1Pointer._predecessor != null) {
+                    s1Pointer._predecessor._sequenceNum = s1Pointer._sequenceNum - 1;
+                    s1Pointer = s1Pointer._predecessor;
+                }
+                //s1Pointer._predecessor = null;
+            }
+            Sq pointer = s1;
+            while (pointer != null) {
+                pointer._head = this.head();
+                pointer = pointer.successor();
+            }
+            if (this.sequenceNum() == 0 && s1.sequenceNum() == 0) {
+                this._head._group = joinGroups(this.group(), sgroup);
+            } else if (this.sequenceNum() != 0) {
+                releaseGroup(this.group());
+            }else if (s1.sequenceNum() != 0) {
+                releaseGroup(sgroup);
+            }
+
 
             return true;
         }
@@ -580,6 +610,18 @@ class Model implements Iterable<Model.Sq> {
                 //        number.
                 //        Otherwise, the group has been split into two multi-
                 //        element groups.  Create a new group for next.
+                if (this.predecessor() == null && next.successor() == null) {
+                    releaseGroup(this.group());
+                    releaseGroup(next.group());
+                    this._group = -1;
+                    next._group = -1;
+                } else if (this.predecessor() != null && next.successor() == null) {
+                    next._group = -1;
+                } else if (next.successor() != null && this.predecessor() == null) {
+                    this._group = -1;
+                } else {
+                    next._group = newGroup();
+                }
             } else {
                 // FIXME: If neither this nor any square in its group that
                 //        precedes it has a fixed sequence number, set all
@@ -591,9 +633,68 @@ class Model implements Iterable<Model.Sq> {
                 //        their sequence numbers to 0 and create a new
                 //        group for them if next has a current successor
                 //        (otherwise set next's group to -1.)
-            }
+                int group = newGroup();
+                boolean checkP = false;
+                Sq pPointer = this;
+                while (pPointer != null) {
+                    if (pPointer.sequenceNum() != 0) {
+                        checkP = true;
+                    }
+                    pPointer = pPointer.predecessor();
+                }
+                if (checkP == true) {
+                    Sq pointerPre = this;
+                    while (pointerPre != null) {
+                        if (!pointerPre.head().hasFixedNum()) {
+                            pointerPre._sequenceNum = 0;
+                            pointerPre._group = group;
+                        }
+                        pointerPre = pointerPre.predecessor();
+                    }
+                }
+                if (this.predecessor() == null){
+                    this._group = -1;
+                }
+
+                boolean checkS = false;
+                Sq sPointer = next;
+                while (sPointer != null) {
+                    if (sPointer.sequenceNum() != 0) {
+                        checkS = true;
+                    }
+                    sPointer = sPointer.successor();
+                }
+                //check if the successor it is connected to, has a fixed num
+
+                if (checkS == true) {
+                    boolean fixed = false;
+                    Sq checkFixedPointer = next;
+                    while (checkFixedPointer != null) {
+                        if (checkFixedPointer.hasFixedNum()) {
+                            fixed = true;
+                        }
+                        checkFixedPointer = checkFixedPointer.successor();
+                    }
+                    if (!fixed) {
+                        Sq pointerSuc = next;
+                        while (pointerSuc != null) {
+                            pointerSuc._sequenceNum = 0;
+                            pointerSuc._group = group;
+                            pointerSuc = pointerSuc.successor();
+                        }
+                    }
+                }
+                if (next.successor() == null){
+                        next._group = -1;
+                    }
+                }
             // FIXME: Set the _head of next and all squares in its group to
             //        next.
+            Sq temp = next;
+            while (temp != null) {
+                    temp._head = next;
+                    temp = temp.successor();
+            }
         }
 
         @Override
