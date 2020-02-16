@@ -114,6 +114,7 @@ class Place {
         return M;
     }
 
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Place)) {

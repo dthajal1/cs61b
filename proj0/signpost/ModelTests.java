@@ -120,6 +120,19 @@ public class ModelTests {
     }
 
     @Test
+    public void arrowDirectionTest() {
+        Model model = new Model(tr(SOLN1));
+        assertEquals(8,model.arrowDirection(0,0));
+        assertEquals(4,model.arrowDirection(3,2));
+        assertEquals(6,model.arrowDirection(3,3));
+        assertEquals(2,model.arrowDirection(0,3));
+        assertEquals(1,model.arrowDirection(1,0));
+        assertEquals(3,model.arrowDirection(1,1));
+        assertEquals(5,model.arrowDirection(2,3));
+
+    }
+
+    @Test
     public void copyTest() {
         Model model1 = new Model(tr(SOLN1));
         Model model2 = new Model(model1);
