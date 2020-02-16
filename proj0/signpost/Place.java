@@ -85,6 +85,7 @@ class Place {
         return DY[dir];
     }
 
+
     /** Return an array, M, such that M[x][y][dir] is a list of Places that are
      *  one queen move away from square (x, y) in direction dir on a
      *  WIDTH x HEIGHT board.  Additionally, M[x][y][0] is a list of all Places

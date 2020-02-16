@@ -128,15 +128,14 @@ class Model implements Iterable<Model.Sq> {
         //        all cells that might connect to it.
 
         PlaceList[][] _predecessors = predecessorCells();
-        int counter = 0; //keep track of where in the allElemChecker to place
         ArrayList allElem = new ArrayList();
         _solnNumToPlace = new Place[last + 1];
         _board = new Sq[_width][_height];
-        for (int i = 0; i < _solution.length; i += 1) {
-            for (int j = 0; j < _solution[0].length; j += 1) {
+//        _allSquares = new ArrayList<>();
+        for (int i = 0; i < _width; i += 1) {
+            for (int j = 0; j < _height; j += 1) {
                 int sequenceNum = _solution[i][j];
                 allElem.add(sequenceNum);
-                counter += 1;
                 _solnNumToPlace[sequenceNum] = pl(i, j);
                 if (sequenceNum == 1) {
                     Sq tempSq = new Sq(i, j, sequenceNum, true, arrowDirection(i, j), 0);
@@ -145,7 +144,7 @@ class Model implements Iterable<Model.Sq> {
                     _allSquares.add(tempSq);
 
                 } else if (sequenceNum == last) {
-                    Sq tempSq = new Sq(i, j, sequenceNum, true, arrowDirection(i, j), 0);
+                    Sq tempSq = new Sq(i, j, sequenceNum, true, 0, 0);
                     _board[i][j] = tempSq;
                     tempSq._predecessors = _predecessors[i][j];
                     _allSquares.add(tempSq);
@@ -224,6 +223,32 @@ class Model implements Iterable<Model.Sq> {
         //        position (4, 1) in this copy.  Be careful NOT to have
         //        any of these fields in the copy pointing at the old Sqs in
         //        MODEL.
+        _board = new Sq[_width][_height];
+        PlaceList[][][] list = successorCells(_width, _height);
+        for (int i = 0; i < _width; i += 1) {
+            for (int j = 0; j < _height; j += 1) {
+                Sq tempSq = new Sq(model.get(i, j).x, model.get(i, j).y, model.get(i, j).sequenceNum(), model.get(i, j).hasFixedNum(), model.get(i,j)._dir, model.get(i,j).group());
+                _board[i][j] = tempSq;
+                tempSq._successors = list[i][j][model.get(i ,j).direction()];
+                _allSquares.add(tempSq);
+            }
+        }
+        for (int i = 0; i < _width; i += 1) {
+            for (int j = 0; j < _height; j += 1) {
+                if (model.get(i,j).successor() != null) {
+                    int x = model.get(i, j).successor().x;
+                    int y = model.get(i, j).successor().y;
+                    _board[i][j]._successor = get(x, y);
+                }
+                if (model.get(i, j).predecessor() != null) {
+                    int x1 = model.get(i, j).predecessor().x;
+                    int y1 = model.get(i, j).predecessor().y;
+                    _board[i][j]._predecessor = get(x1, y1);
+                }
+                _board[i][j]._head = model.get(i, j).head();
+
+            }
+        }
     }
 
     /** Returns the width (number of columns of cells) of the board. */
@@ -319,7 +344,22 @@ class Model implements Iterable<Model.Sq> {
      *  unconnected and are separated by a queen move.  Returns true iff
      *  any changes were made. */
     boolean autoconnect() {
-        return false; // FIXME
+        boolean check = false;
+        for (int i = 0; i < solution().length; i += 1) {
+            for (int j = 0; j < solution()[0].length; j += 1) {
+                Sq curr = get(i, j);
+                PlaceList currSuc = curr.successors();
+                if (currSuc != null){
+                    for (Place elem : currSuc) {
+                        if (curr.sequenceNum() + 1 == get(elem).sequenceNum()) {
+                            curr.connect(get(elem));
+                            check = true;
+                    }
+                    }
+                }
+            }
+        }
+        return check; // FIXME
     }
 
     /** Sets the numbers in this board's squares to the solution from which
