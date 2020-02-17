@@ -224,12 +224,14 @@ class Model implements Iterable<Model.Sq> {
         //        any of these fields in the copy pointing at the old Sqs in
         //        MODEL.
         _board = new Sq[_width][_height];
-        PlaceList[][][] list = successorCells(_width, _height);
+        PlaceList[][] predecessors = predecessorCells();
+        PlaceList[][][] successors = successorCells(_width, _height);
         for (int i = 0; i < _width; i += 1) {
             for (int j = 0; j < _height; j += 1) {
                 Sq tempSq = new Sq(model.get(i, j).x, model.get(i, j).y, model.get(i, j).sequenceNum(), model.get(i, j).hasFixedNum(), model.get(i,j)._dir, model.get(i,j).group());
                 _board[i][j] = tempSq;
-                tempSq._successors = list[i][j][model.get(i ,j).direction()];
+                tempSq._successors = successors[i][j][model.get(i ,j).direction()];
+                tempSq._predecessors = predecessors[i][j];
                 _allSquares.add(tempSq);
             }
         }
@@ -366,6 +368,12 @@ class Model implements Iterable<Model.Sq> {
      *  this board was last initialized by the constructor. */
     void solve() {
         // FIXME
+        for (int i = 0; i < width(); i += 1) {
+            for (int j = 0; j < height(); j += 1) {
+                get(i, j)._sequenceNum = _solution[i][j];
+            }
+        }
+        autoconnect();
         _unconnected = 0;
     }
 

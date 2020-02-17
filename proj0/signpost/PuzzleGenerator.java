@@ -23,7 +23,7 @@ class PuzzleGenerator implements PuzzleSource {
         Model model =
             new Model(makePuzzleSolution(width, height, allowFreeEnds));
         // FIXME: Remove the "//" on the following two lines.
-        // makeSolutionUnique(model);
+        makeSolutionUnique(model);
         model.autoconnect();
         return model;
     }
@@ -60,8 +60,8 @@ class PuzzleGenerator implements PuzzleSource {
 //            { 13, 11, 6, 3 },
 //            { 16, 12, 5, 4 }
 //        };
-        //boolean ok = findSolutionPathFrom(x0, y0);
-        //assert ok;
+        boolean ok = findSolutionPathFrom(x0, y0);
+        assert ok;
         return _vals;
     }
 
@@ -135,6 +135,23 @@ class PuzzleGenerator implements PuzzleSource {
      *  number in sequence). */
     static Sq findUniqueSuccessor(Model model, Sq start) {
         // FIXME: Fill in to satisfy the comment.
+        int totalSuccessors = 0;
+        int x = 0;
+        int y = 0;
+        for (Place successor : start.successors()) {
+            Sq possibleSuccessor = model.get(successor);
+            if (start.connectable(possibleSuccessor)){
+                totalSuccessors += 1;
+                if (possibleSuccessor.sequenceNum() == start.sequenceNum() + 1) {
+                    return possibleSuccessor;
+                }
+                x = possibleSuccessor.x;
+                y = possibleSuccessor.y;
+            }
+        }
+        if (totalSuccessors == 1) {
+            return model.get(x,y);
+        }
         return null;
     }
 
@@ -164,6 +181,19 @@ class PuzzleGenerator implements PuzzleSource {
      *  already finds the other cases of numbered, unconnected cells. */
     static Sq findUniquePredecessor(Model model, Sq end) {
         // FIXME: Replace the following to satisfy the comment.
+        int totalPredecessors = 0;
+        int x = 0;
+        int y = 0;
+        for (Place predecessor : end.predecessors()) {
+            if (model.get(predecessor).connectable(end)) {
+                totalPredecessors += 1;
+                x = model.get(predecessor).x;
+                y = model.get(predecessor).y;
+            }
+        }
+        if (totalPredecessors == 1) {
+            return model.get(x, y);
+        }
         return null;
     }
 
