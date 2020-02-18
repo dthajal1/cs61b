@@ -8,7 +8,7 @@ import static signpost.Place.PlaceList;
 import static signpost.Utils.*;
 
 /** A creator of random Signpost puzzles.
- *  @author
+ *  @author Diraj Thajali
  */
 class PuzzleGenerator implements PuzzleSource {
 
@@ -22,7 +22,6 @@ class PuzzleGenerator implements PuzzleSource {
     public Model getPuzzle(int width, int height, boolean allowFreeEnds) {
         Model model =
             new Model(makePuzzleSolution(width, height, allowFreeEnds));
-        // FIXME: Remove the "//" on the following two lines.
         makeSolutionUnique(model);
         model.autoconnect();
         return model;
@@ -52,14 +51,6 @@ class PuzzleGenerator implements PuzzleSource {
         }
         _vals[x0][y0] = 1;
         _vals[x1][y1] = last;
-        // FIXME: Remove the following return statement and uncomment the
-        //        next three lines.
-//        return new int[][] {
-//            { 14, 9, 8, 1 },
-//            { 15, 10, 7, 2 },
-//            { 13, 11, 6, 3 },
-//            { 16, 12, 5, 4 }
-//        };
         boolean ok = findSolutionPathFrom(x0, y0);
         assert ok;
         return _vals;
@@ -134,15 +125,14 @@ class PuzzleGenerator implements PuzzleSource {
      *  numbered square in the proper direction from START (with the next
      *  number in sequence). */
     static Sq findUniqueSuccessor(Model model, Sq start) {
-        // FIXME: Fill in to satisfy the comment.
         int totalSuccessors = 0;
-        int x = 0;
-        int y = 0;
+        int x = 0; int y = 0;
         for (Place successor : start.successors()) {
             Sq possibleSuccessor = model.get(successor);
             if (start.connectable(possibleSuccessor)) {
                 totalSuccessors += 1;
-                if (possibleSuccessor.sequenceNum() == start.sequenceNum() + 1) {
+                if (possibleSuccessor.sequenceNum()
+                        == start.sequenceNum() + 1) {
                     return possibleSuccessor;
                 }
                 x = possibleSuccessor.x;
@@ -180,7 +170,6 @@ class PuzzleGenerator implements PuzzleSource {
      *  the only unconnected predecessor.  This is because findUniqueSuccessor
      *  already finds the other cases of numbered, unconnected cells. */
     static Sq findUniquePredecessor(Model model, Sq end) {
-        // FIXME: Replace the following to satisfy the comment.
         int totalPredecessors = 0;
         int x = 0;
         int y = 0;
