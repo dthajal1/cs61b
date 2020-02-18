@@ -140,7 +140,7 @@ class PuzzleGenerator implements PuzzleSource {
         int y = 0;
         for (Place successor : start.successors()) {
             Sq possibleSuccessor = model.get(successor);
-            if (start.connectable(possibleSuccessor)){
+            if (start.connectable(possibleSuccessor)) {
                 totalSuccessors += 1;
                 if (possibleSuccessor.sequenceNum() == start.sequenceNum() + 1) {
                     return possibleSuccessor;
@@ -150,7 +150,7 @@ class PuzzleGenerator implements PuzzleSource {
             }
         }
         if (totalSuccessors == 1) {
-            return model.get(x,y);
+            return model.get(x, y);
         }
         return null;
     }

@@ -90,28 +90,6 @@ class Model implements Iterable<Model.Sq> {
         _solution = new int[_width][_height];
         deepCopy(solution, _solution);
 
-        // DUMMY SETUP
-        // This is a particular puzzle provided as a filler until the
-        // puzzle-generation software is complete.
-        // FIXME: Remove everything down to and including
-        // "// END DUMMY SETUP".
-//        _board = new Sq[][] {
-//            { new Sq(0, 0, 0, false, 2, -1), new Sq(0, 1, 0, false, 2, -1),
-//              new Sq(0, 2, 0, false, 4, -1), new Sq(0, 3, 1, true, 2, 0) },
-//            { new Sq(1, 0, 0, false, 2, -1), new Sq(1, 1, 0, false, 2, -1),
-//              new Sq(1, 2, 0, false, 6, -1), new Sq(1, 3, 0, false, 2, -1) },
-//            { new Sq(2, 0, 0, false, 6, -1), new Sq(2, 1, 0, false, 2, -1),
-//              new Sq(2, 2, 0, false, 6, -1), new Sq(2, 3, 0, false, 2, -1) },
-//            { new Sq(3, 0, 16, true, 0, 0), new Sq(3, 1, 0, false, 5, -1),
-//              new Sq(3, 2, 0, false, 6, -1), new Sq(3, 3, 0, false, 4, -1) }
-//        };
-//        for (Sq[] col: _board) {
-//            for (Sq sq : col) {
-//                _allSquares.add(sq);
-//            }
-//        }
-        // END DUMMY SETUP
-
         // FIXME: Initialize _board so that _board[x][y] contains the Sq object
         //        representing the contents at cell (x, y), _allSquares
         //        contains the list of all Sq objects on the board, and
@@ -127,7 +105,7 @@ class Model implements Iterable<Model.Sq> {
         //        Likewise, set its _predecessors list to the list of
         //        all cells that might connect to it.
 
-        PlaceList[][] _predecessors = predecessorCells();
+        PlaceList[][] predecessors = predecessorCells();
         ArrayList allElem = new ArrayList();
         _solnNumToPlace = new Place[last + 1];
         _board = new Sq[_width][_height];
@@ -146,21 +124,21 @@ class Model implements Iterable<Model.Sq> {
                 } else if (sequenceNum == last) {
                     Sq tempSq = new Sq(i, j, sequenceNum, true, 0, 0);
                     _board[i][j] = tempSq;
-                    tempSq._predecessors = _predecessors[i][j];
+                    tempSq._predecessors = predecessors[i][j];
                     _allSquares.add(tempSq);
                 } else {
                     Sq tempSq = new Sq(i, j, 0, false, arrowDirection(i, j), -1);
                     _board[i][j] = tempSq;
 
                     tempSq._successors = _allSuccessors[i][j][arrowDirection(i, j)];
-                    tempSq._predecessors = _predecessors[i][j];
+                    tempSq._predecessors = predecessors[i][j];
                     _allSquares.add(tempSq);
                 }
             }
         }
         boolean checkElem = true;
-        for (int elem = 1; elem < last +1; elem += 1) {
-            if (! allElem.contains(elem)){
+        for (int elem = 1; elem < last + 1; elem += 1) {
+            if (!allElem.contains(elem)) {
                 checkElem = false;
             }
         }
@@ -176,13 +154,13 @@ class Model implements Iterable<Model.Sq> {
      * points to this, then that square is one of its predecessor. */
     PlaceList[][] predecessorCells() {
         PlaceList[][] N = new PlaceList[width()][height()];
-        for (int x = 0; x < width(); x +=1) {
+        for (int x = 0; x < width(); x += 1) {
             for (int y = 0; y < height(); y += 1) {
                 N[x][y] = new PlaceList();
             }
         }
 
-        for (int x = 0; x < width(); x +=1) {
+        for (int x = 0; x < width(); x += 1) {
             for (int y = 0; y < height(); y += 1) {
                 Place prePlace = pl(x, y);
                 int preDir = arrowDirection(x, y);
@@ -228,16 +206,18 @@ class Model implements Iterable<Model.Sq> {
         PlaceList[][][] successors = successorCells(_width, _height);
         for (int i = 0; i < _width; i += 1) {
             for (int j = 0; j < _height; j += 1) {
-                Sq tempSq = new Sq(model.get(i, j).x, model.get(i, j).y, model.get(i, j).sequenceNum(), model.get(i, j).hasFixedNum(), model.get(i,j)._dir, model.get(i,j).group());
+                Sq tempSq = new Sq(model.get(i, j).x, model.get(i, j).y,
+                        model.get(i, j).sequenceNum(), model.get(i, j).hasFixedNum(),
+                        model.get(i, j)._dir, model.get(i, j).group());
                 _board[i][j] = tempSq;
-                tempSq._successors = successors[i][j][model.get(i ,j).direction()];
+                tempSq._successors = successors[i][j][model.get(i, j).direction()];
                 tempSq._predecessors = predecessors[i][j];
                 _allSquares.add(tempSq);
             }
         }
         for (int i = 0; i < _width; i += 1) {
             for (int j = 0; j < _height; j += 1) {
-                if (model.get(i,j).successor() != null) {
+                if (model.get(i, j).successor() != null) {
                     int x = model.get(i, j).successor().x;
                     int y = model.get(i, j).successor().y;
                     _board[i][j]._successor = get(x, y);
@@ -351,12 +331,12 @@ class Model implements Iterable<Model.Sq> {
             for (int j = 0; j < solution()[0].length; j += 1) {
                 Sq curr = get(i, j);
                 PlaceList currSuc = curr.successors();
-                if (currSuc != null){
+                if (currSuc != null) {
                     for (Place elem : currSuc) {
                         if (curr.sequenceNum() + 1 == get(elem).sequenceNum()) {
                             curr.connect(get(elem));
                             check = true;
-                    }
+                        }
                     }
                 }
             }
@@ -390,8 +370,8 @@ class Model implements Iterable<Model.Sq> {
         for (int i = 0; i < _solution.length; i += 1) {
             for (int j = 0; j < _solution[0].length; j += 1) {
                 if (_solution[i][j] == seq1) {
-                    xx=i;
-                    yy=j;
+                    xx = i;
+                    yy = j;
                 }
             }
         }
@@ -654,14 +634,16 @@ class Model implements Iterable<Model.Sq> {
          *    they are not part of the same connected sequence.
          */
         boolean connectable(Sq s1) {
-            if (allSuccessors(this.x, this.y, this._dir).contains(s1.pl) && s1._predecessor == null && this._successor == null && s1.sequenceNum() != 1 &&  this.sequenceNum()!= size()) {
-                if (this.sequenceNum()!=0 &&s1.sequenceNum()!=0) {
+            if (allSuccessors(this.x, this.y, this._dir).contains(s1.pl)
+                    && s1._predecessor == null && this._successor == null
+                    && s1.sequenceNum() != 1 && this.sequenceNum() != size()) {
+                if (this.sequenceNum() != 0 && s1.sequenceNum() != 0) {
                     if (this.sequenceNum() == s1.sequenceNum() - 1) {
                         return true;
                     }
-                } else if (this.head() != s1.head() ){
+                } else if (this.head() != s1.head()) {
                     return true;
-            }
+                }
             }
             return false;
         }
@@ -701,7 +683,7 @@ class Model implements Iterable<Model.Sq> {
                     sPointer = sPointer._successor;
                 }
 //                sPointer._successor = null;
-            }else if (s1._sequenceNum != 0 && s1._predecessor != null) { //0 if not assigned
+            } else if (s1._sequenceNum != 0 && s1._predecessor != null) { //0 if not assigned
                 Sq s1Pointer = s1;
                 while (s1Pointer._predecessor != null) {
                     s1Pointer._predecessor._sequenceNum = s1Pointer._sequenceNum - 1;
@@ -710,7 +692,7 @@ class Model implements Iterable<Model.Sq> {
                 //s1Pointer._predecessor = null;
             }
             if (this.sequenceNum() != 0) {
-                releaseGroup(this._head._group );
+                releaseGroup(this._head._group);
             }
             if (s1.sequenceNum() != 0) {
                 releaseGroup(sgroup);
@@ -734,41 +716,20 @@ class Model implements Iterable<Model.Sq> {
             }
             _unconnected += 1;
             next._predecessor = _successor = null;
-            if (_sequenceNum == 0) {
-                // FIXME: If both this and next are now one-element groups,
-                //        release their former group and set both group
-                //        numbers to -1.
-                //        Otherwise, if either is now a one-element group, set
-                //        its group number to -1 without releasing the group
-                //        number.
-                //        Otherwise, the group has been split into two multi-
-                //        element groups.  Create a new group for next.
+            if (_sequenceNum == 0) { //first case
                 if (this.predecessor() == null && next.successor() == null) {
                     releaseGroup(this.group());
                     releaseGroup(next.group());
-                    this._group = -1;
-                    next._group = -1;
+                    this._group = -1; next._group = -1;
                 } else if (this.predecessor() != null && next.successor() == null) {
-
                     next._group = -1;
                 } else if (next.successor() != null && this.predecessor() == null) {
                     next._group = this._group;
                     this._group = -1;
-                } else if (next.successor() != null && this.predecessor() !=null) {
+                } else if (next.successor() != null && this.predecessor() != null) {
                     next._group = newGroup();
                 }
-            } else {
-                // FIXME: If neither this nor any square in its group that
-                //        precedes it has a fixed sequence number, set all
-                //        their sequence numbers to 0 and create a new group
-                //        for them if this has a current predecessor (other
-                //        set group to -1).
-                // FIXME: If neither next nor any square in its group that
-                //        follows it has a fixed sequence number, set all
-                //        their sequence numbers to 0 and create a new
-                //        group for them if next has a current successor
-                //        (otherwise set next's group to -1.)
-
+            } else { //different cases
                 boolean checkP = false;
                 Sq pPointer = this;
                 while (pPointer != null) {
@@ -788,10 +749,9 @@ class Model implements Iterable<Model.Sq> {
                         pointerPre = pointerPre.predecessor();
                     }
                 }
-                if (this.predecessor() == null){
+                if (this.predecessor() == null) {
                     this._group = -1;
                 }
-
                 boolean checkS = false;
                 Sq sPointer = next;
                 while (sPointer != null) {
@@ -800,8 +760,6 @@ class Model implements Iterable<Model.Sq> {
                     }
                     sPointer = sPointer.successor();
                 }
-                //check if the successor it is connected to, has a fixed num
-
                 if (!checkS) {
                     boolean fixed = false;
                     Sq checkFixedPointer = next;
@@ -821,16 +779,14 @@ class Model implements Iterable<Model.Sq> {
                         }
                     }
                 }
-                if (next.successor() == null){
-                        next._group = -1;
-                    }
+                if (next.successor() == null) {
+                    next._group = -1;
                 }
-            // FIXME: Set the _head of next and all squares in its group to
-            //        next.
+            }
             Sq temp = next;
             while (temp != null) {
-                    temp._head = next;
-                    temp = temp.successor();
+                temp._head = next;
+                temp = temp.successor();
             }
         }
 
