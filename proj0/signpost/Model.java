@@ -629,18 +629,16 @@ class Model implements Iterable<Model.Sq> {
             this._successor = s1;
             s1._predecessor = this;
             if (this._sequenceNum != 0 && this._successor != null) {
-                Sq sPointer = this;
-                while (sPointer.successor() != null) {
+                for (Sq sPointer = this; sPointer.successor() != null;
+                     sPointer = sPointer._successor) {
                     sPointer._successor._sequenceNum =
                             sPointer._sequenceNum + 1;
-                    sPointer = sPointer._successor;
                 }
             } else if (s1._sequenceNum != 0 && s1._predecessor != null) {
-                Sq s1Pointer = s1;
-                while (s1Pointer._predecessor != null) {
+                for (Sq s1Pointer = s1; s1Pointer._predecessor != null;
+                     s1Pointer = s1Pointer._predecessor) {
                     s1Pointer._predecessor._sequenceNum =
                             s1Pointer._sequenceNum - 1;
-                    s1Pointer = s1Pointer._predecessor;
                 }
             }
             if (this.sequenceNum() != 0) {
@@ -652,10 +650,9 @@ class Model implements Iterable<Model.Sq> {
             if (this.sequenceNum() == 0 && s1.sequenceNum() == 0) {
                 this._head._group = joinGroups(this._head._group, sgroup);
             }
-            Sq pointer = s1;
-            while (pointer != null) {
+            for (Sq pointer = s1; pointer != null;
+                 pointer = pointer.successor()) {
                 pointer._head = this.head();
-                pointer = pointer.successor();
             }
             return true;
         }
@@ -668,62 +665,58 @@ class Model implements Iterable<Model.Sq> {
             }
             _unconnected += 1; next._predecessor = _successor = null;
             if (_sequenceNum == 0) {
-                if (this.predecessor() == null
-                        && next.successor() == null) {
+                if (predecessor() == null && next.successor() == null) {
                     releaseGroup(this.group()); releaseGroup(next.group());
                     this._group = -1; next._group = -1;
-                } else if (this.predecessor() != null
-                        && next.successor() == null) {
+                } else if (predecessor() != null && next.successor() == null) {
                     next._group = -1;
-                } else if (next.successor() != null
-                        && this.predecessor() == null) {
+                } else if (next.successor() != null && predecessor() == null) {
                     next._group = this._group; this._group = -1;
-                } else if (next.successor() != null
-                        && this.predecessor() != null) {
+                } else if (next.successor() != null && predecessor() != null) {
                     next._group = newGroup();
                 }
             } else {
-                boolean checkP = false; Sq pPointer = this;
-                while (pPointer != null) {
+                boolean checkP = false;
+                for (Sq pPointer = this; pPointer != null;
+                     pPointer = pPointer.predecessor()) {
                     if (pPointer.hasFixedNum()) {
                         checkP = true;
                     }
-                    pPointer = pPointer.predecessor();
                 }
                 if (!checkP) {
-                    Sq pointerPre = this; int group = newGroup();
-                    while (pointerPre != null) {
+                    int group = newGroup();
+                    for (Sq pointerPre = this; pointerPre != null;
+                         pointerPre = pointerPre.predecessor()) {
                         if (!pointerPre.head().hasFixedNum()) {
                             pointerPre._sequenceNum = 0;
                             pointerPre._group = group;
                         }
-                        pointerPre = pointerPre.predecessor();
                     }
                 }
                 if (this.predecessor() == null) {
                     this._group = -1;
                 }
-                boolean checkS = false; Sq sPointer = next;
-                while (sPointer != null) {
+                boolean checkS = false;
+                for (Sq sPointer = next; sPointer != null;
+                     sPointer = sPointer.successor()) {
                     if (sPointer.hasFixedNum()) {
                         checkS = true;
                     }
-                    sPointer = sPointer.successor();
                 }
                 if (!checkS) {
-                    boolean fixed = false; Sq checkFixedPointer = next;
-                    while (checkFixedPointer != null) {
+                    boolean fixed = false;
+                    for (Sq checkFixedPointer = next; checkFixedPointer != null;
+                         checkFixedPointer = checkFixedPointer.successor()) {
                         if (checkFixedPointer.hasFixedNum()) {
                             fixed = true;
                         }
-                        checkFixedPointer = checkFixedPointer.successor();
                     }
                     if (!fixed) {
-                        int group = newGroup(); Sq pointerSuc = next;
-                        while (pointerSuc != null) {
+                        int group = newGroup();
+                        for (Sq pointerSuc = next; pointerSuc != null;
+                             pointerSuc = pointerSuc.successor()) {
                             pointerSuc._sequenceNum = 0;
                             pointerSuc._group = group;
-                            pointerSuc = pointerSuc.successor();
                         }
                     }
                 }
@@ -731,9 +724,8 @@ class Model implements Iterable<Model.Sq> {
                     next._group = -1;
                 }
             }
-            Sq temp = next;
-            while (temp != null) {
-                temp._head = next; temp = temp.successor();
+            for (Sq temp = next; temp != null; temp = temp.successor()) {
+                temp._head = next;
             }
         }
 
