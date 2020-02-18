@@ -709,20 +709,20 @@ class Model implements Iterable<Model.Sq> {
                 }
                 //s1Pointer._predecessor = null;
             }
+            if (this.sequenceNum() != 0) {
+                releaseGroup(this._head._group );
+            }
+            if (s1.sequenceNum() != 0) {
+                releaseGroup(sgroup);
+            }
+            if (this.sequenceNum() == 0 && s1.sequenceNum() == 0) {
+                this._head._group = joinGroups(this._head._group, sgroup);
+            }
             Sq pointer = s1;
             while (pointer != null) {
                 pointer._head = this.head();
                 pointer = pointer.successor();
             }
-            if (this.sequenceNum() == 0 && s1.sequenceNum() == 0) {
-                this._head._group = joinGroups(this.group(), sgroup);
-            } else if (this.sequenceNum() != 0) {
-                releaseGroup(this.group());
-            }else if (s1.sequenceNum() != 0) {
-                releaseGroup(sgroup);
-            }
-
-
             return true;
         }
 
@@ -749,10 +749,12 @@ class Model implements Iterable<Model.Sq> {
                     this._group = -1;
                     next._group = -1;
                 } else if (this.predecessor() != null && next.successor() == null) {
+
                     next._group = -1;
                 } else if (next.successor() != null && this.predecessor() == null) {
+                    next._group = this._group;
                     this._group = -1;
-                } else {
+                } else if (next.successor() != null && this.predecessor() !=null) {
                     next._group = newGroup();
                 }
             } else {
@@ -766,7 +768,7 @@ class Model implements Iterable<Model.Sq> {
                 //        their sequence numbers to 0 and create a new
                 //        group for them if next has a current successor
                 //        (otherwise set next's group to -1.)
-                int group = newGroup();
+
                 boolean checkP = false;
                 Sq pPointer = this;
                 while (pPointer != null) {
@@ -777,6 +779,7 @@ class Model implements Iterable<Model.Sq> {
                 }
                 if (!checkP) {
                     Sq pointerPre = this;
+                    int group = newGroup();
                     while (pointerPre != null) {
                         if (!pointerPre.head().hasFixedNum()) {
                             pointerPre._sequenceNum = 0;
@@ -809,6 +812,7 @@ class Model implements Iterable<Model.Sq> {
                         checkFixedPointer = checkFixedPointer.successor();
                     }
                     if (!fixed) {
+                        int group = newGroup();
                         Sq pointerSuc = next;
                         while (pointerSuc != null) {
                             pointerSuc._sequenceNum = 0;

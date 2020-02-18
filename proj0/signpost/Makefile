@@ -77,3 +77,4 @@ unit-tests.jar: compile
 # Find and remove all *~ and *.class files.
 clean:
 	$(RM) *.class *~ unit-tests.jar
+
