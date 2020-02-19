@@ -660,7 +660,6 @@ class Model implements Iterable<Model.Sq> {
         /** Disconnect this square from its current successor, if any. */
         void disconnect() {
             Sq next = _successor; boolean cP = false; boolean cS = false;
-            boolean fx = false; int g; Sq s = next; Sq sa = s.successor();
             if (next == null) {
                 return;
             }
@@ -668,7 +667,6 @@ class Model implements Iterable<Model.Sq> {
             if (_sequenceNum == 0) {
                 if (predecessor() == null && next.successor() == null) {
                     releaseGroup(this.group()); releaseGroup(next.group());
-                    this._group = -1; next._group = -1;
                 } else if (predecessor() != null && next.successor() == null) {
                     next._group = -1;
                 } else if (next.successor() != null && predecessor() == null) {
@@ -683,10 +681,10 @@ class Model implements Iterable<Model.Sq> {
                     }
                 }
                 if (!cP) {
-                    g = newGroup(); for (Sq pPre = this; pPre != null;
+                    int group = newGroup(); for (Sq pPre = this; pPre != null;
                                                  pPre = pPre.predecessor()) {
                         if (!pPre.head().hasFixedNum()) {
-                            pPre._sequenceNum = 0; pPre._group = g;
+                            pPre._sequenceNum = 0; pPre._group = group;
                         }
                     }
                 }
@@ -699,14 +697,16 @@ class Model implements Iterable<Model.Sq> {
                     }
                 }
                 if (!cS) {
-                    for (Sq chP = next; chP != null; chP = chP.successor()) {
-                        if (chP.hasFixedNum()) {
-                            fx = true;
+                    boolean fixed = false; for (Sq cheP = next; cheP != null;
+                                                cheP = cheP.successor()) {
+                        if (cheP.hasFixedNum()) {
+                            fixed = true;
                         }
                     }
-                    if (!fx) {
-                        g = newGroup(); for (s = next; s != null; s = sa) {
-                            s._sequenceNum = 0; s._group = g;
+                    if (!fixed) {
+                        int gp = newGroup(); for (Sq sucP = next; sucP != null;
+                                                     sucP = sucP.successor()) {
+                            sucP._sequenceNum = 0; sucP._group = gp;
                         }
                     }
                 }
