@@ -659,7 +659,8 @@ class Model implements Iterable<Model.Sq> {
 
         /** Disconnect this square from its current successor, if any. */
         void disconnect() {
-            Sq next = _successor;
+            Sq next = _successor; boolean cP = false; boolean cS = false;
+            boolean fx = false; int g; Sq s = next; Sq sa = s.successor();
             if (next == null) {
                 return;
             }
@@ -676,47 +677,36 @@ class Model implements Iterable<Model.Sq> {
                     next._group = newGroup();
                 }
             } else {
-                boolean checkP = false;
-                for (Sq pPointer = this; pPointer != null;
-                     pPointer = pPointer.predecessor()) {
-                    if (pPointer.hasFixedNum()) {
-                        checkP = true;
+                for (Sq pP = this; pP != null; pP = pP.predecessor()) {
+                    if (pP.hasFixedNum()) {
+                        cP = true;
                     }
                 }
-                if (!checkP) {
-                    int group = newGroup();
-                    for (Sq pointerPre = this; pointerPre != null;
-                         pointerPre = pointerPre.predecessor()) {
-                        if (!pointerPre.head().hasFixedNum()) {
-                            pointerPre._sequenceNum = 0;
-                            pointerPre._group = group;
+                if (!cP) {
+                    g = newGroup(); for (Sq pPre = this; pPre != null;
+                                                 pPre = pPre.predecessor()) {
+                        if (!pPre.head().hasFixedNum()) {
+                            pPre._sequenceNum = 0; pPre._group = g;
                         }
                     }
                 }
                 if (this.predecessor() == null) {
                     this._group = -1;
                 }
-                boolean checkS = false;
-                for (Sq sPointer = next; sPointer != null;
-                     sPointer = sPointer.successor()) {
-                    if (sPointer.hasFixedNum()) {
-                        checkS = true;
+                for (Sq sP = next; sP != null; sP = sP.successor()) {
+                    if (sP.hasFixedNum()) {
+                        cS = true;
                     }
                 }
-                if (!checkS) {
-                    boolean fixed = false;
-                    for (Sq checkFixedPointer = next; checkFixedPointer != null;
-                         checkFixedPointer = checkFixedPointer.successor()) {
-                        if (checkFixedPointer.hasFixedNum()) {
-                            fixed = true;
+                if (!cS) {
+                    for (Sq chP = next; chP != null; chP = chP.successor()) {
+                        if (chP.hasFixedNum()) {
+                            fx = true;
                         }
                     }
-                    if (!fixed) {
-                        int group = newGroup();
-                        for (Sq pointerSuc = next; pointerSuc != null;
-                             pointerSuc = pointerSuc.successor()) {
-                            pointerSuc._sequenceNum = 0;
-                            pointerSuc._group = group;
+                    if (!fx) {
+                        g = newGroup(); for (s = next; s != null; s = sa) {
+                            s._sequenceNum = 0; s._group = g;
                         }
                     }
                 }
