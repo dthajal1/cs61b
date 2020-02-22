@@ -30,7 +30,7 @@ public class TrReader extends Reader {
         if (len == 0) {
             return 0;
         }
-        for (int i = 0; i < cbuf.length; i += 1) {
+        for (int i = 0; i < len; i += 1) {
             int r = string.read();
             if (r != -1) {
                 char letter = (char) r;
