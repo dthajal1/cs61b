@@ -46,7 +46,7 @@ public class TrReader extends Reader {
                 counter += 1;
                 result += 1;
             } else {
-                return result;
+                return r;
             }
         }
         return result;
