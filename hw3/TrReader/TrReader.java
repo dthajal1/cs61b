@@ -28,10 +28,12 @@ public class TrReader extends Reader {
      *       reject this file, saying that you must declare TrReader
      *       abstract. Don't do that; define the right methods instead!
      */
-    public int read​(char[] c, int start, int len) throws IOException {
+
+    @Override
+    public int read(char[] cbuf, int off, int len) throws IOException {
         int result = 0;
-        int counter = start;
-        for (int i = 0; i < (start + len); i += 1) {
+        int counter = off;
+        for (int i = 0; i < (off + len); i += 1) {
             int r = string.read();
             if (r != -1) {
                 char letter = (char) r;
@@ -41,7 +43,7 @@ public class TrReader extends Reader {
                         break;
                     }
                 }
-                c[counter] = letter;
+                cbuf[counter] = letter;
                 result += 1;
                 counter += 1;
             } else {
