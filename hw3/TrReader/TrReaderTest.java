@@ -34,7 +34,10 @@ public class TrReaderTest {
         String t = Translate.translate(s, from, to);
 
         assertEquals(result, t);
+    }
 
+    @Test
+    public void testTrReader() {
 
     }
 
