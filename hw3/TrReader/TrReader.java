@@ -41,10 +41,10 @@ public class TrReader extends Reader {
                             break;
                         }
                     }
-                    result += 1;
                 }
                 cbuf[counter] = letter;
                 counter += 1;
+                result += 1;
             } else {
                 return result;
             }
