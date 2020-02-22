@@ -26,25 +26,26 @@ public class TrReader extends Reader {
     @Override
     public int read(char[] cbuf, int off, int len) throws IOException {
         int result = 0;
-        int counter = 0;
+        int counter = off;
         if (len == 0) {
             return 0;
         }
-        for (int i = 0; i < (off + len); i += 1) {
+        for (int i = 0; i < cbuf.length; i += 1) {
             int r = string.read();
             if (r != -1) {
                 char letter = (char) r;
-                if (i >= off) {
+                if (i >= off && len > 0) {
                     for (int a = 0; a < FROM.length(); a += 1) {
                         if (FROM.charAt(a) == letter) {
                             letter = TO.charAt(a);
                             break;
                         }
                     }
+                    len -=1;
+                    cbuf[counter] = letter;
+                    counter += 1;
+                    result += 1;
                 }
-                cbuf[counter] = letter;
-                counter += 1;
-                result += 1;
             } else {
                 return r;
             }
