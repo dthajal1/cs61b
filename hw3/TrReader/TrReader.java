@@ -32,19 +32,20 @@ public class TrReader extends Reader {
         }
         for (int i = 0; i < (off + len); i += 1) {
             int r = string.read();
-            if (r != -1) {
-                char letter = (char) r;
-                for (int a = 0; a < FROM.length(); a += 1) {
-                    if (FROM.charAt(a) == letter) {
-                        letter = TO.charAt(a);
-                        break;
+            if (i == off) {
+                if (r != -1) {
+                    char letter = (char) r;
+                    for (int a = 0; a < FROM.length(); a += 1) {
+                        if (FROM.charAt(a) == letter) {
+                            letter = TO.charAt(a);
+                            break;
+                        }
                     }
-                }
-                cbuf[counter] = letter;
-                result += 1;
-                counter += 1;
+                    cbuf[counter] = letter;
+                    result += 1;
+                    counter += 1;
+                } return result;
             } else {
-                return result;
             }
         }
         return result;
