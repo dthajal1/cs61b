@@ -41,8 +41,9 @@ public class TrReader extends Reader {
                             break;
                         }
                     }
-                    len -=1;
-                    cbuf[counter] = letter;
+                    if (counter < cbuf.length) {
+                        cbuf[counter] = letter;
+                    }
                     counter += 1;
                     result += 1;
 
