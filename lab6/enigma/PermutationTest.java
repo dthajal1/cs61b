@@ -90,17 +90,20 @@ public abstract class PermutationTest {
         assertEquals('C', p.permute(1));
     }
 
+    @Test
     public void testSize() {
         Alphabet alpha = getNewAlphabet("ABCD");
         assertEquals(4, alpha.size());
     }
 
+    @Test
     public void testInvert() {
         Permutation per = getNewPermutation("(DARBC)", getNewAlphabet("ABCDR"));
         assertEquals('B', per.invert('C'));
         assertEquals('A', per.invert(2));
     }
 
+    @Test
     public void testCheckSperm() {
         Alphabet alpha = getNewAlphabet("ABCDEFGH");
         Permutation perm = getNewPermutation("(IBC) (JEF) (KH)", alpha);
