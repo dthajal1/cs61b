@@ -101,4 +101,14 @@ public abstract class PermutationTest {
         assertEquals('A', per.invert(2));
     }
 
+    public void testCheckSperm() {
+        Alphabet alpha = getNewAlphabet("ABCDEFGH");
+        Permutation perm = getNewPermutation("(IBC) (JEF) (KH)", alpha);
+        String fromAlpha = "IJK";
+        String toAlpha = "ADG";
+        checkPerm("abc", fromAlpha, toAlpha, perm, alpha);
+        Permutation afterCheck = getNewPermutation("(ABC) (DEF) (GH)", alpha);
+        assertEquals(perm, afterCheck);
+    }
+
 }
