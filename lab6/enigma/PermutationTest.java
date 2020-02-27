@@ -14,7 +14,7 @@ import static enigma.TestUtils.*;
  * this class concrete by removing the 4 abstract keywords and implementing the
  * 3 abstract methods.
  *
- *  @author
+ *  @author Diraj Thajali
  */
 public abstract class PermutationTest {
 
@@ -83,4 +83,22 @@ public abstract class PermutationTest {
     }
 
     // FIXME: Add tests here that pass on a correct Permutation and fail on buggy Permutations.
+    @Test
+    public void testPermute() {
+        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
+        assertEquals('A', p.permute('B'));
+        assertEquals('C', p.permute(1));
+    }
+
+    public void testSize() {
+        Alphabet alpha = getNewAlphabet("ABCD");
+        assertEquals(4, alpha.size());
+    }
+
+    public void testInvert() {
+        Permutation per = getNewPermutation("(DARBC)", getNewAlphabet("ABCDR"));
+        assertEquals('B', per.invert('C'));
+        assertEquals('A', per.invert(2));
+    }
+
 }
