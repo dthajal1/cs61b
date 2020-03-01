@@ -85,10 +85,9 @@ public abstract class PermutationTest {
     // FIXME: Add tests here that pass on a correct Permutation and fail on buggy Permutations.
     @Test
     public void testPermute() {
-        Permutation p = getNewPermutation("(BA C D) ( E FG)", getNewAlphabet("ABCDEFG"));
+        Permutation p = getNewPermutation("(BACD)      (EFG)", getNewAlphabet("ABCDEFG"));
         assertEquals('A', p.permute('B'));
         assertEquals('C', p.permute(0));
-        assertEquals('E', p.permute(-1));
 
     }
 
