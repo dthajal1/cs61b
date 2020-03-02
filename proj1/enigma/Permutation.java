@@ -1,12 +1,24 @@
 package enigma;
 
+import javax.swing.plaf.IconUIResource;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import static enigma.EnigmaException.*;
 
 /** Represents a permutation of a range of integers starting at 0 corresponding
  *  to the characters of an alphabet.
- *  @author
+ *  @author Diraj Thajali
  */
 class Permutation {
+    public static void main(String[] args) {
+        Permutation a = new Permutation("(ABC) (DE)", new Alphabet("ABCDE"));
+        System.out.println(a);
+        Alphabet b = new Alphabet("ABCDE");
+        int c = b.size();
+        System.out.println(c);
+
+    }
 
     /** Set this Permutation to that specified by CYCLES, a string in the
      *  form "(cccc) (cc) ..." where the c's are characters in ALPHABET, which
@@ -15,13 +27,33 @@ class Permutation {
      *  Whitespace is ignored. */
     Permutation(String cycles, Alphabet alphabet) {
         _alphabet = alphabet;
-        // FIXME
+        String temp = "";
+        for (int i = 0; i < cycles.length(); i += 1) {
+            if (Character.isWhitespace(cycles.charAt(i))) {
+                continue;
+            } else if (cycles.charAt(i) == '(') {
+                addCycle(temp);
+                temp += cycles.charAt(i);
+            } else if (cycles.charAt(i) == ')') {
+                temp += cycles.charAt(i);
+                addCycle(temp);
+                temp = "";
+            } else {
+                temp += cycles.charAt(i);
+            }
+        }
     }
 
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
      *  c0c1...cm. */
     private void addCycle(String cycle) {
-        // FIXME
+        for (int i = 1; i < cycle.length() - 1; i += 1) {
+            if (i == cycle.length() - 2) {
+                _cycles.put(cycle.charAt(i), cycle.charAt(1));
+            } else {
+                _cycles.put(cycle.charAt(i), cycle.charAt(i + 1));
+            }
+        }
     }
 
     /** Return the value of P modulo the size of this permutation. */
@@ -35,13 +67,13 @@ class Permutation {
 
     /** Returns the size of the alphabet I permute. */
     int size() {
-        return 0; // FIXME
+        return _alphabet.size();
     }
 
     /** Return the result of applying this permutation to P modulo the
      *  alphabet size. */
     int permute(int p) {
-        return 0;  // FIXME
+        return p + 1;  // FIXME
     }
 
     /** Return the result of applying the inverse of this permutation
@@ -74,6 +106,9 @@ class Permutation {
 
     /** Alphabet of this permutation. */
     private Alphabet _alphabet;
+
+    /** Cycles of this permutation. */
+    private HashMap<Character, Character> _cycles = new HashMap<Character, Character>();
 
     // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
 }
