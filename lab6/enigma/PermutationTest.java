@@ -82,7 +82,6 @@ public abstract class PermutationTest {
         checkPerm("identity", UPPER_STRING, UPPER_STRING, perm, alpha);
     }
 
-    // FIXME: Add tests here that pass on a correct Permutation and fail on buggy Permutations.
     @Test
     public void testPermute() {
         Permutation p = getNewPermutation("(BACD)(EFG)(I)", getNewAlphabet("ABCDEFGHI"));
@@ -96,12 +95,15 @@ public abstract class PermutationTest {
         assertEquals(4, p.permute(6));
         assertEquals(7, p.permute(7));
         assertEquals(8, p.permute(8));
+        assertEquals( 0, p.permute(11));
     }
 
     @Test
     public void testSize() {
         Alphabet alpha = getNewAlphabet("ABCD");
         assertEquals(4, alpha.size());
+        Alphabet a = getNewAlphabet(" ");
+        assertEquals(0, a.size());
     }
 
     @Test
@@ -116,6 +118,7 @@ public abstract class PermutationTest {
         assertEquals(5, per.invert(5));
         assertEquals(5, per.invert(6));
         assertEquals(4, per.invert(1));
+        assertEquals(5, per.invert(12));
     }
 
     @Test
