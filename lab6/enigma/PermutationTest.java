@@ -85,11 +85,15 @@ public abstract class PermutationTest {
     // FIXME: Add tests here that pass on a correct Permutation and fail on buggy Permutations.
     @Test
     public void testPermute() {
-        Permutation p = getNewPermutation("(BACD)(EFG)", getNewAlphabet("ABCDEFG"));
+        Permutation p = getNewPermutation("(BACD)(EFG)(I)", getNewAlphabet("ABCDEFGH       I"));
         assertEquals('A', p.permute('B'));
         assertEquals('B', p.permute('D'));
+        assertEquals('H', p.permute('H'));
+        assertEquals('I', p.permute('I'));
         assertEquals('C', p.permute(0));
         assertEquals('E', p.permute(6));
+        assertEquals('H', p.permute(7));
+        assertEquals('I', p.permute(8));
     }
 
     @Test
@@ -100,9 +104,14 @@ public abstract class PermutationTest {
 
     @Test
     public void testInvert() {
-        Permutation per = getNewPermutation("(DARBC)", getNewAlphabet("ABCDR"));
+        Permutation per = getNewPermutation("(DARBC)  (J)", getNewAlphabet("ABCDRF    J"));
         assertEquals('B', per.invert('C'));
-        assertEquals('A', per.invert(2));
+        assertEquals('C', per.invert('D'));
+        assertEquals('F', per.invert('F'));
+        assertEquals('J', per.invert('J'));
+        assertEquals('B', per.invert(2));
+        assertEquals('F', per.invert(5));
+        assertEquals('J', per.permute(6));
     }
 
     @Test
