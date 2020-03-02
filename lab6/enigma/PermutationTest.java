@@ -116,7 +116,7 @@ public abstract class PermutationTest {
         assertEquals('A', per.invert('R'));
         assertEquals(1, per.invert(2));
         assertEquals(5, per.invert(5));
-        assertEquals(5, per.invert(6));
+        assertEquals(6, per.invert(6));
         assertEquals(4, per.invert(1));
         assertEquals(6, per.invert(12));
         assertEquals(4, per.invert(8));
