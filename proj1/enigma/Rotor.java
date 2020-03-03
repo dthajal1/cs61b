@@ -3,7 +3,7 @@ package enigma;
 import static enigma.EnigmaException.*;
 
 /** Superclass that represents a rotor in the enigma machine.
- *  @author
+ *  @author Diraj Thajali
  */
 class Rotor {
 
@@ -11,7 +11,7 @@ class Rotor {
     Rotor(String name, Permutation perm) {
         _name = name;
         _permutation = perm;
-        // FIXME
+        _setting = 0;
     }
 
     /** Return my name. */
@@ -46,29 +46,35 @@ class Rotor {
 
     /** Return my current setting. */
     int setting() {
-        return 0; // FIXME
+        return _setting;
     }
 
     /** Set setting() to POSN.  */
     void set(int posn) {
-        // FIXME
+        _setting = posn % alphabet().size();
     }
 
     /** Set setting() to character CPOSN. */
     void set(char cposn) {
-        // FIXME
+        _setting = permutation().alphabet().toInt(cposn) % alphabet().size();
     }
 
     /** Return the conversion of P (an integer in the range 0..size()-1)
      *  according to my permutation. */
     int convertForward(int p) {
-        return 0;  // FIXME
+        int entersAt = permutation().wrap(p + _setting);
+        char permutesTo = permutation().permute(permutation().alphabet().toChar(entersAt));
+        int exitsAt = permutation().wrap(permutation().alphabet().toInt(permutesTo) - _setting);
+        return exitsAt;
     }
 
     /** Return the conversion of E (an integer in the range 0..size()-1)
      *  according to the inverse of my permutation. */
     int convertBackward(int e) {
-        return 0;  // FIXME
+        int entersAt = permutation().wrap(e + _setting);
+        char invertsTo = permutation().invert(permutation().alphabet().toChar(entersAt));
+        int exitsAt = permutation().wrap(permutation().alphabet().toInt(invertsTo) - _setting);
+        return exitsAt;
     }
 
     /** Returns true iff I am positioned to allow the rotor to my left
@@ -91,6 +97,9 @@ class Rotor {
 
     /** The permutation implemented by this rotor in its 0 position. */
     private Permutation _permutation;
+
+    /** The current setting of this rotor. */
+    private int _setting;
 
     // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
 

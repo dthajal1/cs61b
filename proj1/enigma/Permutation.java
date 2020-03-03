@@ -1,8 +1,7 @@
 package enigma;
 
-import javax.swing.plaf.IconUIResource;
-import java.util.ArrayList;
 import java.util.HashMap;
+
 
 import static enigma.EnigmaException.*;
 
@@ -12,11 +11,14 @@ import static enigma.EnigmaException.*;
  */
 class Permutation {
     public static void main(String[] args) {
-        Permutation a = new Permutation("(ABC) (DE)", new Alphabet("ABCDE"));
-        System.out.println(a);
-        Alphabet b = new Alphabet("ABCDE");
-        int c = b.size();
-        System.out.println(c);
+        Permutation a = new Permutation("(ABC) (DE)", new Alphabet("ABCDEGHI"));
+//        System.out.println(a);
+//        Alphabet b = new Alphabet("ABCDE");
+//        int c = b.size();
+//        System.out.println(c);
+//        System.out.println(InvertedHashMap);
+//        System.out.println(permutedHasMap);
+
 
     }
 
@@ -27,6 +29,9 @@ class Permutation {
      *  Whitespace is ignored. */
     Permutation(String cycles, Alphabet alphabet) {
         _alphabet = alphabet;
+        if (cycles == "") {
+            addCycle("");
+        }
         String temp = "";
         for (int i = 0; i < cycles.length(); i += 1) {
             if (Character.isWhitespace(cycles.charAt(i))) {
@@ -42,6 +47,7 @@ class Permutation {
                 temp += cycles.charAt(i);
             }
         }
+        setPermuteHashMap();
     }
 
     /** Add the cycle c0->c1->...->cm->c0 to the permutation, where CYCLE is
@@ -49,9 +55,14 @@ class Permutation {
     private void addCycle(String cycle) {
         for (int i = 1; i < cycle.length() - 1; i += 1) {
             if (i == cycle.length() - 2) {
-                _cycles.put(cycle.charAt(i), cycle.charAt(1));
+                permutedHasMap.put(cycle.charAt(i), cycle.charAt(1));
             } else {
-                _cycles.put(cycle.charAt(i), cycle.charAt(i + 1));
+                permutedHasMap.put(cycle.charAt(i), cycle.charAt(i + 1));
+            }
+        }
+        for (int i = 0; i < _alphabet.size(); i += 1) {
+            if (!permutedHasMap.containsKey(_alphabet.toChar(i))) {
+                permutedHasMap.put(_alphabet.toChar(i), _alphabet.toChar(i));
             }
         }
     }
@@ -73,24 +84,30 @@ class Permutation {
     /** Return the result of applying this permutation to P modulo the
      *  alphabet size. */
     int permute(int p) {
-        return p + 1;  // FIXME
+        char letter = _alphabet.toChar(wrap(p));
+        char permutesTO = permutedHasMap.get(letter);
+        int permutedIndex = _alphabet.toInt(permutesTO);
+        return permutedIndex;
     }
 
     /** Return the result of applying the inverse of this permutation
      *  to  C modulo the alphabet size. */
     int invert(int c) {
-        return 0;  // FIXME
+        char letter = _alphabet.toChar(wrap(c));
+        char invertsTo = invertedHashMap.get(letter);
+        int invertedIndex = _alphabet.toInt(invertsTo);
+        return invertedIndex;
     }
 
     /** Return the result of applying this permutation to the index of P
      *  in ALPHABET, and converting the result to a character of ALPHABET. */
     char permute(char p) {
-        return 0;  // FIXME
+        return permutedHasMap.get(p);
     }
 
     /** Return the result of applying the inverse of this permutation to C. */
     char invert(char c) {
-        return 0;  // FIXME
+        return invertedHashMap.get(c);
     }
 
     /** Return the alphabet used to initialize this Permutation. */
@@ -101,14 +118,28 @@ class Permutation {
     /** Return true iff this permutation is a derangement (i.e., a
      *  permutation for which no value maps to itself). */
     boolean derangement() {
-        return true;  // FIXME
+        for (char i: permutedHasMap.keySet()) {
+            if (i == permutedHasMap.get(i)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** Alphabet of this permutation. */
     private Alphabet _alphabet;
 
-    /** Cycles of this permutation. */
-    private HashMap<Character, Character> _cycles = new HashMap<Character, Character>();
+    /** Dictionary containing what each letters permutes to. */
+    private HashMap<Character, Character> permutedHasMap = new HashMap<Character, Character>();
 
-    // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
+    /** Dictionary containing what each letters inverts to. */
+    private HashMap<Character, Character> invertedHashMap = new HashMap<Character, Character>();
+
+    /** Reverses keys and values from permutedHashMap and puts it in a new HashMap,
+     * InvertedHashMap. */
+    void setPermuteHashMap() {
+        for (char i : permutedHasMap.keySet()) {
+            invertedHashMap.put(permutedHasMap.get(i), i);
+        }
+    }
 }

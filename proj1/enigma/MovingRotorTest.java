@@ -10,7 +10,7 @@ import java.util.HashMap;
 import static enigma.TestUtils.*;
 
 /** The suite of all JUnit tests for the Permutation class.
- *  @author
+ *  @author Diraj Thajali
  */
 public class MovingRotorTest {
 
@@ -70,5 +70,63 @@ public class MovingRotorTest {
         rotor.set(25);
         checkRotor("Rotor I set", UPPER_STRING, NAVALZ_MAP.get("I"));
     }
+
+    @Test
+    public void checkMovingRotor() {
+        Alphabet al = new Alphabet("ABCDEFGH");
+        Permutation p = new Permutation("(ABC) (DEF) (GH)", al);
+        MovingRotor a = new MovingRotor("I am a Moving Rotor!", p, "C");
+        assertEquals(6, a.convertForward(7));
+        assertEquals(0, a.convertBackward(1));
+        a.advance();
+        assertEquals(0, a.convertForward(7));
+        assertEquals(0, a.convertBackward(1));
+        assertFalse(a.atNotch());
+        a.advance();
+        assertTrue(a.atNotch());
+        a.advance();
+        assertFalse(a.atNotch());
+        assertTrue(a.rotates());
+        a.set('H');
+        a.advance();
+        a.advance();
+        assertFalse(a.atNotch());
+        a.advance();
+        assertTrue(a.atNotch());
+        a.set(2);
+        assertTrue(a.atNotch());
+        assertFalse(a.reflecting());
+        assertEquals(2, a.convertForward(1));
+        assertEquals(3, a.convertBackward(1));
+        assertEquals(7, a.convertBackward(0));
+    }
+
+    @Test
+    public void checkFixedRotor() {
+        Alphabet al = new Alphabet("ABCDEF");
+        Permutation p = new Permutation("(ABC) (DE) (F)", al);
+        FixedRotor a = new FixedRotor("I am a Fixed Rotor!", p);
+        assertFalse(a.rotates());
+        assertFalse(a.reflecting());
+        a.advance();
+        assertFalse(a.atNotch());
+        assertEquals(1, a.convertForward(0));
+        assertEquals(0, a.convertBackward(7));
+    }
+
+    @Test
+    public void checkReflector() {
+        Alphabet al = new Alphabet("ABCDEF");
+        Permutation p = new Permutation("(ABCD) (EF)", al);
+        Reflector a = new Reflector("I am a Reflector!", p);
+        assertFalse(a.rotates());
+        assertTrue(a.reflecting());
+
+    }
+//    @Test(expected = EnigmaException.class)
+//    public void testNotInAlphabet() {
+//        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
+//        p.invert('F');
+//    }
 
 }
