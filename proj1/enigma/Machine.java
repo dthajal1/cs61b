@@ -1,6 +1,5 @@
 package enigma;
 
-import java.util.HashMap;
 import java.util.Collection;
 
 import static enigma.EnigmaException.*;
@@ -16,17 +15,19 @@ class Machine {
     Machine(Alphabet alpha, int numRotors, int pawls,
             Collection<Rotor> allRotors) {
         _alphabet = alpha;
-        // FIXME
+        _numRotors = numRotors;
+        _numPawls = pawls;
+        _allRotors = allRotors;
     }
 
     /** Return the number of rotor slots I have. */
     int numRotors() {
-        return 0; // FIXME
+        return _numRotors;
     }
 
     /** Return the number pawls (and thus rotating rotors) I have. */
     int numPawls() {
-        return 0; // FIXME
+        return _numPawls;
     }
 
     /** Set my rotor slots to the rotors named ROTORS from my set of
@@ -34,12 +35,19 @@ class Machine {
      *  Initially, all rotors are set at their 0 setting. */
     void insertRotors(String[] rotors) {
         // FIXME
+//        for (int i = 0; i < rotors.length; i += 1) {
+//            _allRotors.iterator().next().name() = rotors[i];
+//        }
     }
 
     /** Set my rotors according to SETTING, which must be a string of
      *  numRotors()-1 characters in my alphabet. The first letter refers
      *  to the leftmost rotor setting (not counting the reflector).  */
     void setRotors(String setting) {
+        _allRotors.iterator().next();
+        for (int i = 1; i < _allRotors.size(); i += 1) {
+            setting += _allRotors.iterator().next().setting();
+        }
         // FIXME
     }
 
@@ -64,6 +72,15 @@ class Machine {
 
     /** Common alphabet of my rotors. */
     private final Alphabet _alphabet;
+
+    /** Numbers of Rotors. */
+    private final int _numRotors;
+
+    /** Number of Pawls. */
+    private final int _numPawls;
+
+    /** Collection of Rotors. */
+    private final Collection<Rotor> _allRotors;
 
     // FIXME: ADDITIONAL FIELDS HERE, IF NEEDED.
 }
