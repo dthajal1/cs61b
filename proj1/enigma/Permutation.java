@@ -102,11 +102,17 @@ class Permutation {
     /** Return the result of applying this permutation to the index of P
      *  in ALPHABET, and converting the result to a character of ALPHABET. */
     char permute(char p) {
+        if (!_alphabet.contains(p)) {
+            throw EnigmaException.error("Character not in alphabet");
+        }
         return permutedHasMap.get(p);
     }
 
     /** Return the result of applying the inverse of this permutation to C. */
     char invert(char c) {
+        if (!_alphabet.contains(c)) {
+            throw EnigmaException.error("Character not in alphabet");
+        }
         return invertedHashMap.get(c);
     }
 

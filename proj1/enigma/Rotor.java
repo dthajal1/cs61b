@@ -103,4 +103,5 @@ class Rotor {
 
     // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
 
+    public boolean check = true;
 }

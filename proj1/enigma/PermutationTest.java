@@ -125,9 +125,13 @@ public class PermutationTest {
         Alphabet c = getNewAlphabet("ABCDEF");
         Permutation r = getNewPermutation("(ABC) (DE) (F)", c);
         assertEquals(false, r.derangement());
+    }
 
-
-
+    @Test(expected = EnigmaException.class)
+    public void test() {
+        Permutation p = getNewPermutation("(DARBC)  (J)", getNewAlphabet("ABCDRFJ"));
+        p.permute('H');
+        p.invert('I');
     }
 
 //    @Test

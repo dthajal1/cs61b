@@ -20,6 +20,11 @@ class Reflector extends FixedRotor {
     }
 
     @Override
+    void advance() {
+        throw EnigmaException.error("Reflector can not advance!");
+    }
+
+    @Override
     void set(int posn) {
         if (posn != 0) {
             throw error("reflector has only one position");

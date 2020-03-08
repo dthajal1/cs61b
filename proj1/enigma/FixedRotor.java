@@ -15,6 +15,6 @@ class FixedRotor extends Rotor {
 
     @Override
     void advance() {
-        set(this.setting() + 1);
+        throw EnigmaException.error("Fixed Rotors can't advance!");
     }
 }

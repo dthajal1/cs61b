@@ -1,10 +1,12 @@
 package enigma;
 
+import jdk.jshell.spi.ExecutionControl;
 import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
 import static org.junit.Assert.*;
 
+import java.awt.*;
 import java.util.HashMap;
 
 import static enigma.TestUtils.*;
@@ -101,6 +103,8 @@ public class MovingRotorTest {
         assertEquals(7, a.convertBackward(0));
     }
 
+    //Test for fixed rotor advance
+
     @Test
     public void checkFixedRotor() {
         Alphabet al = new Alphabet("ABCDEF");
@@ -108,10 +112,19 @@ public class MovingRotorTest {
         FixedRotor a = new FixedRotor("I am a Fixed Rotor!", p);
         assertFalse(a.rotates());
         assertFalse(a.reflecting());
-        a.advance();
-        assertFalse(a.atNotch());
         assertEquals(1, a.convertForward(0));
         assertEquals(0, a.convertBackward(7));
+    }
+
+    @Test(expected = EnigmaException.class)
+    public void test() {
+        Alphabet al = new Alphabet("ABCDEF");
+        Permutation p = new Permutation("(ABC) (DE) (F)", al);
+        FixedRotor a = new FixedRotor("I am a Fixed Rotor!", p);
+        a.advance();
+        Reflector r = new Reflector("I am a Reflector!", p);
+        r.advance();
+        a.set(2);
     }
 
     @Test
@@ -121,6 +134,8 @@ public class MovingRotorTest {
         Reflector a = new Reflector("I am a Reflector!", p);
         assertFalse(a.rotates());
         assertTrue(a.reflecting());
+        a.set(0);
+
 
     }
 //    @Test(expected = EnigmaException.class)
