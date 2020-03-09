@@ -5,10 +5,13 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import static enigma.EnigmaException.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Enigma simulator.
  *  @author Diraj Thajali
@@ -77,16 +80,62 @@ public final class Main {
      *  file _config and apply it to the messages in _input, sending the
      *  results to _output. */
     private void process() {
-        // FIXME
+        machine = readConfig();
+        if (!_input.hasNext("\\*")) {
+            throw EnigmaException.error("Invalid format in inputted configuration");
+        } else {
+            while (_input.hasNextLine() && _input.hasNext("\\*")) {
+                String readLine = _input.nextLine();
+                if (readLine.isEmpty()) {
+                    printMessageLine("");
+                } else {
+                    String[] lineWithoutSpace = readLine.replaceAll("\\s", ",").split(",");
+                    String[] rotorsTobeSet = new String[machine.numRotors()];
+                    int counter = 0;
+                    String setting = "";
+                    String plugboard = "";
+                    for (String s: lineWithoutSpace) {
+                        if (!s.equals("")) {
+                            if (counter <= machine.numRotors()) {
+                                if (counter == 0) {
+                                    counter += 1;
+                                } else {
+                                    rotorsTobeSet[counter - 1] = s;
+                                    counter += 1;
+                                }
+                            } else if (counter == machine.numRotors() + 1) {
+                                setting += s;
+                                counter += 1;
+                            } else if (counter > machine.numRotors() + 1) {
+                                plugboard += s;
+                                counter += 1;
+                            }
+                        }
+                    }
+                    machine.insertRotors(rotorsTobeSet);
+                    machine.setRotors(setting);
+                    machine.setPlugboard(new Permutation(plugboard, _alphabet));
+
+                    while (_input.hasNextLine() && !_input.hasNext("\\*")) {
+                        printMessageLine(machine.convert(_input.nextLine()));
+                    }
+                }
+            }
+        }
     }
 
     /** Return an Enigma machine configured from the contents of configuration
      *  file _config. */
     private Machine readConfig() {
         try {
-            // FIXME
-            _alphabet = new Alphabet();
-            return new Machine(_alphabet, 2, 1, null);
+            _alphabet = new Alphabet(_config.next());
+            numRotors = _config.nextInt();
+            pawls = _config.nextInt();
+            Collection<Rotor> rotors = new ArrayList<Rotor>();
+            while (_config.hasNextLine() & !temp.equals("@")) {
+                rotors.add(readRotor());
+            }
+            return new Machine(_alphabet, numRotors, pawls, rotors);
         } catch (NoSuchElementException excp) {
             throw error("configuration file truncated");
         }
@@ -95,7 +144,37 @@ public final class Main {
     /** Return a rotor, reading its description from _config. */
     private Rotor readRotor() {
         try {
-            return null; // FIXME
+            String name;
+            if (temp.equals("")) {
+                name = _config.next();
+            } else {
+                name = temp;
+                temp = "";
+            }
+            String typeAndNotches = _config.next();
+            String cycles = "";
+            String toAdd = _config.next();
+            Pattern pattern = Pattern.compile("\\([\\S]+\\)");
+            Matcher matcher = pattern.matcher(toAdd);
+            while (matcher.lookingAt() && _config.hasNext()) {
+                cycles += toAdd;
+                toAdd = _config.next();
+                matcher = pattern.matcher(toAdd);
+            }
+            temp = toAdd;
+
+            if (matcher.lookingAt()) {
+                cycles += toAdd;
+                temp = "@";
+            }
+
+            if (typeAndNotches.charAt(0) == 'M') {
+                return new MovingRotor(name, new Permutation(cycles, _alphabet), typeAndNotches.substring(1));
+            } else if (typeAndNotches.charAt(0) == 'N') {
+                return new FixedRotor(name, new Permutation(cycles, _alphabet));
+            } else {
+                return new Reflector(name, new Permutation(cycles, _alphabet));
+            }
         } catch (NoSuchElementException excp) {
             throw error("bad rotor description");
         }
@@ -104,13 +183,13 @@ public final class Main {
     /** Set M according to the specification given on SETTINGS,
      *  which must have the format specified in the assignment. */
     private void setUp(Machine M, String settings) {
-        // FIXME
+        M.setRotors(settings);
     }
 
     /** Print MSG in groups of five (except that the last group may
      *  have fewer letters). */
     private void printMessageLine(String msg) {
-        // FIXME
+        _output.println(msg);
     }
 
     /** Alphabet used in this machine. */
@@ -124,4 +203,14 @@ public final class Main {
 
     /** File for encoded/decoded messages. */
     private PrintStream _output;
+
+    private int numRotors;
+
+    private int pawls;
+
+    public String temp = "";
+
+    public Machine machine;
+
+
 }

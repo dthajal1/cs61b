@@ -5,8 +5,6 @@ import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
 import static org.junit.Assert.*;
-
-import java.awt.*;
 import java.util.HashMap;
 
 import static enigma.TestUtils.*;
@@ -135,13 +133,11 @@ public class MovingRotorTest {
         assertFalse(a.rotates());
         assertTrue(a.reflecting());
         a.set(0);
-
-
     }
-//    @Test(expected = EnigmaException.class)
-//    public void testNotInAlphabet() {
-//        Permutation p = getNewPermutation("(BACD)", getNewAlphabet("ABCD"));
-//        p.invert('F');
-//    }
+    @Test(expected = EnigmaException.class)
+    public void testNotInAlphabet() {
+        Permutation p = new Permutation("(BACD)", new Alphabet("ABCD"));
+        p.invert('F');
+    }
 
 }
