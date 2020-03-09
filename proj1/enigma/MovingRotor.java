@@ -37,8 +37,7 @@ class MovingRotor extends Rotor {
         set(this.setting() + 1);
     }
 
-
+    /** Notches of this MovingRotor. */
     private String _notches;
-    // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
 
 }

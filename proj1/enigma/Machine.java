@@ -2,7 +2,6 @@ package enigma;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import static enigma.EnigmaException.*;
 
@@ -37,27 +36,34 @@ class Machine {
      *  Initially, all rotors are set at their 0 setting. */
     void insertRotors(String[] rotors) {
         allRotorsName();
-        ArrayList<String> arrangedRotors = new ArrayList<>();
-        for (int i = 0; i < rotors.length; i += 1) {
-            for (Rotor a : _allRotors) {
-                if (!allAvailableRotorsName.contains(rotors[i])) {
-                    throw EnigmaException.error("Bad Rotor Name");
-                } else if (a.name().equals(rotors[i]) & a.reflecting()) {
-                    arrangedRotors.add(0, rotors[i]);
-                } else if (a.name().equals(rotors[i]) & !a.rotates() & !a.reflecting()) {
-                    arrangedRotors.add(1, rotors[i]);
-                }
-            }
-        }
+        boolean check = true;
         for (int i = 0; i < rotors.length; i += 1) {
             for (Rotor j : _allRotors) {
-                if (arrangedRotors.get(i).equals(j.name())) {
+                if (!allAvailableRotorsName.contains(rotors[i])) {
+                    throw EnigmaException.error("Bad Rotor Name");
+                } else if (i != 0 & j.name().equals(rotors[i])
+                        & j.reflecting()) {
+                    throw EnigmaException.error("Reflector in wrong place. ");
+                }
+                if (i > 0 & j.name().equals(rotors[i]) & j.rotates()) {
+                    check = false;
+                }
+                if (i > 0 & j.name().equals(rotors[i]) & !check & !j.rotates()
+                        & !j.reflecting()) {
+                    throw EnigmaException.error("Fixed rotor can't "
+                            + "be placed after moving rotors. ");
+                }
+                if (j.name().equals(rotors[i]) & _myRotors.contains(j)) {
+                    throw EnigmaException.error("Duplicate Rotor Name");
+                }
+                if (j.name().equals(rotors[i])) {
                     _myRotors.add(j);
                 }
             }
         }
     }
 
+    /** Puts only the name of rotors in _allRotors in allAvailableRotorsName. */
     void allRotorsName() {
         for (Rotor i : _allRotors) {
             allAvailableRotorsName.add(i.name());
@@ -69,9 +75,12 @@ class Machine {
      *  to the leftmost rotor setting (not counting the reflector).  */
     void setRotors(String setting) {
         if (setting.length() != _myRotors.size() - 1) {
-            throw EnigmaException.error("Wrong number of settings");
+            throw EnigmaException.error("Wrong number of settings. ");
         }
         for (int i = 0; i < setting.length(); i += 1) {
+            if (!_alphabet.contains(setting.charAt(i))) {
+                throw EnigmaException.error("Bad character in settings. ");
+            }
             _myRotors.get(i + 1).set(setting.charAt(i));
         }
     }
@@ -83,30 +92,33 @@ class Machine {
 
     /** Returns the result of converting the input character C (as an
      *  index in the range 0..alphabet size - 1), after first advancing
-
      *  the machine. */
     int convert(int c) {
         for (int i = 1; i < _myRotors.size(); i += 1) {
+            if (_myRotors.size() == 2) {
+                if (_myRotors.get(i).rotates()) {
+                    _myRotors.get(i).advance();
+                }
+            }
             if (_myRotors.get(i).rotates() & _myRotors.get(i - 1).rotates()) {
                 if (i == _myRotors.size() - 1 & _myRotors.get(i).atNotch()) {
                     _myRotors.get(i).advance();
-                    if (_myRotors.get(i - 1).check) {
+                    if (_myRotors.get(i - 1).getCheck()) {
                         _myRotors.get(i - 1).advance();
                     }
                 } else if (i == _myRotors.size() - 1) {
                     _myRotors.get(i).advance();
-                }
-                else if (_myRotors.get(i).atNotch()) {
+                } else if (_myRotors.get(i).atNotch()) {
                     _myRotors.get(i).advance();
-                    _myRotors.get(i).check = false;
-                    if (_myRotors.get(i - 1).check) {
+                    _myRotors.get(i).setCheck(false);
+                    if (_myRotors.get(i - 1).getCheck()) {
                         _myRotors.get(i - 1).advance();
                     }
                 }
             }
         }
         for (int i = 1; i < _myRotors.size(); i += 1) {
-            _myRotors.get(i).check = true;
+            _myRotors.get(i).setCheck(true);
         }
 
         int pluggedIn = _plugboard.permute(c);
@@ -130,7 +142,8 @@ class Machine {
                 tempResult += msg.charAt(i);
             }
             if (!Character.isWhitespace(msg.charAt(i))) {
-                String temp = Character.toString(_alphabet.toChar(convert(_alphabet.toInt(msg.charAt(i)))));
+                String temp = Character.toString(_alphabet.toChar
+                        (convert(_alphabet.toInt(msg.charAt(i)))));
                 tempResult += temp;
             }
         }
@@ -163,6 +176,16 @@ class Machine {
 
     /** Rotors to be used. */
     private ArrayList<Rotor> _myRotors = new ArrayList<Rotor>();
+
+    /** Resets my Rotors. */
+    public void resetMyRotors() {
+        _myRotors = new ArrayList<>();
+    }
+
+    /** Returns the size of _myRotors. */
+    public int myRotorsSize() {
+        return _myRotors.size();
+    }
 
     /** Plugboard permutation. ALl the letters in alphabet maps to
      * itself by default. */

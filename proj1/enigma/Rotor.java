@@ -63,8 +63,10 @@ class Rotor {
      *  according to my permutation. */
     int convertForward(int p) {
         int entersAt = permutation().wrap(p + _setting);
-        char permutesTo = permutation().permute(permutation().alphabet().toChar(entersAt));
-        int exitsAt = permutation().wrap(permutation().alphabet().toInt(permutesTo) - _setting);
+        char permutesTo = permutation().permute(permutation().
+                alphabet().toChar(entersAt));
+        int exitsAt = permutation().wrap(permutation().
+                alphabet().toInt(permutesTo) - _setting);
         return exitsAt;
     }
 
@@ -72,8 +74,10 @@ class Rotor {
      *  according to the inverse of my permutation. */
     int convertBackward(int e) {
         int entersAt = permutation().wrap(e + _setting);
-        char invertsTo = permutation().invert(permutation().alphabet().toChar(entersAt));
-        int exitsAt = permutation().wrap(permutation().alphabet().toInt(invertsTo) - _setting);
+        char invertsTo = permutation().invert(permutation().
+                alphabet().toChar(entersAt));
+        int exitsAt = permutation().wrap(permutation().
+                alphabet().toInt(invertsTo) - _setting);
         return exitsAt;
     }
 
@@ -101,7 +105,17 @@ class Rotor {
     /** The current setting of this rotor. */
     private int _setting;
 
-    // FIXME: ADDITIONAL FIELDS HERE, AS NEEDED
+    /** Variable to check if there are any FixedRotors after the
+     * MovingRotor. */
+    private boolean check = true;
 
-    public boolean check = true;
+    /** Returns check. */
+    boolean getCheck() {
+        return check;
+    }
+    /** @param bool
+     * Sets check. */
+    void setCheck(boolean bool) {
+        check = bool;
+    }
 }

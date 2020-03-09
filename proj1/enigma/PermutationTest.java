@@ -69,7 +69,8 @@ public class PermutationTest {
 
     @Test
     public void testPermute() {
-        Permutation p = getNewPermutation("(BACD)(EFG)(I)", getNewAlphabet("ABCDEFGHI"));
+        Permutation p = getNewPermutation("(BACD)(EFG)(I)",
+                getNewAlphabet("ABCDEFGHI"));
         assertEquals('A', p.permute('B'));
         assertEquals('B', p.permute('D'));
         assertEquals('H', p.permute('H'));
@@ -80,7 +81,7 @@ public class PermutationTest {
         assertEquals(4, p.permute(6));
         assertEquals(7, p.permute(7));
         assertEquals(8, p.permute(8));
-        assertEquals( 3, p.permute(11));
+        assertEquals(3, p.permute(11));
         assertEquals(8, p.permute(-1));
         assertEquals(7, p.permute(-2));
         assertEquals(5, p.permute(-5));
@@ -88,15 +89,16 @@ public class PermutationTest {
 
     @Test
     public void testSize() {
-        Alphabet alpha = getNewAlphabet("ABCD");
-        assertEquals(4, alpha.size());
+        Alphabet b = getNewAlphabet("ABCD");
+        assertEquals(4, b.size());
         Alphabet a = getNewAlphabet("");
         assertEquals(0, a.size());
     }
 
     @Test
     public void testInvert() {
-        Permutation per = getNewPermutation("(DARBC)  (J)", getNewAlphabet("ABCDRFJ"));
+        Permutation per = getNewPermutation("(DARBC)  (J)",
+                getNewAlphabet("ABCDRFJ"));
         assertEquals('B', per.invert('C'));
         assertEquals('C', per.invert('D'));
         assertEquals('F', per.invert('F'));
@@ -129,17 +131,9 @@ public class PermutationTest {
 
     @Test(expected = EnigmaException.class)
     public void test() {
-        Permutation p = getNewPermutation("(DARBC)  (J)", getNewAlphabet("ABCDRFJ"));
+        Permutation p = getNewPermutation("(DARBC)  (J)",
+                getNewAlphabet("ABCDRFJ"));
         p.permute('H');
         p.invert('I');
     }
-
-//    @Test
-//    public void testCheckPerm() {
-//        Alphabet alpha = getNewAlphabet("ABCD");
-//        Permutation perm = getNewPermutation("(AB) (CD)", alpha);
-//        checkPerm("abc", "ABCD", "BADC");
-//    }
-
-
 }

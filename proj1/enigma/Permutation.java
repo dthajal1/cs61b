@@ -10,17 +10,6 @@ import static enigma.EnigmaException.*;
  *  @author Diraj Thajali
  */
 class Permutation {
-    public static void main(String[] args) {
-        Permutation a = new Permutation("(ABC) (DE)", new Alphabet("ABCDEGHI"));
-//        System.out.println(a);
-//        Alphabet b = new Alphabet("ABCDE");
-//        int c = b.size();
-//        System.out.println(c);
-//        System.out.println(InvertedHashMap);
-//        System.out.println(permutedHasMap);
-
-
-    }
 
     /** Set this Permutation to that specified by CYCLES, a string in the
      *  form "(cccc) (cc) ..." where the c's are characters in ALPHABET, which
@@ -29,7 +18,7 @@ class Permutation {
      *  Whitespace is ignored. */
     Permutation(String cycles, Alphabet alphabet) {
         _alphabet = alphabet;
-        if (cycles == "") {
+        if (cycles.equals("")) {
             addCycle("");
         }
         String temp = "";
@@ -136,13 +125,15 @@ class Permutation {
     private Alphabet _alphabet;
 
     /** Dictionary containing what each letters permutes to. */
-    private HashMap<Character, Character> permutedHasMap = new HashMap<Character, Character>();
+    private HashMap<Character, Character> permutedHasMap =
+            new HashMap<Character, Character>();
 
     /** Dictionary containing what each letters inverts to. */
-    private HashMap<Character, Character> invertedHashMap = new HashMap<Character, Character>();
+    private HashMap<Character, Character> invertedHashMap =
+            new HashMap<Character, Character>();
 
-    /** Reverses keys and values from permutedHashMap and puts it in a new HashMap,
-     * InvertedHashMap. */
+    /** Reverses keys and values from permutedHashMap and
+     * puts it in a new HashMap, InvertedHashMap. */
     void setPermuteHashMap() {
         for (char i : permutedHasMap.keySet()) {
             invertedHashMap.put(permutedHasMap.get(i), i);

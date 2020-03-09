@@ -82,14 +82,16 @@ public final class Main {
     private void process() {
         machine = readConfig();
         if (!_input.hasNext("\\*")) {
-            throw EnigmaException.error("Invalid format in inputted configuration");
+            throw EnigmaException.error("Invalid format in "
+                    + "inputted configuration");
         } else {
             while (_input.hasNextLine() && _input.hasNext("\\*")) {
                 String readLine = _input.nextLine();
                 if (readLine.isEmpty()) {
                     printMessageLine("");
                 } else {
-                    String[] lineWithoutSpace = readLine.replaceAll("\\s", ",").split(",");
+                    String[] lineWithoutSpace = readLine.replaceAll("\\s", ",").
+                            split(",");
                     String[] rotorsTobeSet = new String[machine.numRotors()];
                     int counter = 0;
                     String setting = "";
@@ -112,8 +114,11 @@ public final class Main {
                             }
                         }
                     }
+                    if (machine.myRotorsSize() > 0) {
+                        machine.resetMyRotors();
+                    }
                     machine.insertRotors(rotorsTobeSet);
-                    machine.setRotors(setting);
+                    setUp(machine, setting);
                     machine.setPlugboard(new Permutation(plugboard, _alphabet));
 
                     while (_input.hasNextLine() && !_input.hasNext("\\*")) {
@@ -169,7 +174,8 @@ public final class Main {
             }
 
             if (typeAndNotches.charAt(0) == 'M') {
-                return new MovingRotor(name, new Permutation(cycles, _alphabet), typeAndNotches.substring(1));
+                return new MovingRotor(name, new Permutation(cycles, _alphabet),
+                        typeAndNotches.substring(1));
             } else if (typeAndNotches.charAt(0) == 'N') {
                 return new FixedRotor(name, new Permutation(cycles, _alphabet));
             } else {
@@ -204,13 +210,17 @@ public final class Main {
     /** File for encoded/decoded messages. */
     private PrintStream _output;
 
+    /** Number of Rotors in this machine .*/
     private int numRotors;
 
+    /** Number of Pawls in this machine .*/
     private int pawls;
 
-    public String temp = "";
+    /** Temporary string to hold the string read.*/
+    private String temp = "";
 
-    public Machine machine;
+    /** Enigma Machine.*/
+    private Machine machine;
 
 
 }

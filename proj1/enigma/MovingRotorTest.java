@@ -1,6 +1,5 @@
 package enigma;
 
-import jdk.jshell.spi.ExecutionControl;
 import org.junit.Test;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
@@ -100,8 +99,6 @@ public class MovingRotorTest {
         assertEquals(3, a.convertBackward(1));
         assertEquals(7, a.convertBackward(0));
     }
-
-    //Test for fixed rotor advance
 
     @Test
     public void checkFixedRotor() {
