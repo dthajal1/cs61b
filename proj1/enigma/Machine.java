@@ -105,6 +105,20 @@ class Machine {
         }
     }
 
+    /** Set @param ringSetting
+     * to the corresponding rotors. */
+    void setRingstellungSetting(String ringSetting) {
+        if (ringSetting.length() != _myRotors.size() - 1) {
+            throw EnigmaException.error("Wrong number of ringstellung. ");
+        }
+        for (int i = 0; i < ringSetting.length(); i += 1) {
+            if (!_alphabet.contains(ringSetting.charAt(i))) {
+                throw EnigmaException.error("Bad character in ringstellung. ");
+            }
+            _myRotors.get(i + 1).setRingstellung(ringSetting.charAt(i));
+        }
+    }
+
     /** Set the plugboard to PLUGBOARD. */
     void setPlugboard(Permutation plugboard) {
         _plugboard = plugboard;

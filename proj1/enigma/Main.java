@@ -96,6 +96,7 @@ public final class Main {
                     int counter = 0;
                     String setting = "";
                     String plugboard = "";
+                    String ringstellung = "";
                     for (String s: lineWithoutSpace) {
                         if (!s.equals("")) {
                             if (counter <= machine.numRotors()) {
@@ -108,6 +109,11 @@ public final class Main {
                             } else if (counter == machine.numRotors() + 1) {
                                 setting += s;
                                 counter += 1;
+                            } else if (counter == machine.numRotors() + 2
+                                    & s.length() == machine.numRotors() - 1
+                                    & checkCharInAlphabet(s.charAt(0))) {
+                                ringstellung += s;
+                                hasRingstellung = true;
                             } else if (counter > machine.numRotors() + 1) {
                                 plugboard += s;
                                 counter += 1;
@@ -118,6 +124,9 @@ public final class Main {
                         machine.resetMyRotors();
                     }
                     machine.insertRotors(rotorsTobeSet);
+                    if (hasRingstellung) {
+                        machine.setRingstellungSetting(ringstellung);
+                    }
                     setUp(machine, setting);
                     machine.setPlugboard(new Permutation(plugboard, _alphabet));
 
@@ -127,6 +136,12 @@ public final class Main {
                 }
             }
         }
+    }
+
+    /** @return boolean
+     * Check if @param ch is in _alphabet. */
+    boolean checkCharInAlphabet(char ch) {
+        return _alphabet.contains(ch);
     }
 
     /** Return an Enigma machine configured from the contents of configuration
@@ -218,6 +233,9 @@ public final class Main {
 
     /** Temporary string to hold the string read.*/
     private String temp = "";
+
+    /** Check if it has Ringstellung. */
+    private boolean hasRingstellung = false;
 
     /** Enigma Machine.*/
     private Machine machine;

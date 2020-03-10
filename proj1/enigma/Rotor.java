@@ -12,6 +12,7 @@ class Rotor {
         _name = name;
         _permutation = perm;
         _setting = 0;
+        ringstellung = 0;
     }
 
     /** Return my name. */
@@ -62,22 +63,22 @@ class Rotor {
     /** Return the conversion of P (an integer in the range 0..size()-1)
      *  according to my permutation. */
     int convertForward(int p) {
-        int entersAt = permutation().wrap(p + _setting);
+        int entersAt = permutation().wrap(p + _setting - ringstellung);
         char permutesTo = permutation().permute(permutation().
                 alphabet().toChar(entersAt));
         int exitsAt = permutation().wrap(permutation().
-                alphabet().toInt(permutesTo) - _setting);
+                alphabet().toInt(permutesTo) - _setting + ringstellung);
         return exitsAt;
     }
 
     /** Return the conversion of E (an integer in the range 0..size()-1)
      *  according to the inverse of my permutation. */
     int convertBackward(int e) {
-        int entersAt = permutation().wrap(e + _setting);
+        int entersAt = permutation().wrap(e + _setting - ringstellung);
         char invertsTo = permutation().invert(permutation().
                 alphabet().toChar(entersAt));
         int exitsAt = permutation().wrap(permutation().
-                alphabet().toInt(invertsTo) - _setting);
+                alphabet().toInt(invertsTo) - _setting + ringstellung);
         return exitsAt;
     }
 
@@ -113,9 +114,19 @@ class Rotor {
     boolean getCheck() {
         return check;
     }
+
     /** @param bool
      * Sets check. */
     void setCheck(boolean bool) {
         check = bool;
+    }
+
+    /** Ringstellung of this rotor. */
+    private int ringstellung;
+
+    /** Sets @param ring
+     * ringstellung to ring. */
+    void setRingstellung(char ring) {
+        ringstellung = alphabet().toInt(ring);
     }
 }
