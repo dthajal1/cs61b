@@ -61,6 +61,26 @@ class Machine {
                 }
             }
         }
+        checkRotorArgs();
+    }
+
+    /** Check if the Rotors arguments passed in are valid. If there are less or
+     * more numRotors than movingRotors, it throws an Exception. */
+    void checkRotorArgs() {
+        int reflect = 0; int fixed = 0; int moving = 0;
+        for (Rotor r : _myRotors) {
+            if (r.reflecting()) {
+                reflect += 1;
+            } else if (r.rotates()) {
+                moving += 1;
+            } else {
+                fixed += 1;
+            }
+        }
+        if (numPawls() != moving) {
+            throw EnigmaException.error("Number of pawls should"
+                    + " correspond to number of MovingRotors");
+        }
     }
 
     /** Puts only the name of rotors in _allRotors in allAvailableRotorsName. */
