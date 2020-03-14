@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Iterator;
 public class practice {
     public static void main(String[] args) {
-//        List<String> s;
+        //        List<String> s;
 //        s = new LinkedList<String>();
 //        s.add("j");
 //        s.add("aj");

@@ -151,10 +151,10 @@ class Machine {
                 }
             }
         }
+
         for (int i = 1; i < _myRotors.size(); i += 1) {
             _myRotors.get(i).setCheck(true);
         }
-
         int pluggedIn = _plugboard.permute(c);
         for (int i = _myRotors.size() - 1; i > 0; i -= 1) {
             pluggedIn = _myRotors.get(i).convertForward(pluggedIn);
