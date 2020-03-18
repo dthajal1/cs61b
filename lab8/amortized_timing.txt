@@ -1,20 +1,20 @@
 Q: Is one GrowList implementation always better than the others?
-A:
+A: Yes, GeomGrowList and JavaGrowList is always better than ArithGrowList.
 
 Q: Why is the runtime for N insertions into a geometrically resizing list a Theta(N) operation?
-A:
+A: Because we have to create a new list only if the size is full and because we double its size when it's full, we only have to create and copy the list few times compared to ArithGrowList.
 
 Q: Why is the runtime for N insertions into a arithmetically resizing list a Theta(N^2) operation?
-A:
+A: Because once the element is full, we have to make a new array and copy the elements over and also add an element to it every single time we add an element.
 
 Q: How does the runtime per operation for the ArithGrowList compare to that of GeomGrowList and JavaGrowList? Specifically look at the non-accumulated plots and desribe the trends for how long each operation takes as a function of how many elements have already been inserted in the list.
-A:
+A: For ArithGrowList, once the element is full, we have to make a new array and copy the elements over and also add an element to it every single time we add an element.
 
 Q: When are there spikes in the per operation runtime graphs for each of the implementations? Do these make sense to you? Hint: some of these should and others might not. Empirical runtime can be quite messy and depends on machine specifics which will be revealed in other subsequent classes like CS61C.
-A:
+A: I think the spikes are the numbers of times we had to make a new list and copy all the elements over.
 
 Q: Optional: Try changing the code for GeomGrowList to resize by a different factor. How does this effect the theoretical asymptotic runtime? How does this effect the plotted runtime?
-A:
+A: Changing different factor while resizing doesn't change the family curve of GeomList. This shows why we ignore constants when finding the asymptotic bounds.
 
 Q: Optional: Try changing the code for ArithGrowList to resize by adding a different fixed number of spots in the array. How does this effect the theoretical asymptotic runtime? How does this effect the plotted runtime?
-A:
+A: It doesn't change much either.
