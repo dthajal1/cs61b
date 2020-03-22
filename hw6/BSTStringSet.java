@@ -6,9 +6,9 @@ import java.util.Stack;
 
 /**
  * Implementation of a BST based String Set.
- * @author
+ * @author Diraj Thajali
  */
-public class BSTStringSet implements StringSet, Iterable<String> {
+public class BSTStringSet implements StringSet, SortedStringSet, Iterable<String> {
     /** Creates a new empty set. */
     public BSTStringSet() {
         _root = null;
@@ -16,17 +16,61 @@ public class BSTStringSet implements StringSet, Iterable<String> {
 
     @Override
     public void put(String s) {
-        // FIXME: PART A
+        _root = putHelper(_root, s);
+    }
+
+    /** Helper function for put. */
+    private Node putHelper(Node node, String st) {
+        if (node == null) {
+            node = new Node(st);
+            return node;
+        } else if (st.compareTo(node.s) == 0) {
+            node.s = st;
+            return node;
+        } else if (st.compareTo(node.s) < 0) {
+            node.left = putHelper(node.left, st);
+            return node;
+        } else if (st.compareTo(node.s) > 0) {
+            node.right = putHelper(node.right, st);
+            return node;
+        } else {
+            return null;
+        }
     }
 
     @Override
     public boolean contains(String s) {
-        return false; // FIXME: PART A
+        return containsHelper(_root, s);
+    }
+
+    /** Helper function for contains. */
+    private boolean containsHelper(Node node, String str) {
+        if (node == null) {
+            return false;
+        } else if (str.compareTo(node.s) == 0) {
+            return true;
+        } else if (str.compareTo(node.s) < 0) {
+            return containsHelper(node.left, str);
+        } else if (str.compareTo(node.s) > 0) {
+            return containsHelper(node.right, str);
+        } else {
+            return false;
+        }
     }
 
     @Override
     public List<String> asList() {
-        return null; // FIXME: PART A
+        return asListHelper(_root);
+    }
+
+    /** Helper function for asList. */
+    private List<String> asListHelper(Node node) {
+        List<String> result = new ArrayList<>();
+        BSTIterator it = new BSTIterator(node);
+        while (it.hasNext()) {
+            result.add(it.next());
+        }
+        return result;
     }
 
 
@@ -90,15 +134,85 @@ public class BSTStringSet implements StringSet, Iterable<String> {
         }
     }
 
+    /** An iterator over BSTs starting at low (inclusive) and ending
+     * at high (exclusive). */
+    private class BSTIteratorLowHigh extends BSTIterator implements Iterator<String> {
+        /** Stack of nodes to be delivered.  The values to be delivered
+         *  are (a) the label of the top of the stack, then (b)
+         *  the labels of the right child of the top of the stack inorder,
+         *  then (c) the nodes in the rest of the stack (i.e., the result
+         *  of recursively applying this rule to the result of popping
+         *  the stack. */
+        private Stack<Node> _ascList = new Stack<>();
+
+        /** A new iterator over the the labels in NODE starting at low
+         * (inclusive, and ending at high (exclusive). */
+        BSTIteratorLowHigh(Node node, String low, String high) {
+            super(node);
+            this.low = low;
+            this.high = high;
+            addTree(node);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return !_ascList.empty();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Node node = _ascList.pop();
+//if it is between low and high then return it else keep going to the next element until you find the next one
+            addTree(node.right);
+            return node.s;
+        }
+
+
+        /** Add the relevant subtrees of the tree rooted at NODE. */
+        private void addTree(Node node) {
+//            if (node == null) {
+//                //if low.compareTo(node.s) > 0 we ignore its left branch
+//                //if high.compareTo(node.s) < 0 we ignore its right branch
+//            } else if (low.compareTo(node.s) <= 0 && high.compareTo(node.s) > 0) {
+//                _ascList.push(node);
+//                node = node.left;
+//            } else if (low.compareTo(node.s) < 0) {
+//                addTree(node.left);
+//            } else if (high.compareTo(node.s) > 0) {
+//                addTree(node.right);
+//            }
+            while (node != null) {
+                if ((low.compareTo(node.s) <= 0 && high.compareTo(node.s) > 0)){
+                    _ascList.push(node);
+                }
+                node = node.left;
+            }
+        }
+
+
+        /** Where to start (inclusive). */
+        String low;
+
+        /** Where to end (exclusive). */
+        String high;
+    }
+
     @Override
     public Iterator<String> iterator() {
         return new BSTIterator(_root);
     }
 
-    // FIXME: UNCOMMENT THE NEXT LINE FOR PART B
-    // @Override
+     @Override
     public Iterator<String> iterator(String low, String high) {
-        return null;  // FIXME: PART B
+        return new BSTIteratorLowHigh(_root, low, high);
     }
 
 
