@@ -16,19 +16,21 @@ class ECHashStringSet implements StringSet {
         }
         elements += 1;
         int index = Math.floorMod(s.hashCode(), numBuckets);
-        ArrayList<String> temp = new ArrayList<>();
-        temp.add(s);
         if (buckets[index] == null) {
             buckets[index] = new ArrayList<>();
+            ArrayList<String> temp = new ArrayList<>();
+            temp.add(s);
+            buckets[index] = temp;
+        } else {
+            buckets[index].add(s);
         }
-        buckets[index].add(temp);
     }
 
     @Override
     public boolean contains(String s) {
         int index = Math.floorMod(s.hashCode(), numBuckets);
-        for (ArrayList<String> i: buckets[index]) {
-            if (i.get(0).equals(s)) {
+        for (String i: buckets[index]) {
+            if (i.equals(s)) {
                 return true;
             }
         }
@@ -38,12 +40,8 @@ class ECHashStringSet implements StringSet {
     @Override
     public List<String> asList() {
         ArrayList<String> result = new ArrayList<>();
-        for (ArrayList<ArrayList<String>> b: buckets) {
-            if (b != null) {
-                for (ArrayList<String> s : b) {
-                    result.addAll(s);
-                }
-            }
+        for (ArrayList<String> b: buckets) {
+                    result.addAll(b);
         }
         return result;
     }
@@ -57,19 +55,19 @@ class ECHashStringSet implements StringSet {
     @SuppressWarnings("unchecked")
     private void resize() {
         numBuckets = elements;
-        ArrayList<ArrayList<String>>[] dup = new ArrayList[numBuckets];
-        ArrayList<String> temp = new ArrayList<>();
-        for (ArrayList<ArrayList<String>> b : buckets) {
+        ArrayList<String>[] dup = new ArrayList[numBuckets];
+        for (ArrayList<String> b : buckets) {
             if (b != null) {
-                for (ArrayList<String> s : b) {
-                    String tem = s.get(0);
-                    int hash = tem.hashCode();
-                    int index = Math.floorMod(hash, numBuckets);
+                String tem = b.get(0);
+                int hash = tem.hashCode();
+                int index = Math.floorMod(hash, numBuckets);
+                if (dup[index] == null) {
+                    dup[index] = new ArrayList<>();
+                    ArrayList<String> temp = new ArrayList<>();
                     temp.add(tem);
-                    if (dup[index] == null) {
-                        dup[index] = new ArrayList<>();
-                    }
-                    dup[index].add(temp);
+                    dup[index] = temp;
+                } else {
+                    dup[index].add(tem);
                 }
             }
         }
@@ -84,5 +82,5 @@ class ECHashStringSet implements StringSet {
 
     /** Values to be stored. */
     @SuppressWarnings("unchecked")
-    private ArrayList<ArrayList<String>>[] buckets = new ArrayList[4];
+    private ArrayList<String>[] buckets = new ArrayList[4];
 }
