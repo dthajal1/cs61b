@@ -87,15 +87,19 @@ public class BSTStringSet implements StringSet, SortedStringSet, Iterable<String
 
     /** An iterator over BSTs. */
     private static class BSTIterator implements Iterator<String> {
-        /** Stack of nodes to be delivered.  The values to be delivered
-         *  are (a) the label of the top of the stack, then (b)
-         *  the labels of the right child of the top of the stack inorder,
-         *  then (c) the nodes in the rest of the stack (i.e., the result
-         *  of recursively applying this rule to the result of popping
-         *  the stack. */
+        /**
+         * Stack of nodes to be delivered.  The values to be delivered
+         * are (a) the label of the top of the stack, then (b)
+         * the labels of the right child of the top of the stack inorder,
+         * then (c) the nodes in the rest of the stack (i.e., the result
+         * of recursively applying this rule to the result of popping
+         * the stack.
+         */
         private Stack<Node> _toDo = new Stack<>();
 
-        /** A new iterator over the labels in NODE. */
+        /**
+         * A new iterator over the labels in NODE.
+         */
         BSTIterator(Node node) {
             addTree(node);
         }
@@ -121,7 +125,9 @@ public class BSTStringSet implements StringSet, SortedStringSet, Iterable<String
             throw new UnsupportedOperationException();
         }
 
-        /** Add the relevant subtrees of the tree rooted at NODE. */
+        /**
+         * Add the relevant subtrees of the tree rooted at NODE.
+         */
         private void addTree(Node node) {
             while (node != null) {
                 _toDo.push(node);
@@ -129,76 +135,76 @@ public class BSTStringSet implements StringSet, SortedStringSet, Iterable<String
             }
         }
     }
-
-    /** An iterator over BSTs starting at low (inclusive) and ending
-     * at high (exclusive). */
-    private class BSTIteratorLowHigh extends BSTIterator implements Iterator<String> {
-        /** Stack of nodes to be delivered.  The values to be delivered
-         *  are (a) the label of the top of the stack, then (b)
-         *  the labels of the right child of the top of the stack inorder,
-         *  then (c) the nodes in the rest of the stack (i.e., the result
-         *  of recursively applying this rule to the result of popping
-         *  the stack. */
-        private Stack<Node> _ascList = new Stack<>();
-
-        /** A new iterator over the the labels in NODE starting at low
-         * (inclusive, and ending at high (exclusive). */
-        BSTIteratorLowHigh(Node node, String low, String high) {
-            super(node);
-            this.low = low;
-            this.high = high;
-            addTree(node);
-        }
-
-        @Override
-        public boolean hasNext() {
-            return !_ascList.empty();
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-            Node node = _ascList.pop();
-            addTree(node.right);
-            return node.s;
-        }
-
-
-        /** Add the relevant subtrees of the tree rooted at NODE. */
-        private void addTree(Node node) {
-//            if (node == null) {
-//                //if low.compareTo(node.s) > 0 we ignore its left branch
-//                //if high.compareTo(node.s) < 0 we ignore its right branch
-//            } else if (low.compareTo(node.s) <= 0 && high.compareTo(node.s) > 0) {
-//                _ascList.push(node);
-//                node = node.left;
-//            } else if (low.compareTo(node.s) < 0) {
-//                addTree(node.left);
-//            } else if (high.compareTo(node.s) > 0) {
-//                addTree(node.right);
+//
+//    /** An iterator over BSTs starting at low (inclusive) and ending
+//     * at high (exclusive). */
+//    private class BSTIteratorLowHigh extends BSTIterator implements Iterator<String> {
+//        /** Stack of nodes to be delivered.  The values to be delivered
+//         *  are (a) the label of the top of the stack, then (b)
+//         *  the labels of the right child of the top of the stack inorder,
+//         *  then (c) the nodes in the rest of the stack (i.e., the result
+//         *  of recursively applying this rule to the result of popping
+//         *  the stack. */
+//        private Stack<Node> _ascList = new Stack<>();
+//
+//        /** A new iterator over the the labels in NODE starting at low
+//         * (inclusive, and ending at high (exclusive). */
+//        BSTIteratorLowHigh(Node node, String low, String high) {
+//            super(node);
+//            this.low = low;
+//            this.high = high;
+//            addTree(node);
+//        }
+//
+//        @Override
+//        public boolean hasNext() {
+//            return !_ascList.empty();
+//        }
+//
+//        @Override
+//        public void remove() {
+//            throw new UnsupportedOperationException();
+//        }
+//
+//        @Override
+//        public String next() {
+//            if (!hasNext()) {
+//                throw new NoSuchElementException();
 //            }
-            while (node != null) {
-                if ((low.compareTo(node.s) <= 0 && high.compareTo(node.s) > 0)){
-                    _ascList.push(node);
-                }
-                node = node.left;
-            }
-        }
-
-
-        /** Where to start (inclusive). */
-        String low;
-
-        /** Where to end (exclusive). */
-        String high;
-    }
+//            Node node = _ascList.pop();
+//            addTree(node.right);
+//            return node.s;
+//        }
+//
+//
+//        /** Add the relevant subtrees of the tree rooted at NODE. */
+//        private void addTree(Node node) {
+////            if (node == null) {
+////                //if low.compareTo(node.s) > 0 we ignore its left branch
+////                //if high.compareTo(node.s) < 0 we ignore its right branch
+////            } else if (low.compareTo(node.s) <= 0 && high.compareTo(node.s) > 0) {
+////                _ascList.push(node);
+////                node = node.left;
+////            } else if (low.compareTo(node.s) < 0) {
+////                addTree(node.left);
+////            } else if (high.compareTo(node.s) > 0) {
+////                addTree(node.right);
+////            }
+//            while (node != null) {
+////                if ((low.compareTo(node.s) <= 0 && high.compareTo(node.s) > 0)){
+//                _ascList.push(node);
+////                }
+//                node = node.left;
+//            }
+//        }
+//
+//
+//        /** Where to start (inclusive). */
+//        String low;
+//
+//        /** Where to end (exclusive). */
+//        String high;
+//    }
 
     @Override
     public Iterator<String> iterator() {
@@ -207,7 +213,14 @@ public class BSTStringSet implements StringSet, SortedStringSet, Iterable<String
 
      @Override
     public Iterator<String> iterator(String low, String high) {
-        return new BSTIteratorLowHigh(_root, low, high);
+        BSTStringSet range = new BSTStringSet();
+        List<String> all = this.asList();
+        for (String s : all) {
+            if ((low.compareTo(s) <= 0 && high.compareTo(s) > 0)) {
+                range.put(s);
+            }
+        }
+        return new BSTIterator(range._root);
     }
 
 
