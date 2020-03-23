@@ -23,9 +23,6 @@ public class ECHashStringSetTest  {
         a.put("lot");
         assertTrue(a.contains("ing"));
         assertFalse(a.contains("bad"));
-        ECHashStringSet b = new ECHashStringSet();
-        List<String> rb = new ArrayList<>();
-        assertEquals(rb, b.asList());
     }
 
     @Test

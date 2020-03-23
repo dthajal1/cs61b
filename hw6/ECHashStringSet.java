@@ -62,10 +62,11 @@ class ECHashStringSet implements StringSet {
         for (ArrayList<ArrayList<String>> b : buckets) {
             if (b != null) {
                 for (ArrayList<String> s : b) {
-                    int hash = s.get(0).hashCode();
+                    String tem = s.get(0);
+                    int hash = tem.hashCode();
                     int index = Math.floorMod(hash, numBuckets);
                     ArrayList<String> temp = new ArrayList<>();
-                    temp.add(s.get(0));
+                    temp.add(tem);
                     if (dup[index] == null) {
                         dup[index] = new ArrayList<ArrayList<String>>();
                     }
@@ -84,12 +85,4 @@ class ECHashStringSet implements StringSet {
 
     /** Values to be stored. */
     private ArrayList<ArrayList<String>>[] buckets = new ArrayList[4];
-
-    public static void main(String[] args) {
-//        ArrayList<ArrayList<String>>[] a = new ArrayList[4];
-//        ArrayList<ArrayList<String>>[] b = new ArrayList[8];
-//        a[0].add(new ArrayList<>());
-//        a= b;
-//    }
-    }
 }
