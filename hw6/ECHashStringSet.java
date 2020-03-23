@@ -62,16 +62,16 @@ class ECHashStringSet implements StringSet {
         ArrayList<String>[] dup = new ArrayList[numBuckets];
         for (ArrayList<String> b : buckets) {
             if (b != null) {
-                String tem = b.get(0);
-                int hash = tem.hashCode();
-                int index = Math.floorMod(hash, numBuckets);
-                if (dup[index] == null) {
-                    dup[index] = new ArrayList<>();
-                    ArrayList<String> temp = new ArrayList<>();
-                    temp.add(tem);
-                    dup[index] = temp;
-                } else {
-                    dup[index].add(tem);
+                for (String s: b) {
+                    int index = Math.floorMod(s.hashCode(), numBuckets);
+                    if (dup[index] == null) {
+                        dup[index] = new ArrayList<>();
+                        ArrayList<String> temp = new ArrayList<>();
+                        temp.add(s);
+                        dup[index] = temp;
+                    } else {
+                        dup[index].add(s);
+                    }
                 }
             }
         }

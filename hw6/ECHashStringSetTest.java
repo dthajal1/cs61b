@@ -29,7 +29,7 @@ public class ECHashStringSetTest  {
     public void testLargeHashStringSet() {
         TreeSet<String> b = new TreeSet<>();
         ECHashStringSet a = new ECHashStringSet();
-        for (int i = 0; i < 100; i += 1) {
+        for (int i = 0; i < 10000; i += 1) {
             String t = StringUtils.randomString(10);
             b.add(t);
             a.put(t);
