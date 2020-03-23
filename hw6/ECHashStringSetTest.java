@@ -42,7 +42,7 @@ public class ECHashStringSetTest  {
     @Test
     public void testEmpty() {
         ECHashStringSet a = new ECHashStringSet();
-        System.out.println(a.asList());
+        assertEquals(new ArrayList<>(), a.asList());
     }
 }
 
