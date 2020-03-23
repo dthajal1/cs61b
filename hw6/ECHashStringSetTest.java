@@ -3,6 +3,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Test of a BST-based String Set.
@@ -22,14 +23,23 @@ public class ECHashStringSetTest  {
         a.put("lot");
         assertTrue(a.contains("ing"));
         assertFalse(a.contains("bad"));
+        ECHashStringSet b = new ECHashStringSet();
+        List<String> rb = new ArrayList<>();
+        assertEquals(rb, b.asList());
     }
 
     @Test
     public void testLargeHashStringSet() {
+        TreeSet<String> b = new TreeSet<>();
         ECHashStringSet a = new ECHashStringSet();
         for (int i = 0; i < 100000; i += 1) {
-            a.put(StringUtils.randomString(1));
+            String t = StringUtils.randomString(3);
+            b.add(t);
+            a.put(t);
         }
-        List<String> b = a.asList();
+
+        for (String s : b) {
+            assertTrue(a.contains(s));
+        }
     }
 }
