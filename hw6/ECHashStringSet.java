@@ -29,8 +29,8 @@ class ECHashStringSet implements StringSet {
     @Override
     public boolean contains(String s) {
         int index = Math.floorMod(s.hashCode(), numBuckets);
-        for (String i: buckets[index]) {
-            if (i != null) {
+        if (buckets[index] != null) {
+            for (String i : buckets[index]) {
                 if (i.equals(s)) {
                     return true;
                 }
