@@ -13,6 +13,7 @@ class ECHashStringSet implements StringSet {
     public void put(String s) {
         if (loadFactor() > 5) {
             resize();
+
         }
         elements += 1;
         int index = Math.floorMod(s.hashCode(), numBuckets);
@@ -51,13 +52,13 @@ class ECHashStringSet implements StringSet {
     }
 
     /** Load Factor. */
-    private double loadFactor() {
+    private int loadFactor() {
         return Math.floorDiv(elements, numBuckets);
     }
 
     /** Resize by a factor of 2 once load factor is exceeded. */
     private void resize() {
-        numBuckets = numBuckets * 2;
+        numBuckets = elements;
         ArrayList<ArrayList<String>>[] dup = new ArrayList[numBuckets];
         for (ArrayList<ArrayList<String>> b : buckets) {
             if (b != null) {
