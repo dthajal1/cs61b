@@ -35,7 +35,7 @@ public class BSTStringSetTest  {
     public void testRandom() {
         BSTStringSet a = new BSTStringSet();
         TreeSet<String> b = new TreeSet<>();
-        for (int i = 0; i < 10000000; i += 1) {
+        for (int i = 0; i < 100; i += 1) {
             String t = StringUtils.randomString(3);
             b.add(t);
             a.put(t);

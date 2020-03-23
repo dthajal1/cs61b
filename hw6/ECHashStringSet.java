@@ -41,7 +41,9 @@ class ECHashStringSet implements StringSet {
     public List<String> asList() {
         ArrayList<String> result = new ArrayList<>();
         for (ArrayList<String> b: buckets) {
-                    result.addAll(b);
+            if (b != null) {
+                result.addAll(b);
+            }
         }
         return result;
     }

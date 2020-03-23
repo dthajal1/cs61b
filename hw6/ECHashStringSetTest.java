@@ -29,14 +29,21 @@ public class ECHashStringSetTest  {
     public void testLargeHashStringSet() {
         TreeSet<String> b = new TreeSet<>();
         ECHashStringSet a = new ECHashStringSet();
-        for (int i = 0; i < 1000000; i += 1) {
-            String t = StringUtils.randomString(3);
+        for (int i = 0; i < 100; i += 1) {
+            String t = StringUtils.randomString(10);
             b.add(t);
             a.put(t);
         }
-
         for (String s : b) {
             assertTrue(a.contains(s));
         }
     }
+
+    @Test
+    public void testEmpty() {
+        ECHashStringSet a = new ECHashStringSet();
+        System.out.println(a.asList());
+    }
 }
+
+
