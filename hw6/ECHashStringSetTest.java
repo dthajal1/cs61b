@@ -1,16 +1,35 @@
 import org.junit.Test;
 import static org.junit.Assert.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Test of a BST-based String Set.
- * @author
+ * @author Diraj Thajali
  */
 public class ECHashStringSetTest  {
-    // FIXME: Add your own tests for your ECHashStringSetTest
 
     @Test
-    public void testNothing() {
-        // FIXME: Delete this function and add your own tests
+    public void testSmallHashStringSet() {
+        ECHashStringSet a = new ECHashStringSet();
+        a.put("I");
+        assertTrue(a.contains("I"));
+        a.put("am");
+        a.put("learn");
+        a.put("ing");
+        a.put("a");
+        a.put("lot");
+        assertTrue(a.contains("ing"));
+        assertFalse(a.contains("bad"));
+    }
+
+    @Test
+    public void testLargeHashStringSet() {
+        ECHashStringSet a = new ECHashStringSet();
+        for (int i = 0; i < 100000; i += 1) {
+            a.put(StringUtils.randomString(1));
+        }
+        List<String> b = a.asList();
     }
 }

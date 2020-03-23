@@ -170,7 +170,6 @@ public class BSTStringSet implements StringSet, SortedStringSet, Iterable<String
                 throw new NoSuchElementException();
             }
             Node node = _ascList.pop();
-//if it is between low and high then return it else keep going to the next element until you find the next one
             addTree(node.right);
             return node.s;
         }

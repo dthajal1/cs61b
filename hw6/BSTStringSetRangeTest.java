@@ -46,12 +46,10 @@ public class BSTStringSetRangeTest {
     @Test (timeout = 100)
     public void testGetRange() {
         ArrayList<String> found = new ArrayList<>();
-
         for (Iterator<String> it = _S.iterator(_low, _high);
              it.hasNext(); ) {
             found.add(it.next());
         }
-
         assertEquals(WORDS2, found);
     }
 
