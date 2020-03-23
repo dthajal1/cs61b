@@ -30,11 +30,9 @@ public class BSTStringSet implements StringSet, SortedStringSet, Iterable<String
         } else if (st.compareTo(node.s) < 0) {
             node.left = putHelper(node.left, st);
             return node;
-        } else if (st.compareTo(node.s) > 0) {
+        } else {
             node.right = putHelper(node.right, st);
             return node;
-        } else {
-            return null;
         }
     }
 
@@ -51,10 +49,8 @@ public class BSTStringSet implements StringSet, SortedStringSet, Iterable<String
             return true;
         } else if (str.compareTo(node.s) < 0) {
             return containsHelper(node.left, str);
-        } else if (str.compareTo(node.s) > 0) {
-            return containsHelper(node.right, str);
         } else {
-            return false;
+            return containsHelper(node.right, str);
         }
     }
 

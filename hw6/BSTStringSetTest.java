@@ -3,6 +3,7 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Test of a BST-based String Set.
@@ -28,5 +29,20 @@ public class BSTStringSetTest  {
         result.add("dog");
         result.add("elf");
         assertEquals(result, b.asList());
+    }
+
+    @Test
+    public void testRandom() {
+        BSTStringSet a = new BSTStringSet();
+        TreeSet<String> b = new TreeSet<>();
+        for (int i = 0; i < 10000000; i += 1) {
+            String t = StringUtils.randomString(3);
+            b.add(t);
+            a.put(t);
+        }
+
+        for (String s : b) {
+            assertTrue(a.contains(s));
+        }
     }
 }
