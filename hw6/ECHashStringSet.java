@@ -20,7 +20,7 @@ class ECHashStringSet implements StringSet {
         ArrayList<String> temp = new ArrayList<>();
         temp.add(s);
         if (buckets[index] == null) {
-            buckets[index] = new ArrayList<ArrayList<String>>();
+            buckets[index] = new ArrayList<>();
         }
         buckets[index].add(temp);
     }
@@ -42,9 +42,7 @@ class ECHashStringSet implements StringSet {
         for (ArrayList<ArrayList<String>> b: buckets) {
             if (b != null) {
                 for (ArrayList<String> s : b) {
-                    for (String a : s) {
-                        result.add(a);
-                    }
+                    result.addAll(s);
                 }
             }
         }
@@ -57,6 +55,7 @@ class ECHashStringSet implements StringSet {
     }
 
     /** Resize by a factor of 2 once load factor is exceeded. */
+    @SuppressWarnings("unchecked")
     private void resize() {
         numBuckets = elements;
         ArrayList<ArrayList<String>>[] dup = new ArrayList[numBuckets];
@@ -69,7 +68,7 @@ class ECHashStringSet implements StringSet {
                     ArrayList<String> temp = new ArrayList<>();
                     temp.add(tem);
                     if (dup[index] == null) {
-                        dup[index] = new ArrayList<ArrayList<String>>();
+                        dup[index] = new ArrayList<>();
                     }
                     dup[index].add(temp);
                 }
@@ -85,5 +84,6 @@ class ECHashStringSet implements StringSet {
     private int elements = 0;
 
     /** Values to be stored. */
+    @SuppressWarnings("unchecked")
     private ArrayList<ArrayList<String>>[] buckets = new ArrayList[4];
 }
