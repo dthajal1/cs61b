@@ -3,7 +3,7 @@ import java.util.ArrayList;
 /** A Generic heap class. Unlike Java's priority queue, this heap doesn't just
  * store Comparable objects. Instead, it can store any type of object
  * (represented by type T) and an associated priority value.
- * @author */
+ * @author Diraj Thajali*/
 public class ArrayHeap<T> {
 
     /* DO NOT CHANGE THESE METHODS. */
@@ -117,29 +117,44 @@ public class ArrayHeap<T> {
 
     /** Returns the index of the left child of the node at i. */
     private int getLeftOf(int i) {
-        // TODO
-        return 0;
+        if (i == 0 || i > size()) {
+            throw new IllegalArgumentException("Left Index is out of bound.");
+        }
+        return i * 2;
     }
 
     /** Returns the index of the right child of the node at i. */
     private int getRightOf(int i) {
-        // TODO
-        return 0;
+        if (i == size()) {
+            throw new IllegalArgumentException("Right Index is out of bound. ");
+        }
+        return i * 2 + 1;
     }
 
     /** Returns the index of the node that is the parent of the
      *  node at i. */
     private int getParentOf(int i) {
-        // TODO
-        return 0;
+        if (i <= 1) {
+            throw new IllegalArgumentException("Index i doesn't have a parent. ");
+        }
+        return i / 2;
     }
 
     /** Returns the index of the node with smaller priority. If one
      * node is null, then returns the index of the non-null node.
      * Precondition: at least one of the nodes is not null. */
     private int min(int index1, int index2) {
-        // TODO
-        return 0;
+        Node a = getNode(index1);
+        Node b = getNode(index2);
+        if (a == null) {
+            return index2;
+        } else if (b == null) {
+            return index1;
+        } else if (a.priority() < b.priority()) {
+            return index1;
+        } else {
+            return index2;
+        }
     }
 
     /** Returns the item with the smallest priority value, but does
@@ -147,26 +162,78 @@ public class ArrayHeap<T> {
      * priority value, returns any of them. Returns null if heap is
      * empty. */
     public T peek() {
-        // TODO
+        Node smallest = getNode(1);
+        if (smallest != null) {
+            return smallest.item();
+        }
         return null;
     }
 
     /** Bubbles up the node currently at the given index until no longer
      *  needed. */
     private void bubbleUp(int index) {
-        // TODO
+        if (index < 1) {
+            throw new IllegalArgumentException("Node at index less than 1 doesn't have parent.");
+        } else if (index == 1) {
+            return;
+        }
+        Node me = getNode(index);
+        Node myParent = getNode(getParentOf(index));
+        if (me != null && myParent != null) {
+            if (me.priority() < myParent.priority()) {
+                swap(index, getParentOf(index));
+                bubbleUp(getParentOf(index));
+            }
+        }
     }
 
     /** Bubbles down the node currently at the given index until no longer
      *  needed. */
     private void bubbleDown(int index) {
-        // TODO
+        if (size() == 0) {
+            throw new IllegalArgumentException("Index 0 can't be bubbled down. ");
+        } else if (size() != 1) {
+            if (index > 0 && index < size()) {
+                int left = getLeftOf(index);
+                int right = getRightOf(index);
+                Node me = getNode(index);
+                Node leftNode = getNode(left);
+                Node rightNode = getNode(right);
+                if (leftNode != null && rightNode == null && me != null) {
+                    if (me.priority() > leftNode.priority()) {
+                        swap(index, left);
+                        bubbleDown(left);
+                    }
+                } else if (leftNode == null && rightNode != null && me != null) {
+                    if (me.priority() > rightNode.priority()) {
+                        swap(index, right);
+                        bubbleDown(right);
+                    }
+                } else if (leftNode != null && rightNode != null && me != null) {
+                    int whereTo = min(left, right);
+                    swap(index, whereTo);
+                    bubbleDown(whereTo);
+                }
+            }
+        }
     }
 
     /** Inserts an item with the given priority value. Assume that item is
      * not already in the heap. Same as enqueue, or offer. */
     public void insert(T item, double priority) {
-        // TODO
+        int count = 0;
+        if (getNode(1) == null) {
+            count += 1;
+            setNode(1, new Node(item, priority));
+        }
+        if (count == 0) {
+            int index = 0;
+            while (getNode(index + 1) != null) {
+                index += 1;
+            }
+            setNode(index + 1, new Node(item, priority));
+            bubbleUp(index + 1);
+        }
     }
 
     /** Returns the element with the smallest priority value, and removes
@@ -174,7 +241,25 @@ public class ArrayHeap<T> {
      * removes any of them. Returns null if the heap is empty. Same as
      * dequeue, or poll. */
     public T removeMin() {
-        // TODO
+        if (size() == 0) {
+            return null;
+        } else if (size() == 1) {
+            Node rem = removeNode(1);
+            if (rem != null) {
+                return rem.item();
+            }
+            return null;
+        }
+        int index = 0;
+        while (getNode(index + 1) != null) {
+            index += 1;
+        }
+        swap(1, index);
+        Node removed = removeNode(index);
+        bubbleDown(1);
+        if (removed != null) {
+            return removed.item();
+        }
         return null;
     }
 
@@ -183,6 +268,19 @@ public class ArrayHeap<T> {
      * same item. Does nothing if the item is not in the heap. Check for
      * item equality with .equals(), not == */
     public void changePriority(T item, double priority) {
-        // TODO
+        changePriorityHelper(1, item, priority);
+    }
+
+    public void changePriorityHelper(int index, T item, double priority) {
+        Node maybeChange = getNode(index);
+        if (maybeChange != null) {
+            if (maybeChange.item().equals(item)) {
+                maybeChange.setPriority(priority);
+                bubbleDown(index);
+                bubbleUp(index);
+            } else if (index < size() + 2) {
+                changePriorityHelper(index + 1, item, priority);
+            }
+        }
     }
 }
