@@ -103,7 +103,7 @@ final class Square {
         return DISP_TO_DIR[dc][dr];
     }
 
-
+    /** Count the lines of squares in */
     /** Return an array of all Squares adjacent to SQ. */
     Square[] adjacent() {
         return ADJACENT[index()];
