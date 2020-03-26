@@ -78,9 +78,9 @@ class Board {
             }
         }
         _turn = board._turn;
-//        _winner = null;
-//        _winnerKnown = false;
-//        _subsetsInitialized = false;
+        _winner = null;
+        _winnerKnown = false;
+        _subsetsInitialized = false;
         //fixed
     }
 
@@ -234,9 +234,16 @@ class Board {
      *  null.  If the game has ended in a tie, returns EMP. */
     Piece winner() {
         if (!_winnerKnown) {
-            //look at whiteRegion and blackRegion and if one's size is greater than the other than that side wins
             // FIXME
-            _winnerKnown = true;
+            if (piecesContiguous(turn())) {
+                _winner = turn();
+                _winnerKnown = true;
+            } else if (piecesContiguous(turn().opposite())) {
+                _winner = turn().opposite();
+                _winnerKnown = true;
+            }
+            _subsetsInitialized = false;
+            //fixed
         }
         return _winner;
     }
@@ -306,7 +313,7 @@ class Board {
      *  VISITED to reflect squares counted. */
     private int numContig(Square sq, boolean[][] visited, Piece p) {
         // FIXME
-        if (p == EMP || p == p.opposite()) {
+        if (p == EMP || p == get(sq).opposite()) {
             return 0;
         }
         int counter = 1;
@@ -327,11 +334,6 @@ class Board {
 //            if (i == adjSquares.length - 1 && get(adjSquares[i]) != p) {
 //                return result + 1;
 //            }
-//            Square a = adjSquares[i];
-//            int row, col;
-//            row = adjSquares[i].row();
-//            col = adjSquares[i].col();
-//            Piece b = get(adjSquares[i]);
 //            boolean c = visited[row][col];
 //            if (get(adjSquares[i]) == p && !visited[adjSquares[i].row()][adjSquares[i].col()]) {
 //                visited[adjSquares[i].row()][adjSquares[i].col()] = true;
@@ -358,26 +360,34 @@ class Board {
         for (int i = 0; i < BOARD_SIZE; i += 1) {
             for (int j = 0; j < BOARD_SIZE; j += 1) {
                 Square curr = Square.sq(j, i);
-                Piece a = get(curr);
                 if (get(curr) != EMP && !visit[i][j]) {
-                    if (turn() == WP && get(curr) == turn()) {
-                        visit[i][j] = true;
-                        int wGroup = numContig(curr, visit, WP);
-                        if (wGroup > 0) {
-                            _whiteRegionSizes.add(wGroup);
-                        }
-                    } else {
-                        visit[i][j] = true;
-                        int bGroup = numContig(curr, visit, BP);
-                        if (bGroup > 0) {
-                            _blackRegionSizes.add(bGroup);
-                        }
+                    visit[i][j] = true;
+                    int bGroup = numContig(curr, visit, BP);
+                    if (bGroup > 0) {
+                        _blackRegionSizes.add(bGroup);
+                    }
+                    int wGroup = numContig(curr, visit, WP);
+                    if (wGroup > 0) {
+                        _whiteRegionSizes.add(wGroup);
                     }
                 }
             }
         }
-        System.out.println(_whiteRegionSizes.size());
-        System.out.println(_blackRegionSizes.size());
+//        if (get(curr) != EMP && !visit[i][j]) {
+//            if (turn() == WP && get(curr) == turn()) {
+//                visit[i][j] = true;
+//                int wGroup = numContig(curr, visit, WP);
+//                if (wGroup > 0) {
+//                    _whiteRegionSizes.add(wGroup);
+//                }
+//            } else {
+//                visit[i][j] = true;
+//                int bGroup = numContig(curr, visit, BP);
+//                if (bGroup > 0) {
+//                    _blackRegionSizes.add(bGroup);
+//                }
+//            }
+//        }
         //fixed
         Collections.sort(_whiteRegionSizes, Collections.reverseOrder());
         Collections.sort(_blackRegionSizes, Collections.reverseOrder());

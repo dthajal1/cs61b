@@ -3,7 +3,7 @@
 package loa;
 
 /** A Player that prompts for moves and reads them from its Game.
- *  @author
+ *  @author Diraj Thajali
  */
 class HumanPlayer extends Player {
 

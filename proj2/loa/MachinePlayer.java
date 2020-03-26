@@ -5,7 +5,7 @@ package loa;
 import static loa.Piece.*;
 
 /** An automated Player.
- *  @author
+ *  @author Diraj Thajali
  */
 class MachinePlayer extends Player {
 

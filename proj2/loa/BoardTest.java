@@ -2,6 +2,7 @@
  * University of California.  All rights reserved. */
 package loa;
 
+import com.sun.tools.internal.ws.wsdl.document.soap.SOAP12Binding;
 import com.sun.xml.internal.xsom.impl.scd.Iterators;
 import org.junit.Test;
 
@@ -60,6 +61,37 @@ public class BoardTest {
         assertEquals(count, moves.size());
     }
 
+    @Test
+    public void testWinner() {
+        Board a = new Board(testBoard, WP);
+        assertFalse(a.gameOver());
+        Move move = Move.mv("b1-e4");
+        a.makeMove(move);
+        assertTrue(a.gameOver());
+        assertEquals(WP, a.winner());
+    }
+
+    static final Piece[][] testBoard = {
+            { EMP, WP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+            { EMP, BP,  WP,  EMP,  BP, EMP, EMP, EMP },
+            { EMP, WP,  BP,  WP,  WP, EMP, EMP, EMP },
+            { EMP, EMP,  BP,  BP,  WP, WP, WP, EMP },
+            { EMP, WP,  WP,  WP,  EMP, EMP, EMP, EMP },
+            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+    };
+
+//    static final Piece[][] testBoard1 = {
+//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
+//    };
 
     //my tests ends
     /** A "general" position. */
@@ -136,19 +168,18 @@ public class BoardTest {
     /** Test contiguity. */
     @Test
     public void testContiguous1() {
-//        Board b1 = new Board(BOARD1, BP);
-//        assertFalse("Board 1 black contiguous?", b1.piecesContiguous(BP));
-//        assertFalse("Board 1 white contiguous?", b1.piecesContiguous(WP));
-//        assertFalse("Board 1 game over?", b1.gameOver());
+        Board b1 = new Board(BOARD1, BP);
+        assertFalse("Board 1 black contiguous?", b1.piecesContiguous(BP));
+        assertFalse("Board 1 white contiguous?", b1.piecesContiguous(WP));
+        assertFalse("Board 1 game over?", b1.gameOver());
         Board b2 = new Board(BOARD2, BP);
-        System.out.println(b2.toString());
         assertTrue("Board 2 black contiguous?", b2.piecesContiguous(BP));
         assertFalse("Board 2 white contiguous?", b2.piecesContiguous(WP));
         assertTrue("Board 2 game over", b2.gameOver());
         Board b3 = new Board(BOARD3, BP);
         assertTrue("Board 3 white contiguous?", b3.piecesContiguous(WP));
         assertTrue("Board 3 black contiguous?", b3.piecesContiguous(WP));
-        assertTrue("Board 3 game over", b2.gameOver());
+        assertTrue("Board 3 game over", b3.gameOver());
     }
 
     @Test
