@@ -10,6 +10,8 @@ import java.security.AlgorithmConstraints;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static loa.Square.ALL_SQUARES;
 import static org.junit.Assert.*;
@@ -63,6 +65,9 @@ public class BoardTest {
 
     @Test
     public void testWinner() {
+//        Pattern b = Pattern.compile("[\\S]*");
+//        Matcher c = b.matcher("Diraj");
+//        System.out.println(c.matches());
         Board a = new Board(testBoard, WP);
         assertFalse(a.gameOver());
         Move move = Move.mv("b1-e4");

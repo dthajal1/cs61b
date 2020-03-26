@@ -126,8 +126,9 @@ class Board {
         } else {
             _moves.add(move);
         }
-        set(move.getTo(), get(move.getFrom()), get(move.getFrom()).opposite());
-        set(move.getFrom(), EMP, get(move.getFrom())); //might have to switch player
+        set(move.getTo(), get(move.getFrom()), turn().opposite());
+        set(move.getFrom(), EMP); //might have to switch player
+
 
         //fixed
     }
@@ -145,6 +146,7 @@ class Board {
             _board[removed.getFrom().index()] = get(removed.getFrom());
             _board[removed.getTo().index()] = EMP;
         }
+        _turn = turn().opposite();
         //fixed
     }
 
@@ -235,11 +237,11 @@ class Board {
     Piece winner() {
         if (!_winnerKnown) {
             // FIXME
-            if (piecesContiguous(turn())) {
-                _winner = turn();
-                _winnerKnown = true;
-            } else if (piecesContiguous(turn().opposite())) {
+            if (piecesContiguous(turn().opposite())) {
                 _winner = turn().opposite();
+                _winnerKnown = true;
+            } else if (piecesContiguous(turn())) {
+                _winner = turn();
                 _winnerKnown = true;
             }
             _subsetsInitialized = false;
