@@ -1,0 +1,12 @@
+#*java -ea loa.Main
+manual White
+dump
+b1-d3
+dump
+a3-d3
+dump
+f1-a1
+dump
+a6-c8
+dump
+quit
