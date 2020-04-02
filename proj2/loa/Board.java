@@ -71,16 +71,11 @@ class Board {
         if (board == this) {
             return;
         }
-        // FIXME Done
-        for (int i = 0; i < board.initializedBoard.length; i += 1) {
-            for (int j = 0; j < board.initializedBoard[0].length; j += 1) {
-                initializedBoard[i][j] = board.initializedBoard[i][j];
-            }
-        }
-        _turn = board._turn;
-        _winner = null;
-        _winnerKnown = false;
-        _subsetsInitialized = false;
+        // FIXME Done //set my state to copy
+        initialize(board.initializedBoard, board.turn());
+        _winner = board._winner;
+        _winnerKnown = board._winnerKnown;
+        _subsetsInitialized = board._subsetsInitialized;
         //fixed
     }
 
@@ -410,6 +405,11 @@ class Board {
     // FIXME: Other methods, variables?
     /** Initialized board. */
     Piece[][] initializedBoard;
+
+    int getMoveLimit() {
+        return _moveLimit;
+
+    }
     //fixed
 
     /** The standard initial configuration for Lines of Action (bottom row

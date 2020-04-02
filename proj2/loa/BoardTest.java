@@ -64,11 +64,21 @@ public class BoardTest {
     }
 
     @Test
+    public void test() {
+        Board a = new Board(BOARD1, BP);
+        a.makeMove(Move.mv("b1-b3"));
+        Board b = new Board();
+        a.copyFrom(b);
+        System.out.println(a.toString());
+    }
+
+    @Test
     public void testWinner() {
 //        Pattern b = Pattern.compile("[\\S]*");
 //        Matcher c = b.matcher("Diraj");
 //        System.out.println(c.matches());
         Board a = new Board(testBoard, WP);
+        System.out.println(a.toString());
         assertFalse(a.gameOver());
         Move move = Move.mv("b1-e4");
         a.makeMove(move);

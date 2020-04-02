@@ -2,6 +2,8 @@
  * University of California.  All rights reserved. */
 package loa;
 
+import java.util.List;
+
 import static loa.Piece.*;
 
 /** An automated Player.
@@ -72,18 +74,99 @@ class MachinePlayer extends Player {
     private int findMove(Board board, int depth, boolean saveMove,
                          int sense, int alpha, int beta) {
         // FIXME
-        if (saveMove) {
-            _foundMove = null; // FIXME
+        if (depth == 0 || board.gameOver()) {
+            return heuristic(board, sense); //static value of this position
         }
-        return 0; // FIXME
+        int bestSoFar = 0;
+        List<Move> allMoves = board.legalMoves();
+        for (Move move : allMoves) {
+            board.makeMove(move);
+            int best = findMove(board, depth - 1, !saveMove, -sense, alpha, beta);
+            if (best > bestSoFar) { //maybe redefine?
+                bestSoFar = best;
+                if (saveMove) {
+                    _foundMove = move; // FIXME
+                }
+            }
+            if (sense == 1) {
+                alpha = Math.max(best, alpha);
+            } else if (sense == -1) {
+                beta = Math.min(best, beta);
+            }
+            if (alpha >= beta) {
+                break;
+            }
+        }
+        return bestSoFar;
+        //fixed
     }
 
     /** Return a search depth for the current position. */
     private int chooseDepth() {
-        return 1;  // FIXME
+        return 2;  // FIXME
     }
 
     // FIXME: Other methods, variables here.
+    private int heuristic(Board board, int sense) {
+        Board copied = new Board(board);
+        int bestValue = 0;
+        List<Move> moves = copied.legalMoves();
+        int possibleVal;
+        for (Move move : moves) {
+            if (sense == 1) {
+                int before = copied.getRegionSizes(copied.turn()).size();
+                copied.makeMove(move);
+                if (copied.piecesContiguous(copied.turn())) {
+                    bestValue = WINNING_VALUE;
+                } else if (before > copied.getRegionSizes(copied.turn()).size()) {
+                    possibleVal = 500;
+                    if (possibleVal > bestValue) {
+                        bestValue = possibleVal;
+                    }
+                } else if (move.isCapture()) {
+                    possibleVal = 100;
+                    if (possibleVal > bestValue) {
+                        bestValue = possibleVal;
+                    }
+                }
+                copied.retract();
+            } else if (sense == -1) {
+                int before = copied.getRegionSizes(copied.turn().opposite()).size();
+                copied.makeMove(move);
+                if (copied.piecesContiguous(copied.turn().opposite())) {
+                    bestValue = WINNING_VALUE;
+                } else if (before > copied.getRegionSizes(copied.turn().opposite()).size()) {
+                    possibleVal = -500;
+                    if (possibleVal < bestValue) {
+                        bestValue = possibleVal;
+                    }
+                } else if (move.isCapture()) {
+                    possibleVal = -100;
+                    if (possibleVal < bestValue) {
+                        bestValue = possibleVal;
+                    }
+                }
+            }
+        }
+//            if (sense == 1) {
+//                if (board.piecesContiguous(board.turn())) {
+//                    bestValue = WINNING_VALUE;
+//                } else if (move.isCapture()) {
+//                    bestValue = 1000;
+//                }
+//
+//            } else if (sense == -1) {
+//                if (board.piecesContiguous(board.turn())) {
+//                    bestValue = -WINNING_VALUE;
+//                } else if (move.isCapture()) {
+//                    bestValue = -1000;
+//                }
+//            }
+            //if both piece are contiguous,
+            //try capturing
+        return bestValue;
+    }
+
 
     /** Used to convey moves discovered by findMove. */
     private Move _foundMove;
