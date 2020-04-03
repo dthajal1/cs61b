@@ -2,7 +2,9 @@
  * University of California.  All rights reserved. */
 package loa;
 
+import javax.print.DocFlavor;
 import java.util.List;
+import java.util.Random;
 
 import static loa.Piece.*;
 
@@ -35,6 +37,7 @@ class MachinePlayer extends Player {
         assert side() == getGame().getBoard().turn();
         int depth;
         choice = searchForMove();
+//        System.out.println(getBoard().toString());
         getGame().reportMove(choice);
         return choice.toString();
     }
@@ -75,96 +78,92 @@ class MachinePlayer extends Player {
                          int sense, int alpha, int beta) {
         // FIXME
         if (depth == 0 || board.gameOver()) {
-            return heuristic(board, sense); //static value of this position
+            return heuristic(board);
         }
         int bestSoFar = 0;
-        List<Move> allMoves = board.legalMoves();
+        Board copied = new Board(board);
+        List<Move> allMoves = copied.legalMoves();
         for (Move move : allMoves) {
             board.makeMove(move);
-            int best = findMove(board, depth - 1, !saveMove, -sense, alpha, beta);
-            if (best > bestSoFar) { //maybe redefine?
-                bestSoFar = best;
-                if (saveMove) {
-                    _foundMove = move; // FIXME
-                }
-            }
+            int best = findMove(copied, depth - 1, false, -sense, alpha, beta);
             if (sense == 1) {
+                bestSoFar = -INFTY;
+                bestSoFar = Math.max(bestSoFar, best);
+                if (saveMove) {
+                    _foundMove = move;
+                }
                 alpha = Math.max(best, alpha);
-            } else if (sense == -1) {
+            } else {
+                bestSoFar = INFTY;
+                bestSoFar = Math.min(bestSoFar, best);
+                if (saveMove) {
+                    _foundMove = move;
+                }
                 beta = Math.min(best, beta);
             }
             if (alpha >= beta) {
                 break;
             }
+            board.retract();
         }
+
         return bestSoFar;
         //fixed
     }
 
     /** Return a search depth for the current position. */
     private int chooseDepth() {
-        return 2;  // FIXME
+        return 1;  // FIXME
     }
 
     // FIXME: Other methods, variables here.
-    private int heuristic(Board board, int sense) {
+    private int heuristic(Board board) {
         Board copied = new Board(board);
-        int bestValue = 0;
-        List<Move> moves = copied.legalMoves();
-        int possibleVal;
-        for (Move move : moves) {
-            if (sense == 1) {
-                int before = copied.getRegionSizes(copied.turn()).size();
-                copied.makeMove(move);
+        List<Move> allMoves = copied.legalMoves();
+        int result = 0;
+        for (Move move : allMoves) {
+            int beforeOpp = copied.getRegionSizes(copied.turn().opposite()).size();
+            int beforeMe = copied.getRegionSizes(copied.turn()).size();
+            Square to = move.getTo();
+            int distanceD4 = move.getFrom().distance(Square.sq(4, 4));
+            int distanceD5 = move.getFrom().distance(Square.sq(4, 5));
+            int distanceE4 = move.getFrom().distance(Square.sq(5, 4));
+            int distanceE5 = move.getFrom().distance(Square.sq(5, 5));
+            copied.makeMove(move);
+            if (distanceD4 <= 2 || distanceD5 <= 2 || distanceE4 <= 2 || distanceE5 <= 2) {
+                result += getGame().randInt(100);
+            }
+            if (to.col() == 7 || to.row() == 7 || to.row() == 0 || to.col() == 0) {
+                result -= getGame().randInt(70);
+            } else {
+                result += getGame().randInt(70);
+            }
+            int afterOpp = copied.getRegionSizes(copied.turn().opposite()).size();
+            int afterMe = copied.getRegionSizes(copied.turn()).size();
+            if (move.isCapture()) {
+                result += getGame().randInt(80);
                 if (copied.piecesContiguous(copied.turn())) {
-                    bestValue = WINNING_VALUE;
-                } else if (before > copied.getRegionSizes(copied.turn()).size()) {
-                    possibleVal = 500;
-                    if (possibleVal > bestValue) {
-                        bestValue = possibleVal;
-                    }
-                } else if (move.isCapture()) {
-                    possibleVal = 100;
-                    if (possibleVal > bestValue) {
-                        bestValue = possibleVal;
-                    }
+                    result += WINNING_VALUE;
                 }
-                copied.retract();
-            } else if (sense == -1) {
-                int before = copied.getRegionSizes(copied.turn().opposite()).size();
-                copied.makeMove(move);
                 if (copied.piecesContiguous(copied.turn().opposite())) {
-                    bestValue = WINNING_VALUE;
-                } else if (before > copied.getRegionSizes(copied.turn().opposite()).size()) {
-                    possibleVal = -500;
-                    if (possibleVal < bestValue) {
-                        bestValue = possibleVal;
-                    }
-                } else if (move.isCapture()) {
-                    possibleVal = -100;
-                    if (possibleVal < bestValue) {
-                        bestValue = possibleVal;
-                    }
+                    result -= WINNING_VALUE;
                 }
             }
+            if (copied.piecesContiguous(copied.turn())) {
+                result += WINNING_VALUE;
+            }
+            if (beforeOpp < afterOpp && beforeMe > afterMe) {
+                result += WINNING_VALUE - 1000;
+            }
+            if (beforeOpp < afterOpp) {
+                result += getGame().randInt(1000);
+            }
+            if (beforeMe > afterMe) {
+                result += getGame().randInt(1000);
+            }
+            copied.retract();
         }
-//            if (sense == 1) {
-//                if (board.piecesContiguous(board.turn())) {
-//                    bestValue = WINNING_VALUE;
-//                } else if (move.isCapture()) {
-//                    bestValue = 1000;
-//                }
-//
-//            } else if (sense == -1) {
-//                if (board.piecesContiguous(board.turn())) {
-//                    bestValue = -WINNING_VALUE;
-//                } else if (move.isCapture()) {
-//                    bestValue = -1000;
-//                }
-//            }
-            //if both piece are contiguous,
-            //try capturing
-        return bestValue;
+        return result;
     }
 
 

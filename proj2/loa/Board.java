@@ -72,7 +72,10 @@ class Board {
             return;
         }
         // FIXME Done //set my state to copy
-        initialize(board.initializedBoard, board.turn());
+        for (int i = 0; i < board._board.length; i += 1) {
+            _board[i] = board._board[i];
+        }
+        _turn = board.turn();
         _winner = board._winner;
         _winnerKnown = board._winnerKnown;
         _subsetsInitialized = board._subsetsInitialized;
@@ -312,6 +315,9 @@ class Board {
      *  VISITED to reflect squares counted. */
     private int numContig(Square sq, boolean[][] visited, Piece p) {
         // FIXME
+//        System.out.println("Heajfdf: " + p);
+//        System.out.println("Square; " + sq);
+//        System.out.println("kjsdf; " + get(sq));
         if (p == EMP || p == get(sq).opposite()) {
             return 0;
         }
@@ -326,21 +332,6 @@ class Board {
         return counter;
         //fixed
     }
-
-//    private int numContigHelper(Square sq, boolean[][] visited, Piece p, int result) {
-//        Square[] adjSquares = sq.adjacent();
-//        for (int i = 0; i < adjSquares.length; i += 1) {
-//            if (i == adjSquares.length - 1 && get(adjSquares[i]) != p) {
-//                return result + 1;
-//            }
-//            boolean c = visited[row][col];
-//            if (get(adjSquares[i]) == p && !visited[adjSquares[i].row()][adjSquares[i].col()]) {
-//                visited[adjSquares[i].row()][adjSquares[i].col()] = true;
-//                numContigHelper(adjSquares[i], visited, p, result + 1);
-//            }
-//        }
-//        return result;
-//    }
 
     /** Set the values of _whiteRegionSizes and _blackRegionSizes. */
     private void computeRegions() {
@@ -359,7 +350,7 @@ class Board {
         for (int i = 0; i < BOARD_SIZE; i += 1) {
             for (int j = 0; j < BOARD_SIZE; j += 1) {
                 Square curr = Square.sq(j, i);
-                if (get(curr) != EMP && !visit[i][j]) {
+                if (get(curr) != null && get(curr) != EMP && !visit[i][j]) {
                     visit[i][j] = true;
                     int bGroup = numContig(curr, visit, BP);
                     if (bGroup > 0) {
