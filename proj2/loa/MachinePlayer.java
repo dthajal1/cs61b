@@ -35,7 +35,6 @@ class MachinePlayer extends Player {
 
         assert side() == getGame().getBoard().turn();
         int depth;
-//        System.out.println(getBoard().toString());
         choice = searchForMove();
         getGame().reportMove(choice);
         return choice.toString();
@@ -190,20 +189,19 @@ class MachinePlayer extends Player {
             int before = copied.getRegionSizes(copied.turn()).size();
             Square to = move.getTo();
             Square from = move.getFrom();
-//            int distanceD4 = move.getTo().distance(Square.sq(4, 4));
-//            int distanceD5 = move.getTo().distance(Square.sq(4, 5));
-//            int distanceE4 = move.getTo().distance(Square.sq(5, 4));
-//            int distanceE5 = move.getTo().distance(Square.sq(5, 5));
             int distanceD4 = move.getTo().distance(Square.sq(1, 2));
             int distanceD5 = move.getTo().distance(Square.sq(1, 3));
             int distanceE4 = move.getTo().distance(Square.sq(2, 2));
             int distanceE5 = move.getTo().distance(Square.sq(2, 3));
             //Distance of the move.to to the center
             if (distanceD4 <= 1 || distanceD5 <= 1 || distanceE4 <= 1 || distanceE5 <= 1) {
-                result += WINNING_VALUE;
+//                System.out.println("Distance is 1");
+                result += getGame().randInt(100000);
             } else if (distanceD4 < 3 || distanceD5 < 3 || distanceE4 < 3 || distanceE5 < 3) {
+//                System.out.println("Distance is less than 3");
                 result += getGame().randInt(5500);
             } else {
+//                System.out.println("Distance is greater than 3");
                 result -= 200000;
             }
             int me = from.distance(Square.sq(4, 4));
@@ -216,10 +214,12 @@ class MachinePlayer extends Player {
             }
             copied.makeMove(move);
             if (copied.winner() != null) {
-                if (copied.winner() == WP) {
-                    result += WINNING_VALUE;
+                Piece winner = copied.winner();
+                if (winner == WP) {
+                    result += getGame().randInt(10000);
+                } else if (winner == BP) {
+                    result -= getGame().randInt(10000);
                 }
-                result -= WINNING_VALUE;
             }
             int after = copied.getRegionSizes(copied.turn()).size();
 
@@ -235,6 +235,10 @@ class MachinePlayer extends Player {
         }
         return result;
     }
+    //            int distanceD4 = move.getTo().distance(Square.sq(4, 4));
+//            int distanceD5 = move.getTo().distance(Square.sq(4, 5));
+//            int distanceE4 = move.getTo().distance(Square.sq(5, 4));
+//            int distanceE5 = move.getTo().distance(Square.sq(5, 5));
 
     /** Default depth. */
     private static int DEFAULT_DEPTH = 5;

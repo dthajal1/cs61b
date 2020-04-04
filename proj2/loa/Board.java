@@ -118,6 +118,8 @@ class Board {
      *  later retraction, makeMove itself uses MOVE.captureMove() to produce
      *  the capturing move. */
     void makeMove(Move move) {
+//        System.out.println(move);
+//        System.out.println(get(move.getFrom()));
         assert isLegal(move);
         // FIXME Done
         if (get(move.getTo()) == turn().opposite()) {
@@ -143,7 +145,7 @@ class Board {
             _board[removed.getFrom().index()] = get(removed.getTo());
             _board[removed.getTo().index()] = get(removed.getTo()).opposite();
         } else {
-            _board[removed.getFrom().index()] = get(removed.getFrom());
+            _board[removed.getFrom().index()] = get(removed.getTo());
             _board[removed.getTo().index()] = EMP;
         }
         _turn = turn().opposite();
@@ -160,6 +162,9 @@ class Board {
      *  move. */
     boolean isLegal(Square from, Square to) {
         // FIXME Done
+        if (get(from) == EMP) {
+            return false;
+        }
         return from.isValidMove(to) && !blocked(from, to);
         //fixed
     }
