@@ -21,14 +21,7 @@ class HumanPlayer extends Player {
 
     @Override
     String getMove() {
-        // FIXME
         return getGame().readLine(true);
-//        String nextMove = "It's not valid";
-//        if (getGame().readLine(true) != null) {
-//            nextMove = getGame().readLine(true);
-//        }
-//        return nextMove;
-        //fixed
     }
 
     @Override

@@ -74,7 +74,6 @@ class MachinePlayer extends Player {
      *  on BOARD, does not set _foundMove. */
     private int findMove(Board board, int depth, boolean saveMove,
                          int sense, int alpha, int beta) {
-        // FIXME
         if (depth == 0 || board.gameOver()) {
             return heuristic(board);
         }
@@ -85,7 +84,8 @@ class MachinePlayer extends Player {
             List<Move> allMoves = copied.legalMoves();
             for (Move move : allMoves) {
                 copied.makeMove(move);
-                int best = findMove(copied, depth - 1, false, -sense, alpha, beta);
+                int best = findMove(copied, depth - 1,
+                        false, -sense, alpha, beta);
                 copied.retract();
                 if (best >= bestSoFar) {
                     bestSoFar = best;
@@ -105,7 +105,8 @@ class MachinePlayer extends Player {
             List<Move> allMoves = copied.legalMoves();
             for (Move move : allMoves) {
                 copied.makeMove(move);
-                int best = findMove(copied, depth - 1, false, -sense, alpha, beta);
+                int best = findMove(copied, depth - 1,
+                        false, -sense, alpha, beta);
                 copied.retract();
                 if (best <= bestSoFar) {
                     bestSoFar = best;
@@ -121,66 +122,17 @@ class MachinePlayer extends Player {
             }
             return bestSoFar;
         }
-        //fixed
     }
 
     /** Return a search depth for the current position. */
     private int chooseDepth() {
-//        return DEFAULT_DEPTH;  // FIXME
-        return 1;
+//        return getGame().randInt(defaultDepth);
+        return 2;
     }
 
-    // FIXME: Other methods, variables here.
-//    private int heuristic(Board board, int sense) {
-////        Board copied = new Board(board);
-////        List<Move> allMoves = copied.legalMoves();
-////        int result = 0;
-////        for (Move move : allMoves) {
-////            ArrayList<Integer> blackBefore = copied.getBlackRegionSizes();
-////            ArrayList<Integer> whiteBefore = copied.getWhiteRegionSizes();
-////
-////            int bestInBB = max(blackBefore);
-////            int bestInWB = max(whiteBefore);
-////
-////            copied.makeMove(move);
-////            if (copied.winner() != null) {
-////                if (copied.winner() == WP) {
-////                    return WINNING_VALUE;
-////                }
-////                return -WINNING_VALUE;
-////            }
-////
-////            ArrayList<Integer> blackAfter = copied.getBlackRegionSizes();
-////            ArrayList<Integer> whiteAfter = copied.getWhiteRegionSizes();
-////            int bestInBA = max(blackAfter);
-////            int bestInWA = max(whiteAfter);
-////
-////            if (sense == 1) {
-////
-////            }
-////            if (bestInBA >= bestInBB) {
-////                result += getGame().randInt(10000);
-////            } else {
-////                result -= getGame().randInt(10000);
-////            }
-////            if (bestInWA >= bestInWB) {
-////                result += getGame().randInt(10000);
-////            }
-////            copied.retract();
-////        }
-////        return result;
-////    }
-////
-////    public int max(List<Integer> list) {
-////        int max = 0;
-////        for (int i : list) {
-////            if (i > max) {
-////                max = i;
-////            }
-////        }
-////        return max;
-////    }
-
+    /** @return int
+     * @param board
+     * Evaluation function. */
     private int heuristic(Board board) {
         Board copied = new Board(board);
         List<Move> allMoves = copied.legalMoves();
@@ -189,17 +141,27 @@ class MachinePlayer extends Player {
             int before = copied.getRegionSizes(copied.turn()).size();
             Square to = move.getTo();
             Square from = move.getFrom();
-            int distanceD4 = move.getTo().distance(Square.sq(1, 2));
-            int distanceD5 = move.getTo().distance(Square.sq(1, 3));
-            int distanceE4 = move.getTo().distance(Square.sq(2, 2));
-            int distanceE5 = move.getTo().distance(Square.sq(2, 3));
+            int distanceD4 = to.distance(Square.sq(1, 2));
+            int distanceD5 = to.distance(Square.sq(1, 3));
+            int distanceE4 = to.distance(Square.sq(2, 2));
+            int distanceE5 = to.distance(Square.sq(2, 3));
             //Distance of the move.to to the center
-            if (distanceD4 <= 1 || distanceD5 <= 1 || distanceE4 <= 1 || distanceE5 <= 1) {
+            if (distanceD4 <= 1 || distanceD5 <= 1
+                    || distanceE4 <= 1 || distanceE5 <= 1) {
 //                System.out.println("Distance is 1");
-                result += getGame().randInt(100000);
-            } else if (distanceD4 < 3 || distanceD5 < 3 || distanceE4 < 3 || distanceE5 < 3) {
+                if (move.isCapture() ) {
+                    result += getGame().randInt(100000);
+                } else {
+                    result += getGame().randInt(10000);
+                }
+            } else if (distanceD4 < 3 || distanceD5 < 3
+                    || distanceE4 < 3 || distanceE5 < 3) {
 //                System.out.println("Distance is less than 3");
-                result += getGame().randInt(5500);
+                if (move.isCapture()) {
+                    result += getGame().randInt(5500);
+                } else {
+                    result += getGame().randInt(5000);
+                }
             } else {
 //                System.out.println("Distance is greater than 3");
                 result -= 200000;
@@ -228,20 +190,17 @@ class MachinePlayer extends Player {
             }
             //avoid corners
             //(to.row() == 0 && to.col() == 0) ||
-            if ( (to.row() == 0 && to.col() == 7) || (to.row() == 7 && to.col() == 0) || (to.row() == 7 && to.col() == 7)) {
+            if ((to.row() == 0 && to.col() == 7) || (to.row() == 7
+                    && to.col() == 0) || (to.row() == 7 && to.col() == 7)) {
                 result -= getGame().randInt(3000);
             }
             copied.retract();
         }
         return result;
     }
-    //            int distanceD4 = move.getTo().distance(Square.sq(4, 4));
-//            int distanceD5 = move.getTo().distance(Square.sq(4, 5));
-//            int distanceE4 = move.getTo().distance(Square.sq(5, 4));
-//            int distanceE5 = move.getTo().distance(Square.sq(5, 5));
 
     /** Default depth. */
-    private static int DEFAULT_DEPTH = 5;
+    private static int defaultDepth = 5;
 
     /** Used to convey moves discovered by findMove. */
     private Move _foundMove;

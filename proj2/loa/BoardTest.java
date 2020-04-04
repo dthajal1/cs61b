@@ -1,17 +1,9 @@
 /* Skeleton Copyright (C) 2015, 2020 Paul N. Hilfinger and the Regents of the
  * University of California.  All rights reserved. */
 package loa;
-
-import com.sun.tools.internal.ws.wsdl.document.soap.SOAP12Binding;
-import com.sun.xml.internal.xsom.impl.scd.Iterators;
 import org.junit.Test;
-
-import java.security.AlgorithmConstraints;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 import static loa.Square.ALL_SQUARES;
 import static org.junit.Assert.*;
@@ -24,18 +16,6 @@ import static loa.Move.mv;
  *  @author Diraj Thajali
  */
 public class BoardTest {
-
-    // my tests
-    @Test
-    public void testInitializeBoard() {
-        Board a = new Board();
-        a.initialize(BOARD1, BP);
-        for (int i = 0; i < a.initializedBoard.length; i += 1) {
-            for (int j = 0; j < a.initializedBoard[0].length; j += 1) {
-                assertEquals(BOARD1[i][j], a.initializedBoard[i][j]);
-            }
-        }
-    }
 
     @Test
     public void testFindLinesOfAction() {
@@ -69,16 +49,11 @@ public class BoardTest {
         a.makeMove(Move.mv("b1-b3"));
         Board b = new Board();
         a.copyFrom(b);
-        System.out.println(a.toString());
     }
 
     @Test
     public void testWinner() {
-//        Pattern b = Pattern.compile("[\\S]*");
-//        Matcher c = b.matcher("Diraj");
-//        System.out.println(c.matches());
-        Board a = new Board(testBoard, WP);
-        System.out.println(a.toString());
+        Board a = new Board(TEST_BOARD, WP);
         assertFalse(a.gameOver());
         Move move = Move.mv("b1-e4");
         a.makeMove(move);
@@ -86,7 +61,7 @@ public class BoardTest {
         assertEquals(WP, a.winner());
     }
 
-    static final Piece[][] testBoard = {
+    static final Piece[][] TEST_BOARD = {
             { EMP, WP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
             { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
             { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
@@ -97,18 +72,7 @@ public class BoardTest {
             { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
     };
 
-//    static final Piece[][] testBoard1 = {
-//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
-//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
-//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
-//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
-//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
-//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
-//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
-//            { EMP, EMP,  EMP,  EMP,  EMP, EMP, EMP, EMP },
-//    };
 
-    //my tests ends
     /** A "general" position. */
     static final Piece[][] BOARD1 = {
         { EMP, BP,  EMP,  BP,  BP, EMP, EMP, EMP },

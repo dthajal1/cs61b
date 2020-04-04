@@ -2,10 +2,13 @@
  * University of California.  All rights reserved. */
 package loa;
 
-import java.util.*;
 
+import java.util.Formatter;
 import java.util.regex.Pattern;
-
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 import static loa.Piece.*;
 import static loa.Square.*;
 
@@ -47,16 +50,12 @@ class Board {
 
     /** Set my state to CONTENTS with SIDE to move. */
     void initialize(Piece[][] contents, Piece side) {
-        // FIXME Done
-        initializedBoard = new Piece[contents.length][contents[0].length];
         for (int i = 0; i < contents.length; i += 1) {
             for (int j = 0; j < contents[0].length; j += 1) {
-                Square temp = sq(j,i);
-                _board[temp.index()] = initializedBoard[i][j] = contents[i][j];
+                Square temp = sq(j, i);
+                _board[temp.index()] = contents[i][j];
             }
         }
-
-        //fixed
         _turn = side;
         _moveLimit = DEFAULT_MOVE_LIMIT;
     }
@@ -71,15 +70,12 @@ class Board {
         if (board == this) {
             return;
         }
-        // FIXME Done //set my state to copy
-        for (int i = 0; i < board._board.length; i += 1) {
-            _board[i] = board._board[i];
-        }
+        System.arraycopy(board._board, 0, _board, 0, board._board.length);
+        _moveLimit = board._moveLimit;
         _turn = board.turn();
         _winner = board._winner;
         _winnerKnown = board._winnerKnown;
         _subsetsInitialized = board._subsetsInitialized;
-        //fixed
     }
 
     /** Return the contents of the square at SQ. */
@@ -90,12 +86,10 @@ class Board {
     /** Set the square at SQ to V and set the side that is to move next
      *  to NEXT, if NEXT is not null. */
     void set(Square sq, Piece v, Piece next) {
-        // FIXME Done
         _board[sq.index()] = v;
         if (next != null) {
             _turn = next;
         }
-        //fixed
     }
 
     /** Set the square at SQ to V, without modifying the side that
@@ -118,10 +112,7 @@ class Board {
      *  later retraction, makeMove itself uses MOVE.captureMove() to produce
      *  the capturing move. */
     void makeMove(Move move) {
-//        System.out.println(move);
-//        System.out.println(get(move.getFrom()));
         assert isLegal(move);
-        // FIXME Done
         if (get(move.getTo()) == turn().opposite()) {
             Move capture = Move.mv(move.getFrom(), move.getTo(), true);
             _moves.add(capture);
@@ -129,17 +120,15 @@ class Board {
             _moves.add(move);
         }
         set(move.getTo(), get(move.getFrom()), turn().opposite());
-        set(move.getFrom(), EMP); //might have to switch player
+        set(move.getFrom(), EMP);
         _subsetsInitialized = false;
 
-        //fixed
     }
 
     /** Retract (unmake) one move, returning to the state immediately before
      *  that move.  Requires that movesMade () > 0. */
     void retract() {
         assert movesMade() > 0;
-        // FIXME Done
         Move removed = _moves.remove(movesMade() - 1);
         if (removed.isCapture()) {
             _board[removed.getFrom().index()] = get(removed.getTo());
@@ -150,7 +139,6 @@ class Board {
         }
         _turn = turn().opposite();
         _subsetsInitialized = false;
-        //fixed
     }
 
     /** Return the Piece representing who is next to move. */
@@ -161,12 +149,10 @@ class Board {
     /** Return true iff FROM - TO is a legal move for the player currently on
      *  move. */
     boolean isLegal(Square from, Square to) {
-        // FIXME Done
         if (get(from) == EMP) {
             return false;
         }
         return from.isValidMove(to) && !blocked(from, to);
-        //fixed
     }
 
     /** Return true iff MOVE is legal for the player currently on move.
@@ -175,22 +161,26 @@ class Board {
         return isLegal(move.getFrom(), move.getTo());
     }
 
-    /** Finds lines of action for the given square on the given direction. */
+    /** @param sq initial square
+     * @param dir direction
+     * @return int
+     * Finds lines of action for the given square on the given direction. */
     int findLineOfAction(Square sq, int dir) {
         int result = 0;
         Square currentDir = Square.sq(sq.col(), sq.row());
         while (currentDir != null) {
-            if (get(currentDir) == turn() || get(currentDir) == turn().opposite()) {
+            if (get(currentDir) == turn()
+                    || get(currentDir) == turn().opposite()) {
                 result += 1;
             }
             currentDir = currentDir.moveDest(dir, 1);
         }
-        int oppDir = 0;
+        int oppDir;
         if (dir < 4) {
             oppDir = 4 + dir;
         } else if (dir == 4) {
             oppDir = 0;
-        } else if (dir > 4) {
+        } else {
             oppDir = dir - 4;
         }
         Square currentOppDir = Square.sq(sq.col(), sq.row());
@@ -198,7 +188,8 @@ class Board {
             currentOppDir = currentOppDir.moveDest(oppDir, 1);
         }
         while (currentOppDir != null) {
-            if (get(currentOppDir) == turn() || get(currentOppDir) == turn().opposite()) {
+            if (get(currentOppDir) == turn()
+                    || get(currentOppDir) == turn().opposite()) {
                 result += 1;
             }
             currentOppDir = currentOppDir.moveDest(oppDir, 1);
@@ -208,23 +199,21 @@ class Board {
 
     /** Return a sequence of all legal moves from this position. */
     List<Move> legalMoves() {
-        // FIXME Done
         List<Move> legalMoves = new ArrayList<>();
-        for (int i = 0; i < ALL_SQUARES.length; i += 1) {
-            if (get(ALL_SQUARES[i]) == turn()) {
+        for (Square allSquare : ALL_SQUARES) {
+            if (get(allSquare) == turn()) {
                 for (int j = 0; j < 8; j += 1) {
-                    int LOA = findLineOfAction(ALL_SQUARES[i], j);
-                    Square potentialMove = ALL_SQUARES[i].moveDest(j, LOA);
-                    if (potentialMove != null) {
-                        if (isLegal(ALL_SQUARES[i], potentialMove)) {
-                            legalMoves.add(Move.mv(ALL_SQUARES[i], potentialMove));
+                    int loa = findLineOfAction(allSquare, j);
+                    Square potentMove = allSquare.moveDest(j, loa);
+                    if (potentMove != null) {
+                        if (isLegal(allSquare, potentMove)) {
+                            legalMoves.add(Move.mv(allSquare, potentMove));
                         }
                     }
                 }
             }
         }
         return legalMoves;
-        //fixed
     }
 
     /** Return true iff the game is over (either player has all his
@@ -242,7 +231,6 @@ class Board {
      *  null.  If the game has ended in a tie, returns EMP. */
     Piece winner() {
         if (!_winnerKnown) {
-            // FIXME
             if (piecesContiguous(turn().opposite())) {
                 _winner = turn().opposite();
                 _winnerKnown = true;
@@ -251,7 +239,6 @@ class Board {
                 _winnerKnown = true;
             }
             _subsetsInitialized = false;
-            //fixed
         }
         return _winner;
     }
@@ -265,6 +252,9 @@ class Board {
 
     @Override
     public boolean equals(Object obj) {
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
         Board b = (Board) obj;
         return Arrays.deepEquals(_board, b._board) && _turn == b._turn;
     }
@@ -292,27 +282,23 @@ class Board {
     /** Return true if a move from FROM to TO is blocked by an opposing
      *  piece or by a friendly piece on the target square. */
     private boolean blocked(Square from, Square to) {
-        // FIXME Done
         int dir = from.direction(to);
-        int LOA = findLineOfAction(from, dir);
+        int loa = findLineOfAction(from, dir);
         Square curr = Square.sq(from.col(), from.row());
-        while (LOA > 0 && curr != null) {
+        while (loa > 0 && curr != null) {
             Square dest = curr.moveDest(dir, 1);
             if (dest != null) {
-                if ((dest == to && get(to) == turn()) || (get(dest) == turn().opposite() && dest != to)) {
+                if ((dest == to && get(to) == turn())
+                        || (get(dest) == turn().opposite() && dest != to)) {
                     return true;
                 }
             }
             curr = dest;
-            LOA -= 1;
+            loa -= 1;
         }
-        if (LOA == 0 && curr != to) {
+        if (loa == 0 && curr != to) {
             return true;
-        } else if (LOA > 0) {
-            return true;
-        }
-        return false;
-        //fixed
+        } else return loa > 0;
     }
 
     /** Return the size of the as-yet unvisited cluster of squares
@@ -320,7 +306,6 @@ class Board {
      *  have already been processed or are in different clusters.  Update
      *  VISITED to reflect squares counted. */
     private int numContig(Square sq, boolean[][] visited, Piece p) {
-        // FIXME
         if (p == EMP || p == get(sq).opposite()) {
             return 0;
         }
@@ -333,7 +318,6 @@ class Board {
             }
         }
         return counter;
-        //fixed
     }
 
     /** Set the values of _whiteRegionSizes and _blackRegionSizes. */
@@ -343,7 +327,6 @@ class Board {
         }
         _whiteRegionSizes.clear();
         _blackRegionSizes.clear();
-        // FIXME
         boolean[][] visit = new boolean[BOARD_SIZE][BOARD_SIZE];
         for (int i = 0; i < BOARD_SIZE; i += 1) {
             for (int j = 0; j < BOARD_SIZE; j += 1) {
@@ -382,19 +365,6 @@ class Board {
             return _blackRegionSizes;
         }
     }
-
-    // FIXME: Other methods, variables?
-    /** Initialized board. */
-    Piece[][] initializedBoard;
-
-    ArrayList<Integer> getWhiteRegionSizes() {
-        return _whiteRegionSizes;
-    }
-
-    ArrayList<Integer> getBlackRegionSizes() {
-        return _blackRegionSizes;
-    }
-    //fixed
 
     /** The standard initial configuration for Lines of Action (bottom row
      *  first). */
