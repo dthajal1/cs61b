@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /** HW #7, Count inversions.
- *  @author
+ *  @author Diraj Thajali
  */
 public class Inversions {
 

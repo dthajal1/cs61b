@@ -1,5 +1,5 @@
 /** HW #7, Two-sum problem.
- * @author
+ * @author Diraj Thajali
  */
 public class Sum {
 

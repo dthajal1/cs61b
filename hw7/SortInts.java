@@ -1,5 +1,5 @@
 /** HW #7, Distribution counting for large numbers.
- *  @author
+ *  @author Diraj Thajali
  */
 public class SortInts {
 

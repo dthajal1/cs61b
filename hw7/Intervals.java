@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** HW #7, Sorting ranges.
- *  @author
+ *  @author Diraj Thajali
   */
 public class Intervals {
     /** Assuming that INTERVALS contains two-element arrays of integers,

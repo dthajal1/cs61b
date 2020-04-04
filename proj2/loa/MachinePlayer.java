@@ -3,6 +3,7 @@
 package loa;
 
 import javax.print.DocFlavor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -36,8 +37,8 @@ class MachinePlayer extends Player {
 
         assert side() == getGame().getBoard().turn();
         int depth;
+        System.out.println(getBoard().toString());
         choice = searchForMove();
-//        System.out.println(getBoard().toString());
         getGame().reportMove(choice);
         return choice.toString();
     }
@@ -80,92 +81,166 @@ class MachinePlayer extends Player {
         if (depth == 0 || board.gameOver()) {
             return heuristic(board);
         }
-        int bestSoFar = 0;
         Board copied = new Board(board);
-        List<Move> allMoves = copied.legalMoves();
-        for (Move move : allMoves) {
-            board.makeMove(move);
-            int best = findMove(copied, depth - 1, false, -sense, alpha, beta);
-            if (sense == 1) {
-                bestSoFar = -INFTY;
-                bestSoFar = Math.max(bestSoFar, best);
-                if (saveMove) {
-                    _foundMove = move;
+        Move bestMove = null;
+        if (sense == 1) {
+            int bestSoFar = -INFTY;
+            List<Move> allMoves = copied.legalMoves();
+            for (Move move : allMoves) {
+                copied.makeMove(move);
+                int best = findMove(copied, depth - 1, false, -sense, alpha, beta);
+                copied.retract();
+                if (best >= bestSoFar) {
+                    bestSoFar = best;
+                    alpha = Math.max(best, alpha);
+                    bestMove = move;
+                    if (alpha >= beta) {
+                        break;
+                    }
                 }
-                alpha = Math.max(best, alpha);
-            } else {
-                bestSoFar = INFTY;
-                bestSoFar = Math.min(bestSoFar, best);
-                if (saveMove) {
-                    _foundMove = move;
+            }
+            if (saveMove) {
+                _foundMove = bestMove;
+            }
+            return bestSoFar;
+        } else {
+            int bestSoFar = INFTY;
+            List<Move> allMoves = copied.legalMoves();
+            for (Move move : allMoves) {
+                copied.makeMove(move);
+                int best = findMove(copied, depth , true, -sense, alpha, beta);
+                copied.retract();
+                if (best <= bestSoFar) {
+                    bestSoFar = best;
+                    beta = Math.min(best, beta);
+                    bestMove = move;
+                    if (alpha >= beta) {
+                        break;
+                    }
                 }
-                beta = Math.min(best, beta);
             }
-            if (alpha >= beta) {
-                break;
+            if (saveMove) {
+                _foundMove = bestMove;
             }
-            board.retract();
+            return bestSoFar;
         }
-
-        return bestSoFar;
         //fixed
     }
 
     /** Return a search depth for the current position. */
     private int chooseDepth() {
-        return 1;  // FIXME
+//        return DEFAULT_DEPTH;  // FIXME
+        return 1;
     }
 
     // FIXME: Other methods, variables here.
+//    private int heuristic(Board board, int sense) {
+////        Board copied = new Board(board);
+////        List<Move> allMoves = copied.legalMoves();
+////        int result = 0;
+////        for (Move move : allMoves) {
+////            ArrayList<Integer> blackBefore = copied.getBlackRegionSizes();
+////            ArrayList<Integer> whiteBefore = copied.getWhiteRegionSizes();
+////
+////            int bestInBB = max(blackBefore);
+////            int bestInWB = max(whiteBefore);
+////
+////            copied.makeMove(move);
+////            if (copied.winner() != null) {
+////                if (copied.winner() == WP) {
+////                    return WINNING_VALUE;
+////                }
+////                return -WINNING_VALUE;
+////            }
+////
+////            ArrayList<Integer> blackAfter = copied.getBlackRegionSizes();
+////            ArrayList<Integer> whiteAfter = copied.getWhiteRegionSizes();
+////            int bestInBA = max(blackAfter);
+////            int bestInWA = max(whiteAfter);
+////
+////            if (sense == 1) {
+////
+////            }
+////            if (bestInBA >= bestInBB) {
+////                result += getGame().randInt(10000);
+////            } else {
+////                result -= getGame().randInt(10000);
+////            }
+////            if (bestInWA >= bestInWB) {
+////                result += getGame().randInt(10000);
+////            }
+////            copied.retract();
+////        }
+////        return result;
+////    }
+////
+////    public int max(List<Integer> list) {
+////        int max = 0;
+////        for (int i : list) {
+////            if (i > max) {
+////                max = i;
+////            }
+////        }
+////        return max;
+////    }
+
     private int heuristic(Board board) {
         Board copied = new Board(board);
         List<Move> allMoves = copied.legalMoves();
         int result = 0;
         for (Move move : allMoves) {
-            int beforeOpp = copied.getRegionSizes(copied.turn().opposite()).size();
-            int beforeMe = copied.getRegionSizes(copied.turn()).size();
+            int before = copied.getRegionSizes(copied.turn()).size();
             Square to = move.getTo();
-            int distanceD4 = move.getFrom().distance(Square.sq(4, 4));
-            int distanceD5 = move.getFrom().distance(Square.sq(4, 5));
-            int distanceE4 = move.getFrom().distance(Square.sq(5, 4));
-            int distanceE5 = move.getFrom().distance(Square.sq(5, 5));
-            copied.makeMove(move);
-            if (distanceD4 <= 2 || distanceD5 <= 2 || distanceE4 <= 2 || distanceE5 <= 2) {
-                result += getGame().randInt(100);
-            }
-            if (to.col() == 7 || to.row() == 7 || to.row() == 0 || to.col() == 0) {
-                result -= getGame().randInt(70);
+            Square from = move.getFrom();
+//            int distanceD4 = move.getTo().distance(Square.sq(4, 4));
+//            int distanceD5 = move.getTo().distance(Square.sq(4, 5));
+//            int distanceE4 = move.getTo().distance(Square.sq(5, 4));
+//            int distanceE5 = move.getTo().distance(Square.sq(5, 5));
+            int distanceD4 = move.getTo().distance(Square.sq(1, 2));
+            int distanceD5 = move.getTo().distance(Square.sq(1, 3));
+            int distanceE4 = move.getTo().distance(Square.sq(2, 2));
+            int distanceE5 = move.getTo().distance(Square.sq(2, 3));
+            //Distance of the move.to to the center
+            if (distanceD4 <= 1 || distanceD5 <= 1 || distanceE4 <= 1 || distanceE5 <= 1) {
+                result += getGame().randInt(10001);
+            } else if (distanceD4 < 3 || distanceD5 < 3 || distanceE4 < 3 || distanceE5 < 3) {
+                result += getGame().randInt(5500);
             } else {
-                result += getGame().randInt(70);
+                result -= 200000;
             }
-            int afterOpp = copied.getRegionSizes(copied.turn().opposite()).size();
-            int afterMe = copied.getRegionSizes(copied.turn()).size();
-            if (move.isCapture()) {
-                result += getGame().randInt(80);
-                if (copied.piecesContiguous(copied.turn())) {
-                    result += WINNING_VALUE;
+            int me = from.distance(Square.sq(4, 4));
+            int me1 = from.distance(Square.sq(4, 5));
+            int me2 = from.distance(Square.sq(5, 4));
+            int me3 = from.distance(Square.sq(5, 5));
+            //Distance of from to the center
+            if (me <= 1 || me1 <= 1 || me2 <= 1 || me3 <= 1) {
+                continue;
+            }
+            copied.makeMove(move);
+            if (copied.winner() != null) {
+                if (copied.winner() == WP) {
+                    return WINNING_VALUE;
                 }
-                if (copied.piecesContiguous(copied.turn().opposite())) {
-                    result -= WINNING_VALUE;
-                }
+                return -WINNING_VALUE;
             }
-            if (copied.piecesContiguous(copied.turn())) {
-                result += WINNING_VALUE;
+            int after = copied.getRegionSizes(copied.turn()).size();
+
+            if (move.isCapture() && after < before) {
+                result += getGame().randInt(100000);
             }
-            if (beforeOpp < afterOpp && beforeMe > afterMe) {
-                result += WINNING_VALUE - 1000;
-            }
-            if (beforeOpp < afterOpp) {
-                result += getGame().randInt(1000);
-            }
-            if (beforeMe > afterMe) {
-                result += getGame().randInt(1000);
+            //avoid corners
+            //(to.row() == 0 && to.col() == 0) ||
+            if ( (to.row() == 0 && to.col() == 7) || (to.row() == 7 && to.col() == 0) || (to.row() == 7 && to.col() == 7)) {
+                result -= getGame().randInt(3000);
             }
             copied.retract();
         }
-        return result;
+        return getGame().randInt(1 + WINNING_VALUE) - WINNING_VALUE;
+//        return result;
     }
 
+    /** Default depth. */
+    private static int DEFAULT_DEPTH = 5;
 
     /** Used to convey moves discovered by findMove. */
     private Move _foundMove;

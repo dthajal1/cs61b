@@ -128,7 +128,7 @@ class Board {
         }
         set(move.getTo(), get(move.getFrom()), turn().opposite());
         set(move.getFrom(), EMP); //might have to switch player
-
+        _subsetsInitialized = false;
 
         //fixed
     }
@@ -147,6 +147,7 @@ class Board {
             _board[removed.getTo().index()] = EMP;
         }
         _turn = turn().opposite();
+        _subsetsInitialized = false;
         //fixed
     }
 
@@ -315,9 +316,6 @@ class Board {
      *  VISITED to reflect squares counted. */
     private int numContig(Square sq, boolean[][] visited, Piece p) {
         // FIXME
-//        System.out.println("Heajfdf: " + p);
-//        System.out.println("Square; " + sq);
-//        System.out.println("kjsdf; " + get(sq));
         if (p == EMP || p == get(sq).opposite()) {
             return 0;
         }
@@ -363,22 +361,7 @@ class Board {
                 }
             }
         }
-//        if (get(curr) != EMP && !visit[i][j]) {
-//            if (turn() == WP && get(curr) == turn()) {
-//                visit[i][j] = true;
-//                int wGroup = numContig(curr, visit, WP);
-//                if (wGroup > 0) {
-//                    _whiteRegionSizes.add(wGroup);
-//                }
-//            } else {
-//                visit[i][j] = true;
-//                int bGroup = numContig(curr, visit, BP);
-//                if (bGroup > 0) {
-//                    _blackRegionSizes.add(bGroup);
-//                }
-//            }
-//        }
-        //fixed
+
         Collections.sort(_whiteRegionSizes, Collections.reverseOrder());
         Collections.sort(_blackRegionSizes, Collections.reverseOrder());
         _subsetsInitialized = true;
@@ -399,9 +382,12 @@ class Board {
     /** Initialized board. */
     Piece[][] initializedBoard;
 
-    int getMoveLimit() {
-        return _moveLimit;
+    ArrayList<Integer> getWhiteRegionSizes() {
+        return _whiteRegionSizes;
+    }
 
+    ArrayList<Integer> getBlackRegionSizes() {
+        return _blackRegionSizes;
     }
     //fixed
 
