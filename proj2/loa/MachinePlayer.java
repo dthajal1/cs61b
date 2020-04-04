@@ -2,10 +2,8 @@
  * University of California.  All rights reserved. */
 package loa;
 
-import javax.print.DocFlavor;
-import java.util.ArrayList;
+
 import java.util.List;
-import java.util.Random;
 
 import static loa.Piece.*;
 
@@ -37,7 +35,7 @@ class MachinePlayer extends Player {
 
         assert side() == getGame().getBoard().turn();
         int depth;
-        System.out.println(getBoard().toString());
+//        System.out.println(getBoard().toString());
         choice = searchForMove();
         getGame().reportMove(choice);
         return choice.toString();
@@ -108,7 +106,7 @@ class MachinePlayer extends Player {
             List<Move> allMoves = copied.legalMoves();
             for (Move move : allMoves) {
                 copied.makeMove(move);
-                int best = findMove(copied, depth , true, -sense, alpha, beta);
+                int best = findMove(copied, depth - 1, false, -sense, alpha, beta);
                 copied.retract();
                 if (best <= bestSoFar) {
                     bestSoFar = best;
@@ -202,7 +200,7 @@ class MachinePlayer extends Player {
             int distanceE5 = move.getTo().distance(Square.sq(2, 3));
             //Distance of the move.to to the center
             if (distanceD4 <= 1 || distanceD5 <= 1 || distanceE4 <= 1 || distanceE5 <= 1) {
-                result += getGame().randInt(10001);
+                result += WINNING_VALUE;
             } else if (distanceD4 < 3 || distanceD5 < 3 || distanceE4 < 3 || distanceE5 < 3) {
                 result += getGame().randInt(5500);
             } else {
@@ -219,9 +217,9 @@ class MachinePlayer extends Player {
             copied.makeMove(move);
             if (copied.winner() != null) {
                 if (copied.winner() == WP) {
-                    return WINNING_VALUE;
+                    result += WINNING_VALUE;
                 }
-                return -WINNING_VALUE;
+                result -= WINNING_VALUE;
             }
             int after = copied.getRegionSizes(copied.turn()).size();
 
@@ -235,8 +233,7 @@ class MachinePlayer extends Player {
             }
             copied.retract();
         }
-        return getGame().randInt(1 + WINNING_VALUE) - WINNING_VALUE;
-//        return result;
+        return result;
     }
 
     /** Default depth. */
