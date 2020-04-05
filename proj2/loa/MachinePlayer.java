@@ -133,12 +133,11 @@ class MachinePlayer extends Player {
      * @param board
      * Evaluation function. */
     private int heuristic(Board board) {
-        Board copied = new Board(board);
+        Board copied = new Board(board); int result = 0;
         List<Move> allMoves = copied.legalMoves();
-        int result = 0;
         for (Move move : allMoves) {
-            Square to = move.getTo();
-            Square from = move.getFrom();
+            int before = copied.getRegionSizes(copied.turn()).size();
+            Square to = move.getTo(); Square from = move.getFrom();
             int distanceD4 = to.distance(Square.sq(1, 2));
             int distanceD5 = to.distance(Square.sq(1, 3));
             int distanceE4 = to.distance(Square.sq(2, 2));
@@ -180,6 +179,10 @@ class MachinePlayer extends Player {
                 } else if (winner == BP) {
                     result -= getGame().randInt(TEN_THOU2);
                 }
+            }
+            int after = copied.getRegionSizes(copied.turn()).size();
+            if (move.isCapture() && after < before) {
+                result += getGame().randInt(HUN_THOU1);
             }
             if ((to.row() == 0 && to.col() == 7) || (to.row() == 7
                     && to.col() == 0) || (to.row() == 7 && to.col() == 7)) {

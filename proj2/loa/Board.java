@@ -230,10 +230,6 @@ class Board {
     /** Return the winning side, if any.  If the game is not over, result is
      *  null.  If the game has ended in a tie, returns EMP. */
     Piece winner() {
-        if (movesMade() >= _moveLimit) {
-            _winnerKnown = true;
-            _winner = null;
-        }
         if (!_winnerKnown) {
             if (piecesContiguous(turn().opposite())) {
                 _winner = turn().opposite();
