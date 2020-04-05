@@ -147,19 +147,19 @@ class MachinePlayer extends Player {
             if (distanceD4 <= 1 || distanceD5 <= 1
                     || distanceE4 <= 1 || distanceE5 <= 1) {
                 if (move.isCapture()) {
-                    result += getGame().randInt(A);
+                    result += getGame().randInt(HUN_THOU);
                 } else {
-                    result += getGame().randInt(B);
+                    result += getGame().randInt(TEN_THOU);
                 }
             } else if (distanceD4 < 3 || distanceD5 < 3
                     || distanceE4 < 3 || distanceE5 < 3) {
                 if (move.isCapture()) {
-                    result += getGame().randInt(C);
+                    result += getGame().randInt(FIVE_500);
                 } else {
-                    result += getGame().randInt(D);
+                    result += getGame().randInt(FIVE_THOU);
                 }
             } else {
-                result -= I;
+                result -= TWO_HUN_THOU;
             }
             int me = from.distance(Square.sq(4, 4));
             int me1 = from.distance(Square.sq(4, 5));
@@ -169,22 +169,27 @@ class MachinePlayer extends Player {
                 continue;
             }
             copied.makeMove(move);
+            if (copied.piecesContiguous(copied.turn())) {
+                result += WINNING_VALUE;
+            } else if (copied.piecesContiguous(copied.turn().opposite())) {
+                result -= WINNING_VALUE;
+            }
             if (copied.winner() != null) {
                 Piece winner = copied.winner();
                 if (winner == WP) {
-                    result += getGame().randInt(E);
+                    result += getGame().randInt(TEN_THOU1);
                 } else if (winner == BP) {
-                    result -= getGame().randInt(F);
+                    result -= getGame().randInt(TEN_THOU2);
                 }
             }
             int after = copied.getRegionSizes(copied.turn()).size();
 
             if (move.isCapture() && after < before) {
-                result += getGame().randInt(G);
+                result += getGame().randInt(HUN_THOU1);
             }
             if ((to.row() == 0 && to.col() == 7) || (to.row() == 7
                     && to.col() == 0) || (to.row() == 7 && to.col() == 7)) {
-                result -= getGame().randInt(H);
+                result -= getGame().randInt(THREE_THOU);
             }
             copied.retract();
         }
@@ -194,32 +199,16 @@ class MachinePlayer extends Player {
     /** Default depth. */
     private static final int DEFAULT_DEPTH = 2;
 
-    /** Random integers. */
-    private static final int A = 100000;
+    private static final int HUN_THOU = 100000;
+    private static final int TEN_THOU = 10000;
+    private static final int FIVE_500 = 5500;
+    private static final int FIVE_THOU = 5000;
+    private static final int TEN_THOU1 = 10001;
+    private static final int TEN_THOU2 = 10000;
+    private static final int HUN_THOU1 = 100001;
+    private static final int THREE_THOU = 3000;
+    private static final int TWO_HUN_THOU =200000;
 
-    /** Random integers. */
-    private static final int B = 10000;
-
-    /** Random integers. */
-    private static final int C = 5500;
-
-    /** Random integers. */
-    private static final int D = 5000;
-
-    /** Random integers. */
-    private static final int E = 10000;
-
-    /** Random integers. */
-    private static final int F = 10000;
-
-    /** Random integers. */
-    private static final int G = 100000;
-
-    /** Random integers. */
-    private static final int H = 3000;
-
-    /** Random integers. */
-    private static final int I = 200000;
 
 
     /** Used to convey moves discovered by findMove. */

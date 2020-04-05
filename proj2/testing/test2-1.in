@@ -1,0 +1,43 @@
+#*java -ea loa.Main
+# Black has to win.
+seed 22312
+manual White
+b8-h8
+h2-g3
+h8-g7
+a2-a8
+c8-a6
+a3-c1
+b1-d3
+c1-e3
+g1-c1
+h3-g4
+c1-c2
+a8-b7
+f1-c1
+e3-h3
+e1-e3
+a7-c5
+d1-d4
+a5-b4
+e3-h6
+g3-g7
+a6-c4
+c5-f8
+d8-c7
+f8-f7
+c4-f7
+h3-f5
+h6-f4
+h7-d3
+c7-e5
+d3-c3
+c1-e3
+b7-e7
+g8-e6
+h5-e5
+c2-e4
+c3-c4
+auto Black
+auto White
+#*move/win+
