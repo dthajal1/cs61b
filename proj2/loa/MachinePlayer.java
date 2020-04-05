@@ -126,8 +126,7 @@ class MachinePlayer extends Player {
 
     /** Return a search depth for the current position. */
     private int chooseDepth() {
-//        return getGame().randInt(defaultDepth);
-        return 2;
+        return DEFAULT_DEPTH;
     }
 
     /** @return int
@@ -145,32 +144,27 @@ class MachinePlayer extends Player {
             int distanceD5 = to.distance(Square.sq(1, 3));
             int distanceE4 = to.distance(Square.sq(2, 2));
             int distanceE5 = to.distance(Square.sq(2, 3));
-            //Distance of the move.to to the center
             if (distanceD4 <= 1 || distanceD5 <= 1
                     || distanceE4 <= 1 || distanceE5 <= 1) {
-//                System.out.println("Distance is 1");
-                if (move.isCapture() ) {
-                    result += getGame().randInt(100000);
+                if (move.isCapture()) {
+                    result += getGame().randInt(A);
                 } else {
-                    result += getGame().randInt(10000);
+                    result += getGame().randInt(B);
                 }
             } else if (distanceD4 < 3 || distanceD5 < 3
                     || distanceE4 < 3 || distanceE5 < 3) {
-//                System.out.println("Distance is less than 3");
                 if (move.isCapture()) {
-                    result += getGame().randInt(5500);
+                    result += getGame().randInt(C);
                 } else {
-                    result += getGame().randInt(5000);
+                    result += getGame().randInt(D);
                 }
             } else {
-//                System.out.println("Distance is greater than 3");
-                result -= 200000;
+                result -= I;
             }
             int me = from.distance(Square.sq(4, 4));
             int me1 = from.distance(Square.sq(4, 5));
             int me2 = from.distance(Square.sq(5, 4));
             int me3 = from.distance(Square.sq(5, 5));
-            //Distance of from to the center
             if (me <= 1 || me1 <= 1 || me2 <= 1 || me3 <= 1) {
                 continue;
             }
@@ -178,21 +172,19 @@ class MachinePlayer extends Player {
             if (copied.winner() != null) {
                 Piece winner = copied.winner();
                 if (winner == WP) {
-                    result += getGame().randInt(10000);
+                    result += getGame().randInt(E);
                 } else if (winner == BP) {
-                    result -= getGame().randInt(10000);
+                    result -= getGame().randInt(F);
                 }
             }
             int after = copied.getRegionSizes(copied.turn()).size();
 
             if (move.isCapture() && after < before) {
-                result += getGame().randInt(100000);
+                result += getGame().randInt(G);
             }
-            //avoid corners
-            //(to.row() == 0 && to.col() == 0) ||
             if ((to.row() == 0 && to.col() == 7) || (to.row() == 7
                     && to.col() == 0) || (to.row() == 7 && to.col() == 7)) {
-                result -= getGame().randInt(3000);
+                result -= getGame().randInt(H);
             }
             copied.retract();
         }
@@ -200,7 +192,35 @@ class MachinePlayer extends Player {
     }
 
     /** Default depth. */
-    private static int defaultDepth = 5;
+    private static final int DEFAULT_DEPTH = 2;
+
+    /** Random integers. */
+    private static final int A = 100000;
+
+    /** Random integers. */
+    private static final int B = 10000;
+
+    /** Random integers. */
+    private static final int C = 5500;
+
+    /** Random integers. */
+    private static final int D = 5000;
+
+    /** Random integers. */
+    private static final int E = 10000;
+
+    /** Random integers. */
+    private static final int F = 10000;
+
+    /** Random integers. */
+    private static final int G = 100000;
+
+    /** Random integers. */
+    private static final int H = 3000;
+
+    /** Random integers. */
+    private static final int I = 200000;
+
 
     /** Used to convey moves discovered by findMove. */
     private Move _foundMove;

@@ -298,7 +298,9 @@ class Board {
         }
         if (loa == 0 && curr != to) {
             return true;
-        } else return loa > 0;
+        } else {
+            return loa > 0;
+        }
     }
 
     /** Return the size of the as-yet unvisited cluster of squares
