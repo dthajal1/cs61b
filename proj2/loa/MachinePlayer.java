@@ -137,7 +137,6 @@ class MachinePlayer extends Player {
         List<Move> allMoves = copied.legalMoves();
         int result = 0;
         for (Move move : allMoves) {
-            int before = copied.getRegionSizes(copied.turn()).size();
             Square to = move.getTo();
             Square from = move.getFrom();
             int distanceD4 = to.distance(Square.sq(1, 2));
@@ -182,11 +181,6 @@ class MachinePlayer extends Player {
                     result -= getGame().randInt(TEN_THOU2);
                 }
             }
-            int after = copied.getRegionSizes(copied.turn()).size();
-
-            if (move.isCapture() && after < before) {
-                result += getGame().randInt(HUN_THOU1);
-            }
             if ((to.row() == 0 && to.col() == 7) || (to.row() == 7
                     && to.col() == 0) || (to.row() == 7 && to.col() == 7)) {
                 result -= getGame().randInt(THREE_THOU);
@@ -224,7 +218,7 @@ class MachinePlayer extends Player {
     private static final int THREE_THOU = 3000;
 
     /** Random numbers. */
-    private static final int TWO_HUN_THOU =200000;
+    private static final int TWO_HUN_THOU = 200000;
 
     /** Used to convey moves discovered by findMove. */
     private Move _foundMove;
