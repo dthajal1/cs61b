@@ -199,17 +199,32 @@ class MachinePlayer extends Player {
     /** Default depth. */
     private static final int DEFAULT_DEPTH = 2;
 
+    /** Random numbers. */
     private static final int HUN_THOU = 100000;
+
+    /** Random numbers. */
     private static final int TEN_THOU = 10000;
+
+    /** Random numbers. */
     private static final int FIVE_500 = 5500;
+
+    /** Random numbers. */
     private static final int FIVE_THOU = 5000;
+
+    /** Random numbers. */
     private static final int TEN_THOU1 = 10001;
+
+    /** Random numbers. */
     private static final int TEN_THOU2 = 10000;
+
+    /** Random numbers. */
     private static final int HUN_THOU1 = 100001;
+
+    /** Random numbers. */
     private static final int THREE_THOU = 3000;
+
+    /** Random numbers. */
     private static final int TWO_HUN_THOU =200000;
-
-
 
     /** Used to convey moves discovered by findMove. */
     private Move _foundMove;
