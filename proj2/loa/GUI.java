@@ -40,12 +40,13 @@ class GUI extends TopLevel implements View, Reporter {
         super(title, true);
         addMenuButton("Game->New", this::newGame);
         addMenuButton("Game->Quit", this::quit);
-
-
-
-
-
-
+        addMenuButton("Game->Undo", this::undo);
+        addMenuButton("Switch->Auto-White", this::autoWhite);
+        addMenuButton("Switch->Auto-Black", this::autoBlack);
+        addMenuButton("Switch->Manual-White", this::manualWhite);
+        addMenuButton("Switch->Manual-Black", this::manualBlack);
+        addMenuButton("Help->About", this::about);
+        addMenuButton("Help->LOA", this::help);
 
         _widget = new BoardWidget(_pendingCommands);
         add(_widget,
@@ -59,9 +60,41 @@ class GUI extends TopLevel implements View, Reporter {
 
 
 
+    }
 
+    /** Response to "About" button click. */
+    private void about(String dummy) {
+        displayText("About", ABOUT_TEXT);
+    }
 
+    /** Response to "Manual-Black" button click. */
+    private void manualBlack(String dummy) {
+        _pendingCommands.offer("manual black");
+    }
 
+    /** Response to "Manual-White" button click. */
+    private void manualWhite(String dummy) {
+        _pendingCommands.offer("manual white");
+    }
+
+    /** Response to "Auto-Black" button click. */
+    private void autoBlack(String dummy) {
+        _pendingCommands.offer("auto black");
+    }
+
+    /** Response to "Auto-White" button click. */
+    private void autoWhite(String dummy) {
+        _pendingCommands.offer("auto white");
+    }
+
+    /** Response to "Help" button click. */
+    private void help(String dummy) {
+        displayText("Help", HELP_TEXT);
+    }
+
+    /** Response to "Undo" button click. */
+    private void undo(String dummy) {
+        _pendingCommands.offer("undo");
     }
 
     /** Response to "Quit" button click. */
@@ -105,9 +138,6 @@ class GUI extends TopLevel implements View, Reporter {
 
         boolean manualWhite = controller.manualWhite(),
             manualBlack = controller.manualBlack();
-
-
-
 
 
 

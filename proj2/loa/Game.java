@@ -58,6 +58,14 @@ class Game {
         System.exit(0);
     }
 
+    /** Undo. */
+    private void undo() {
+        if (!_board.gameOver() && _board.movesMade() >= 2) {
+            _board.retract();
+            _board.retract();
+        }
+    }
+
     /** Return a move or command from the standard input, after prompting if
      *  PROMPT. */
     String readLine(boolean prompt) {
@@ -116,6 +124,10 @@ class Game {
                 break;
             case "quit":
                 quit();
+                break;
+
+            case "undo":
+                undo();
                 break;
             case "seed":
                 seedCommand(command.group(2));

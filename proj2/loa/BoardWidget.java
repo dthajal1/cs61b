@@ -96,8 +96,6 @@ class BoardWidget extends Pad {
 
 
 
-
-
     }
 
     /** Draw the contents of S on G. */
@@ -125,22 +123,19 @@ class BoardWidget extends Pad {
 
     /** Handle a mouse-button push on S. */
     private void mousePressed(Square s) {
-
-
-
-
-
-
+        _from = s.toString();
         repaint();
     }
 
     /** Handle a mouse-button release on S. */
     private void mouseReleased(Square s) {
-
-
-
-
-
+        if (_from != null) {
+            String to = s.toString();
+            Move move = Move.mv(_from + "-" + to);
+            if (_board.isLegal(move)) {
+                _commands.offer(move.toString());
+            }
+        }
         repaint();
     }
 
@@ -170,10 +165,6 @@ class BoardWidget extends Pad {
         _board.copyFrom(board);
 
 
-
-
-
-
         repaint();
     }
 
@@ -182,13 +173,9 @@ class BoardWidget extends Pad {
      *  the board. */
     void setMoveCollection(boolean collecting) {
         _acceptingMoves = collecting;
-
-
-
-
-
-
-
+        if (_acceptingMoves) {
+            _commands.clear();
+        }
         repaint();
     }
 
@@ -224,4 +211,5 @@ class BoardWidget extends Pad {
     /** True iff accepting moves from user. */
     private boolean _acceptingMoves;
 
+    private String _from = null;
 }

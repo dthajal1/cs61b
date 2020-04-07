@@ -57,6 +57,9 @@ class Board {
             }
         }
         _turn = side;
+        _winnerKnown = false;
+        _winner = null;
+        _subsetsInitialized = false;
         _moveLimit = DEFAULT_MOVE_LIMIT;
     }
 
@@ -113,15 +116,17 @@ class Board {
      *  the capturing move. */
     void makeMove(Move move) {
         assert isLegal(move);
-        if (get(move.getTo()) == turn().opposite()) {
-            Move capture = Move.mv(move.getFrom(), move.getTo(), true);
-            _moves.add(capture);
-        } else {
-            _moves.add(move);
+        if (get(move.getFrom()) == turn()) {
+            if (get(move.getTo()) == turn().opposite()) {
+                Move capture = Move.mv(move.getFrom(), move.getTo(), true);
+                _moves.add(capture);
+            } else {
+                _moves.add(move);
+            }
+            set(move.getTo(), get(move.getFrom()), turn().opposite());
+            set(move.getFrom(), EMP);
+            _subsetsInitialized = false;
         }
-        set(move.getTo(), get(move.getFrom()), turn().opposite());
-        set(move.getFrom(), EMP);
-        _subsetsInitialized = false;
 
     }
 
