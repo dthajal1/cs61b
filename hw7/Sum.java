@@ -12,14 +12,12 @@ public class Sum {
         for (int i : B) {
             first.add(i);
         }
-        HashSet<Integer> seen = new HashSet<>();
         for (int value : A) {
             int needed = m - value;
             if (first.contains(needed)) {
                 return true;
             }
         }
-        return false;  // REPLACE WITH YOUR ANSWER
+        return false;
     }
-
 }

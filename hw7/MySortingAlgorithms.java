@@ -1,5 +1,3 @@
-import javax.swing.*;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -44,7 +42,14 @@ public class MySortingAlgorithms {
     public static class InsertionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            insertionSort(array, k, 0, 1);
+            for (int i = 0; i < k - 1; i += 1) {
+                for (int j = i; j >= 0; j -= 1) {
+                    if (array[j] < array[j + 1]) {
+                        break;
+                    }
+                    swap(array, j, j + 1);
+                }
+            }
         }
 
         private void insertionSort(int[] array, int k, int startWith, int count) {
@@ -79,28 +84,15 @@ public class MySortingAlgorithms {
     public static class SelectionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            selectionSort(array, k, 0, 1);
-        }
-
-        private void selectionSort(int[] array, int k, int swapWithIndex, int count) {
-            if (k <= count) {
-                return;
-            }
-            int minIndex = findMinIndex(array, k, swapWithIndex);
-            swap(array, minIndex, swapWithIndex);
-            selectionSort(array, k, swapWithIndex + 1, count + 1);
-        }
-
-        public int findMinIndex(int[] array, int to, int from) {
-            int min = array[from];
-            int result = from;
-            for (int i = from; i < to; i += 1) {
-                if (array[i] < min) {
-                    result = i;
-                    min = array[i];
+            for (int i = 0; i < k; i += 1) {
+                int min = array[i];
+                for (int j = i + 1; j < k; j += 1) {
+                    if (array[j] < min) {
+                        min = array[j];
+                        swap(array, j, i);
+                    }
                 }
             }
-            return result;
         }
 
         @Override
