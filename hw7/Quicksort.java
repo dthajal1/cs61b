@@ -39,7 +39,7 @@ public class Quicksort {
           *
           * 1. Creating three ArrayList of the smaller, equal and larger
           *    items, respectively.
-          * 2. Concatenting these ArrayLists into a single list.
+          * 2. Concatenating these ArrayLists into a single list.
           * 3. Converting this ArrayList into an array.
           * 4. Copying the elements back into a.
           *

@@ -1,3 +1,5 @@
+import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -42,8 +44,25 @@ public class MySortingAlgorithms {
     public static class InsertionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            insertionSort(array, k, 0, 1);
         }
+
+        private void insertionSort(int[] array, int k, int startWith, int count) {
+            if (k <= count) {
+                return;
+            }
+            if (array[startWith] > array[startWith + 1]) {
+                swap(array, startWith, startWith + 1);
+                for (int j = startWith; j > 0; j -=1) {
+                    if (array[j] > array[j - 1]) {
+                        break;
+                    }
+                    swap(array, j, j - 1);
+                }
+            }
+            insertionSort(array, k, startWith + 1, count + 1);
+        }
+
 
         @Override
         public String toString() {
@@ -60,7 +79,28 @@ public class MySortingAlgorithms {
     public static class SelectionSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            selectionSort(array, k, 0, 1);
+        }
+
+        private void selectionSort(int[] array, int k, int swapWithIndex, int count) {
+            if (k <= count) {
+                return;
+            }
+            int minIndex = findMinIndex(array, k, swapWithIndex);
+            swap(array, minIndex, swapWithIndex);
+            selectionSort(array, k, swapWithIndex + 1, count + 1);
+        }
+
+        public int findMinIndex(int[] array, int to, int from) {
+            int min = array[from];
+            int result = from;
+            for (int i = from; i < to; i += 1) {
+                if (array[i] < min) {
+                    result = i;
+                    min = array[i];
+                }
+            }
+            return result;
         }
 
         @Override
@@ -77,10 +117,38 @@ public class MySortingAlgorithms {
     public static class MergeSort implements SortingAlgorithm {
         @Override
         public void sort(int[] array, int k) {
-            // FIXME
+            int[] tempArray = new int[array.length];
+            sortHelper(array, tempArray, 0, k - 1);
         }
 
-        // may want to add additional methods
+        private void sortHelper(int[] arr, int[] tempArr, int low, int high) {
+            if (low >= high) {
+                return;
+            }
+            int half = (low + high) / 2;
+            sortHelper(arr, tempArr, low, half);
+            sortHelper(arr, tempArr, half + 1, high);
+            mergeSort(arr, tempArr, low, half, high);
+        }
+
+        private void mergeSort(int[] arr, int[] tempArr, int leftStart, int leftEnd, int rightEnd) {
+            int left = leftStart;
+            int right = leftEnd + 1;
+            int index = leftStart;
+            while (left <= leftEnd && right <= rightEnd) {
+                if (arr[left] < arr[right]) {
+                    tempArr[index] = arr[left];
+                    left += 1;
+                } else {
+                    tempArr[index] = arr[right];
+                    right += 1;
+                }
+                index += 1;
+            }
+            System.arraycopy(arr, left, tempArr, index, leftEnd - left + 1);
+            System.arraycopy(arr, right, tempArr, index, rightEnd - right + 1);
+            System.arraycopy(tempArr, leftStart, arr, leftStart, rightEnd - leftStart + 1);
+        }
 
         @Override
         public String toString() {
@@ -148,7 +216,32 @@ public class MySortingAlgorithms {
     public static class LSDSort implements SortingAlgorithm {
         @Override
         public void sort(int[] a, int k) {
-            // FIXME
+            int W = 4;
+            int R = 1 << 8;
+            int mask = R - 1;
+            int[] temp = new int[k];
+            for (int d = 0; d < W; d++) {
+                int[] count = new int[R + 1];
+                for (int i = 0; i < k; i += 1) {
+                    int c = (a[i] >> 8 * d) & mask;
+                    count[c + 1] += 1;
+                }
+                for (int r = 0; r < R; r += 1)
+                    count[r + 1] += count[r];
+                if (d == W - 1) {
+                    int shift1 = count[R] - count[R / 2];
+                    int shift2 = count[R / 2];
+                    for (int r = 0; r < R / 2; r++)
+                        count[r] += shift1;
+                    for (int r = R / 2; r < R; r++)
+                        count[r] -= shift2;
+                }
+                for (int i = 0; i < k; i++) {
+                    int c = (a[i] >> 8 * d) & mask;
+                    temp[count[c]++] = a[i];
+                }
+                System.arraycopy(temp, 0, a, 0, k);
+            }
         }
 
         @Override
