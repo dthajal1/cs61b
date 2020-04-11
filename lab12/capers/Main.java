@@ -1,7 +1,5 @@
 package capers;
 
-import jdk.jshell.execution.Util;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -100,6 +98,7 @@ public class Main {
         String oldContent = Utils.readContentsAsString(STORY);
         String newContent = oldContent + args[1] + "\n";
         Utils.writeContents(STORY, newContent);
+        System.out.println(newContent);
     }
 
     /**

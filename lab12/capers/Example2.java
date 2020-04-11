@@ -1,9 +1,7 @@
 package capers;
 
 
-import java.io.File;
 import java.io.Serializable;
-import java.util.HashSet;
 
 public class Example2 implements Serializable {
     public static void main(String[] args) {
