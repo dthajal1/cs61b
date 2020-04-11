@@ -12,10 +12,10 @@ public class Example2 implements Serializable {
 //        set.add("Diraj");
 //        set.add("Rashmi");
 //        set.add("Dipika");
-        File f = new File("set");
+//        File f = new File("set");
 //        Utils.writeObject(f, set);
         //To convert back to objects
-        HashSet<String> setLoaded = Utils.readObject(f, HashSet.class);
-        System.out.println(setLoaded);
+//        HashSet<String> setLoaded = Utils.readObject(f, HashSet.class);
+//        System.out.println(setLoaded);
     }
 }
