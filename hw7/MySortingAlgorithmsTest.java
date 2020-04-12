@@ -70,22 +70,25 @@ public class MySortingAlgorithmsTest {
         for (SortingAlgorithm sa : algorithms) {
 
             int[] original = {0, 24, 13, 560, 2, 2, 1324, 5};
-            int[] correct = {0, 2, 2, 13, 24, 560, 1324, 5};
-            javaSort.sort(correct, correct.length);
 
-            int[] input = BenchmarkUtility.copy(original);
-            sa.sort(input, input.length);
+            int[] input1 = BenchmarkUtility.copy(original);
+            int[] correct1 = BenchmarkUtility.copy(original);
+            javaSort.sort(correct1, correct1.length);
+
+            sa.sort(input1, input1.length);
             assertArrayEquals("Result for " + sa + " incorrect",
-                    correct, input);
+                    correct1, input1);
 
             // Test on the first k elements (in this case, all but the
             // last item).
-            javaSort.sort(correct, correct.length - 1);
 
             int[] input2 = BenchmarkUtility.copy(original);
+            int[] correct2 = BenchmarkUtility.copy(original);
+            javaSort.sort(correct2, correct2.length - 1);
+
             sa.sort(input2, input2.length - 1);
             assertArrayEquals("Result for " + sa + " incorrect",
-                    correct, input);
+                    correct2, input2);
         }
     }
 
