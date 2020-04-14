@@ -33,7 +33,21 @@ public class RedBlackTree<T extends Comparable<T>> {
      */
     RBTreeNode<T> buildRedBlackTree(BTree.Node<T> r) {
         // YOUR CODE HERE
+        RBTreeNode<T> root = new RBTreeNode<>(true, r.getItemAt(0));
+        for (int i = 0; i < r.getChildrenCount(); i += 1) {
+
+        }
         return null;
+    }
+
+    public int height(RBTreeNode<T> node) {
+        if (node == null || (node.left == null && node.right == null)) {
+            return 0;
+        } else {
+            int left = height(node.left);
+            int right = height(node.right);
+            return 1 + Math.max(left, right);
+        }
     }
 
     /**
@@ -47,10 +61,11 @@ public class RedBlackTree<T extends Comparable<T>> {
     RBTreeNode<T> rotateRight(RBTreeNode<T> node) {
         if (node == null) {
             return null;
-        } else if (node.left != null && node.right != null) {
+        } else if (node.left != null) {
             RBTreeNode<T> newNode = new RBTreeNode<>(node.isBlack, node.left.item, node.left.left, null);
             newNode.right = new RBTreeNode<>(false, node.item, node.left.right, node.right);
-            return newNode;
+            node = newNode;
+            return node;
         }
         return node;
     }
@@ -66,7 +81,7 @@ public class RedBlackTree<T extends Comparable<T>> {
     RBTreeNode<T> rotateLeft(RBTreeNode<T> node) {
         if (node == null) {
             return null;
-        } else if (node.left != null && node.right != null) {
+        } else if (node.right != null) {
             RBTreeNode<T> newNode = new RBTreeNode<>(node.isBlack, node.right.item, null, node.right.right);
             newNode.left = new RBTreeNode<>(false, node.item, node.left, node.right.left);
             return newNode;
@@ -138,13 +153,13 @@ public class RedBlackTree<T extends Comparable<T>> {
         // handle case C and "Right-leaning" situation.
         if (isRed(node.right) && !isRed(node.left)) {
             // YOUR CODE HERE
-            rotateLeft(node);
+            node = rotateLeft(node);
         }
 
         // handle case B
         if (isRed(node.left) && isRed(node.left.left)) {
             // YOUR CODE HERE
-            rotateRight(node);
+            node = rotateRight(node);
         }
 
         // handle case A
