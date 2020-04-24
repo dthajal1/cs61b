@@ -2,7 +2,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 /** Minimal spanning tree utility.
- *  @author
+ *  @author Diraj Thajali
  */
 public class MST {
 
