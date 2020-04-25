@@ -1,6 +1,9 @@
 package gitlet;
 
 import java.io.File;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -332,10 +335,37 @@ public class Gitlet {
     }
 
     private void showStatus() {
+        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
+        ArrayList<String> stagedFiles = new ArrayList<>();
+        ArrayList<String> removedFiles = new ArrayList<>();
+        for (String blobID : stageForAdd.values()) {
+            Blob blob = getBlob(blobID);
+            stagedFiles.add(blob.getName());
+        }
+        stagedFiles.sort(String::compareTo);
+        for (String blobID : stageForRmv.values()) {
+            Blob blob = getBlob(blobID);
+            removedFiles.add(blob.getName());
+        }
+        removedFiles.sort(String::compareTo);
 
+        System.out.println("=== Branches ===\n");
+        System.out.println("=== Staged Files ===");
+        for (String s : stagedFiles) {
+            System.out.println(s);
+        }
+        System.out.println("\n=== Removed Files ===");
+        for (String s : removedFiles) {
+            System.out.println(s);
+        }
+        //extra credit //come back for later
+        System.out.println("\n=== Modifications Not Staged For Commit ===");
+        System.out.println("\n=== Untracked Files ===");
     }
 
     private void checkout() {
+
     }
 
     private void createBranch() {
