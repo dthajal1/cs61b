@@ -97,29 +97,29 @@ public class NFA {
          * If this State has no outgoing edges with label C, then
          * return an empty Set. */
         public Set<State> successors(char c) {
-            // TODO: Implement this method
             if (!_edges.containsKey(c)) {
                 return new HashSet<State>();
             } else if (c != EPSILON) {
                 return _edges.get(c);
-            } else { //if c is epsilon
-                HashSet<State> result = new HashSet<>();
-                //dfs
+            } else {
+                HashSet<State> seen = new HashSet<>();
                 Stack<State> fringe = new Stack<>();
-                fringe.addAll(_edges.get(c));
+                for (State e : _edges.get(EPSILON)) {
+                    fringe.push(e);
+                }
                 while (!fringe.isEmpty()) {
                     State v = fringe.pop();
-                    if (!result.contains(v)) {
-                        result.add(v);
-                        for (State w : v.successors(EPSILON)) {
-                            if (!result.contains(w)) {
+                    if (!seen.contains(v)) {
+                        seen.add(v);
+                        for (State w : v._edges.getOrDefault(EPSILON, new HashSet<State>())) {
+                            if (!seen.contains(w)) {
                                 fringe.push(w);
                             }
                         }
                     }
 
                 }
-                return result;
+                return seen;
             }
         }
 
@@ -377,7 +377,6 @@ public class NFA {
      * @param s the query String
      * @return whether or not the string S is accepted by this NFA. */
     public boolean matches(String s) {
-        // TODO: write the matching algorithm
         HashSet<State> S = new HashSet<>();
         S.add(_startState);
         S.addAll(_startState.successors(EPSILON));
@@ -386,8 +385,8 @@ public class NFA {
             for (State q : S) {
                 sNew.addAll(q.successors(s.charAt(i)));
             }
-            S.addAll(sNew);
-            sNew.clear();
+            S = sNew;
+            sNew = new HashSet<>();
             for (State qNew : S) {
                 sNew.addAll(qNew.successors(EPSILON));
             }
