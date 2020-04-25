@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -18,10 +19,19 @@ public class MST {
      *  original edges, just the original edges themselves.) */
     public static int[][] mst(int V, int[][] E) {
         E = Arrays.copyOf(E, E.length);
-        int numEdgesInResult = 0; // FIXME: how many edges should there be in our MST?
+        int numEdgesInResult = V - 1;
         int[][] result = new int[numEdgesInResult][];
-        // FIXME: what other data structures do I need?
-        // FIXME: do Kruskal's Algorithm
+        Arrays.sort(E, EDGE_WEIGHT_COMPARATOR);
+
+        UnionFind uF = new UnionFind(V);
+        int counter = 0;
+        for (int[] b : E) {
+            if (!uF.samePartition(b[0], b[1])) {
+                result[counter] = b;
+                counter += 1;
+                uF.union(b[0], b[1]);
+            }
+        }
         return result;
     }
 

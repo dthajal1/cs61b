@@ -1,7 +1,4 @@
-import java.util.Map;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 /**
  * An implementation of a Non-deterministic Finite Automaton (NFA).
@@ -69,7 +66,6 @@ public class NFA {
 
 
     /** The internal States in an NFA. */
-    // TODO: Read this inner class, then you may delete this comment
     private class State {
 
         /**
@@ -102,7 +98,29 @@ public class NFA {
          * return an empty Set. */
         public Set<State> successors(char c) {
             // TODO: Implement this method
-            return new HashSet<State>();
+            if (!_edges.containsKey(c)) {
+                return new HashSet<State>();
+            } else if (c != EPSILON) {
+                return _edges.get(c);
+            } else { //if c is epsilon
+                HashSet<State> result = new HashSet<>();
+                //dfs
+                Stack<State> fringe = new Stack<>();
+                fringe.addAll(_edges.get(c));
+                while (!fringe.isEmpty()) {
+                    State v = fringe.pop();
+                    if (!result.contains(v)) {
+                        result.add(v);
+                        for (State w : v.successors(EPSILON)) {
+                            if (!result.contains(w)) {
+                                fringe.push(w);
+                            }
+                        }
+                    }
+
+                }
+                return result;
+            }
         }
 
         /**
@@ -360,7 +378,22 @@ public class NFA {
      * @return whether or not the string S is accepted by this NFA. */
     public boolean matches(String s) {
         // TODO: write the matching algorithm
-        return true;
+        HashSet<State> S = new HashSet<>();
+        S.add(_startState);
+        S.addAll(_startState.successors(EPSILON));
+        for (int i = 0; i < s.length(); i += 1) {
+            HashSet<State> sNew = new HashSet<>();
+            for (State q : S) {
+                sNew.addAll(q.successors(s.charAt(i)));
+            }
+            S.addAll(sNew);
+            sNew.clear();
+            for (State qNew : S) {
+                sNew.addAll(qNew.successors(EPSILON));
+            }
+            S.addAll(sNew);
+        }
+        return S.contains(_acceptState);
     }
 
     /** Returns the pattern used to make this NFA. */
