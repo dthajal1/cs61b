@@ -1,7 +1,5 @@
 package gitlet;
 
-import java.io.IOException;
-
 /** Driver class for Gitlet, the tiny stupid version-control system.
  *  @author Diraj Thajali
  */

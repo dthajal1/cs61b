@@ -1,11 +1,7 @@
 package gitlet;
 
-import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.SortedMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class Gitlet {
@@ -129,27 +125,58 @@ public class Gitlet {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                removeBranch();
+                removeBranch(commands[1]);
                 break;
             case "reset":
                 if (commands.length != 2) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                reset();
+                reset(commands[1]);
                 break;
             case "merge":
                 if (commands.length != 2) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                merge();
+                merge(commands[1]);
                 break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
         }
     }
+
+    private Commit findLatestCommonAncestor(String currID, String givenID) {
+        while (currID.equals(givenID)) {
+            Commit curr = getCommit(currID);
+            Commit given = getCommit(givenID);
+            Commit temp = curr;
+            if (temp == given) {
+                temp = given;
+            }
+
+        }
+        return null;
+    }
+
+
+    private void merge(String branchName) {
+        //If the split point is the same commit as the given branch, then we do nothing; the merge is complete,
+        String headRef = Utils.readContentsAsString(HEADS);
+        int lastSlash = headRef.lastIndexOf('/');
+        String head = headRef.substring(lastSlash + 1);
+        File currFile = new File(BRANCHES, head);
+        File givenFile = new File(BRANCHES, branchName);
+        String currID = Utils.readContentsAsString(currFile);
+        String givenID = Utils.readContentsAsString(givenFile);
+        Commit latestAncestor = findLatestCommonAncestor(currID, givenID);
+
+
+
+
+    }
+
 
     /** Creates a new Gitlet version-control system in the current directory. This system will
      * automatically start with one commit: a commit that contains no files and has the commit
@@ -170,7 +197,7 @@ public class Gitlet {
             MyHashMap stagedForRmv = new MyHashMap();
 
             //file saved with ID of commit
-            Commit first = new Commit( "Initial Commit", null, true);
+            Commit first = new Commit( "initial commit", null, true);
 
             STAGING_AREA.mkdir();
 
@@ -232,14 +259,14 @@ public class Gitlet {
         return null;
     }
 
-    public Commit getCurrentCommit() {
+    public static Commit getCurrentCommit() {
         File head = new File(Utils.readContentsAsString(HEADS));
         String currCommitID = Utils.readContentsAsString(head);
         return getCommit(currCommitID);
     }
 
     /** Gets the commit from logs given the commitID*/
-    public Commit getCommit(String commitID) {
+    public static Commit getCommit(String commitID) {
         if (commitID == null) {
             return null;
         }
@@ -351,11 +378,8 @@ public class Gitlet {
         MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
         MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
         String headBranch = Utils.readContentsAsString(HEADS);
-        Pattern p = Pattern.compile("(^[.gitlet/branches/]+)(\\w+)");
-        Matcher m = p.matcher(headBranch);
-        if (m.matches()) {
-            headBranch = m.group(2);
-        }
+        int lastSlash = headBranch.lastIndexOf('/');
+        String head = headBranch.substring(lastSlash + 1);
 
         File[] branchFiles = BRANCHES.listFiles();
         ArrayList<String> branches = new ArrayList<>();
@@ -386,7 +410,7 @@ public class Gitlet {
 
         System.out.println("=== Branches ===");
         for (String s : branches) {
-            if (s.equals(headBranch)) {
+            if (s.equals(head)) {
                 System.out.println(String.format("*%s", s));
             } else {
                 System.out.println(s);
@@ -456,20 +480,20 @@ public class Gitlet {
             }
         }
 
-        String headBranch = Utils.readContentsAsString(HEADS);
-        Pattern p = Pattern.compile("(^[.gitlet/branches/]+)(\\w+)");
-        Matcher m = p.matcher(headBranch);
-        if (m.matches()) {
-            headBranch = m.group(2);
-            if (headBranch.equals(branchName)) {
-                System.out.println("No need to checkout the current branch.");
-                System.exit(0);
-            }
+        String headRef = Utils.readContentsAsString(HEADS);
+        int lastSlash = headRef.lastIndexOf('/');
+        String head = headRef.substring(lastSlash + 1);
+        if (head.equals(branchName)) {
+            System.out.println("No need to checkout the current branch.");
+            System.exit(0);
         }
 
         MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
         stageForAdd.clear();
         Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
+        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
+        stageForRmv.clear();
+        Utils.writeObject(STAGE_FOR_RMV, stageForRmv);
 
         for (String fileName : curr.getContents().keySet()) {
             if (!branchCommit.getContents().containsKey(fileName)) {
@@ -496,12 +520,25 @@ public class Gitlet {
         Utils.writeContents(newBranch, headCommit);
     }
 
-    private void removeBranch() {
+    private void removeBranch(String branchName) {
+        File branch = Utils.join(BRANCHES, branchName);
+        if (!branch.exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+
+        String headRef = Utils.readContentsAsString(HEADS);
+        int lastSlash = headRef.lastIndexOf('/');
+        String head = headRef.substring(lastSlash + 1);
+        if (head.equals(branchName)) {
+            System.out.println("Cannot remove the current branch.");
+            System.exit(0);
+        }
+        branch.delete();
     }
 
-    private void reset() {
+    private void reset(String commitID) {
+                //come back
     }
 
-    private void merge() {
-    }
 }

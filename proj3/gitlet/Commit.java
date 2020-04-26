@@ -50,7 +50,7 @@ public class Commit implements Serializable {
             _contents = new MyHashMap();
         } else {
             _contents = new MyHashMap();
-            copyFromParent(parent);
+            copyFromParent();
             commit();
         }
         _parent = parent;
@@ -59,8 +59,8 @@ public class Commit implements Serializable {
     }
 
 
-    private void copyFromParent(String parent) {
-        Commit myParent = getCommit(parent);
+    private void copyFromParent() {
+        Commit myParent = Gitlet.getCurrentCommit();
         _contents.putAll(myParent._contents);
     }
 
@@ -78,22 +78,17 @@ public class Commit implements Serializable {
     }
 
 
-    /** Gets the commit from logs given the commitID*/
-    public Commit getCommit(String commitID) {
-        File[] files = LOGS.listFiles();
-        assert files != null;
-        for (File file : files) {
-            if (file.getName().equals(commitID)) {
-                return Utils.readObject(file, Commit.class);
-            }
-        }
-        System.out.println("No such commit of given ID");
-        return null;
-    }
+//    /** Gets the commit from logs given the commitID*/
+//    public Commit getCurrentCommit() {
+//        String headRef = Utils.readContentsAsString(HEADS);
+//        int lastSlash = headRef.lastIndexOf('/');
+//        String head = headRef.substring(lastSlash + 1);
+//        return
+//    }
 
     private String getTime() {
         Date current = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EE MMM d HH:mm:ss yyyy z");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EE MMM d HH:mm:ss yyyy ZZZZ");
         if (_init) {
             current.setTime(0);
         }
@@ -118,7 +113,7 @@ public class Commit implements Serializable {
             File currBranch = new File(Utils.readContentsAsString(HEADS));
             Utils.writeContents(currBranch, _commitID);
         }
-        File log = Utils.join(LOGS, _commitID);
+        File log = Utils.join(LOGS, _commitID + "\n");
         Utils.writeObject(log, this);
 
     }
