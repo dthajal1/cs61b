@@ -26,6 +26,9 @@ public class Commit implements Serializable {
     /** staging for removal file. */
     static final File STAGE_FOR_RMV = Utils.join(STAGING_AREA, "stagedForRemove");
 
+    /** directory for branches. */
+    static final File BRANCHES = Utils.join(GITLET_FOLDER, "branches");
+
     /** to not have a pointer. for memory efficiency. */
     private String _parent;
 
@@ -55,6 +58,7 @@ public class Commit implements Serializable {
         saveCommit();
     }
 
+
     private void copyFromParent(String parent) {
         Commit myParent = getCommit(parent);
         _contents.putAll(myParent._contents);
@@ -62,20 +66,15 @@ public class Commit implements Serializable {
 
     private void commit() {
         MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
-        if (stageForAdd.isEmpty()) {
-            System.out.println("throw error: no need for commit. Everything clean. ");
-            System.exit(0);
-        }
         for (Map.Entry<String, String> d : stageForAdd.entrySet()) {
-            _contents.put(d.getKey(), d.getValue());
+            if (!_contents.containsKey(d.getKey())) {
+                _contents.put(d.getKey(), d.getValue());
+            } else {
+                _contents.replace(d.getKey(), _contents.get(d.getKey()), d.getValue());
+            }
         }
         stageForAdd.clear();
         Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
-        //set the head and branch to this commit
-//        String path = Utils.readContentsAsString(HEADS);
-//        File file = new File(path);
-//        Branch branch = Utils.readObject(file, Branch.class);
-//        System.out.println("hello: " + branch.getName());
     }
 
 
@@ -105,11 +104,22 @@ public class Commit implements Serializable {
         if (!LOGS.exists()) {
             LOGS.mkdir();
         }
-        _commitID = Utils.sha1(Utils.serialize(this));
-        File commit = Utils.join(LOGS, _commitID);
         _timeStamp = getTime(); //why is it that if I put it here time is different and if i put it up it's the same every time?
-        Utils.writeContents(HEADS, _commitID);
-        Utils.writeObject(commit, this);
+        _commitID = Utils.sha1(Utils.serialize(this));
+        if (_init) {
+            if (!BRANCHES.exists()) {
+                BRANCHES.mkdir();
+            }
+            File masterBranch = Utils.join(BRANCHES, "master");
+            Utils.writeContents(masterBranch, _commitID);
+
+            Utils.writeContents(HEADS,masterBranch.getPath());
+        } else {
+            File currBranch = new File(Utils.readContentsAsString(HEADS));
+            Utils.writeContents(currBranch, _commitID);
+        }
+        File log = Utils.join(LOGS, _commitID);
+        Utils.writeObject(log, this);
 
     }
 
@@ -120,6 +130,7 @@ public class Commit implements Serializable {
     public String getCommitID() {
         return _commitID;
     }
+
     public String getParent() {
         return _parent;
     }

@@ -11,6 +11,10 @@ public class Main {
      *  <COMMAND> <OPERAND> .... */
     public static void main(String... args) {
         // FILL THIS IN
+        if (args.length == 0) {
+            System.out.println("Please enter a command.");
+            System.exit(0);
+        }
         Gitlet gitlet = new Gitlet(args);
         gitlet.processCommands();
     }

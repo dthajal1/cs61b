@@ -29,15 +29,15 @@ public class Blob implements Serializable {
     }
 
     public String getBlobID() {
-        return this.blobID;
+        return blobID;
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
-
-    public static void main(String[] args) {
-
+    public String getContent() {
+        return content;
     }
+
 }
