@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 
 public class Gitlet {
@@ -148,15 +149,14 @@ public class Gitlet {
     }
 
     private Commit findLatestCommonAncestor(String currID, String givenID) {
-        while (currID.equals(givenID)) {
-            Commit curr = getCommit(currID);
-            Commit given = getCommit(givenID);
-            Commit temp = curr;
-            if (temp == given) {
-                temp = given;
+        HashSet<String> currParents = BFS.bfs(currID);
+        HashSet<String> givenParents = BFS.bfs(givenID);
+        for (String s : currParents) {
+            if (givenParents.contains(s)) {
+                return getCommit(s);
             }
-
         }
+        System.out.println("They don't have latest common ancestors.");
         return null;
     }
 
@@ -171,6 +171,9 @@ public class Gitlet {
         String currID = Utils.readContentsAsString(currFile);
         String givenID = Utils.readContentsAsString(givenFile);
         Commit latestAncestor = findLatestCommonAncestor(currID, givenID);
+//        System.out.println("Latest common ancestor's message: " + latestAncestor.getMessage());
+
+
 
 
 
@@ -197,7 +200,7 @@ public class Gitlet {
             MyHashMap stagedForRmv = new MyHashMap();
 
             //file saved with ID of commit
-            Commit first = new Commit( "initial commit", null, true);
+            Commit first = new Commit( "initial commit", null, null, true);
 
             STAGING_AREA.mkdir();
 
@@ -302,7 +305,8 @@ public class Gitlet {
         }
         File head = new File(Utils.readContentsAsString(HEADS));
         String parent = Utils.readContentsAsString(head);
-        Commit commit = new Commit(message, parent,false);
+        String secondParent = getCommit(parent).getSecondParent();
+        Commit commit = new Commit(message, parent, secondParent,false);
     }
 
     private void remove(String fileName) {
@@ -497,6 +501,7 @@ public class Gitlet {
 
         for (String fileName : curr.getContents().keySet()) {
             if (!branchCommit.getContents().containsKey(fileName)) {
+                System.out.println(String.format("%s  was deleted!", fileName));
                 Utils.restrictedDelete(fileName);
             } else {
                 checkout(branchCommit.getCommitID(), fileName);

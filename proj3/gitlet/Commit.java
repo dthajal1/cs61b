@@ -32,7 +32,7 @@ public class Commit implements Serializable {
     /** to not have a pointer. for memory efficiency. */
     private String _parent;
 
-//    private String secondParent;
+    private String _secondParent;
 
     private String _timeStamp;
 
@@ -44,24 +44,29 @@ public class Commit implements Serializable {
 
     private String _commitID;
 
-    public Commit(String commitMsg, String parent, boolean initialize) {
+    public Commit(String commitMsg, String parent, String secondParent, boolean initialize) {
         _init = initialize;
         if (_init) {
             _contents = new MyHashMap();
         } else {
             _contents = new MyHashMap();
-            copyFromParent();
+            copyFromParent(secondParent);
             commit();
         }
+        _secondParent = secondParent;
         _parent = parent;
         _message = commitMsg;
         saveCommit();
     }
 
 
-    private void copyFromParent() {
+    private void copyFromParent(String secondPar) {
+        Commit mySecondParent = Gitlet.getCommit(secondPar);
         Commit myParent = Gitlet.getCurrentCommit();
         _contents.putAll(myParent._contents);
+        if (mySecondParent != null) {
+            _contents.putAll(mySecondParent._contents);
+        }
     }
 
     private void commit() {
@@ -76,15 +81,6 @@ public class Commit implements Serializable {
         stageForAdd.clear();
         Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
     }
-
-
-//    /** Gets the commit from logs given the commitID*/
-//    public Commit getCurrentCommit() {
-//        String headRef = Utils.readContentsAsString(HEADS);
-//        int lastSlash = headRef.lastIndexOf('/');
-//        String head = headRef.substring(lastSlash + 1);
-//        return
-//    }
 
     private String getTime() {
         Date current = new Date();
@@ -128,6 +124,10 @@ public class Commit implements Serializable {
 
     public String getParent() {
         return _parent;
+    }
+
+    public String getSecondParent() {
+        return _secondParent;
     }
 
     public String getMessage() {
