@@ -510,7 +510,7 @@ public class Gitlet {
         }
         //extra credit //come back for later
         System.out.println("\n=== Modifications Not Staged For Commit ===");
-        System.out.println("\n=== Untracked Files ===");
+        System.out.println("\n=== Untracked Files ===\n");
     }
 
     private void checkout(String commitID, String fileName) {
