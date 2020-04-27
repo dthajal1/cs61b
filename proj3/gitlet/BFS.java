@@ -17,7 +17,7 @@ public class BFS {
         return result;
     }
 
-    public static HashSet<String> bfs(String commitID) {
+    protected static HashSet<String> bfs(String commitID) {
         HashSet<String> result = new HashSet<>();
         PriorityQueue<String> fringe = new PriorityQueue<>();
         fringe.add(commitID);

@@ -13,8 +13,40 @@ public class Main {
             System.out.println("Please enter a command.");
             System.exit(0);
         }
-        Gitlet gitlet = new Gitlet(args);
-        gitlet.processCommands();
+        if (!Gitlet.GITLET_FOLDER.exists() && !args[0].equals("init")) {
+            System.out.println("Not in an initialized Gitlet directory.");
+            System.exit(0);
+        }
+        switch (args[0]) {
+            case "init":
+            case "log":
+            case "global-log":
+            case "status":
+                if (args.length != 1) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                break;
+            case "add":
+            case "rm":
+            case "commit":
+            case "find":
+            case "merge":
+            case "reset":
+            case "rm-branch":
+            case "branch":
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                break;
+            case "checkout":
+                break;
+            default:
+                System.out.println("No command with that name exists.");
+                System.exit(0);
+        }
+        Gitlet.processCommands(args);
     }
 
 }

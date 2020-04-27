@@ -5,39 +5,37 @@ import java.io.Serializable;
 
 public class Blob implements Serializable {
 
-    private String name;
+    private String _name;
 
-    private static final File OBJECTS = new File(".gitlet/objects");
+    private String _blobID;
 
-    private String blobID;
-
-    private String content;
+    private String _content;
 
     public Blob(File file) {
-        this.name = file.getName();
-        this.content = Utils.readContentsAsString(file);
-        this.blobID = Utils.sha1(Utils.serialize(content));
+        _name = file.getName();
+        _content = Utils.readContentsAsString(file);
+        _blobID = Utils.sha1(Utils.serialize(_content));
         saveBlob();
     }
 
     private void saveBlob() {
-        if (!OBJECTS.exists()) {
-            OBJECTS.mkdir();
+        if (!Gitlet.OBJECTS.exists()) {
+            Gitlet.OBJECTS.mkdir();
         }
-        File loc = Utils.join(OBJECTS, blobID);
+        File loc = Utils.join(Gitlet.OBJECTS, _blobID);
         Utils.writeObject(loc, this);
     }
 
     public String getBlobID() {
-        return blobID;
+        return _blobID;
     }
 
     public String getName() {
-        return name;
+        return _name;
     }
 
     public String getContent() {
-        return content;
+        return _content;
     }
 
 }

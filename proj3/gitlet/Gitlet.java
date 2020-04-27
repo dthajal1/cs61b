@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 
 
 public class Gitlet {
@@ -29,236 +28,60 @@ public class Gitlet {
     static final File BRANCHES = Utils.join(GITLET_FOLDER, "branches");
 
     /** directory for blob objects. */
-    private static final File OBJECTS = new File(".gitlet/objects");
+    static final File OBJECTS = new File(".gitlet/objects");
 
-    private String[] commands;
-
-    private boolean initialized;
-
-    public Gitlet(String[] commands) {
-        this.commands = commands;
-        initialized = false;
-    }
-
-    public void processCommands() {
-        if (initialized && !commands[0].equals("init")) {
-            System.out.println("Not in an initialized Gitlet directory.");
-            System.exit(0);
-        }
+    public static void processCommands(String[] commands) {
         switch (commands[0]) {
             case "init":
-                if (commands.length != 1) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 initialize();
                 break;
             case "add":
-                if (commands.length != 2) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 add(commands[1]);
                 break;
             case "commit":
-                if (commands.length != 2) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 commit(commands[1]);
                 break;
             case "rm":
-                if (commands.length != 2) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 remove(commands[1]);
                 break;
             case "log":
-                if (commands.length != 1) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 showLog();
                 break;
             case "global-log":
-                if (commands.length != 1) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 showGlobalLog();
                 break;
             case "find":
-                if (commands.length != 2) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 find(commands[1]);
                 break;
             case "status":
-                if (commands.length != 1) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 showStatus();
                 break;
             case "checkout":
                 if (commands.length == 3 && commands[1].equals("--")) {
-                    checkoutFile(commands[2]);
+                    Checkout.checkoutFile(commands[2]);
                 } else if (commands.length == 4) {
-                    checkoutCommit(commands[1], commands[3]);
+                    Checkout.checkoutCommit(commands[1], commands[3]);
                 } else if (commands.length == 2){
-                    checkoutBranch(commands[1]);
+                    Checkout.checkoutBranch(commands[1]);
                 } else {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
                 break;
             case "branch":
-                if (commands.length != 2) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 createBranch(commands[1]);
                 break;
             case "rm-branch":
-                if (commands.length != 2) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
                 removeBranch(commands[1]);
                 break;
             case "reset":
-                if (commands.length != 2) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
-                reset(commands[1]);
+                Checkout.reset(commands[1]);
                 break;
             case "merge":
-                if (commands.length != 2) {
-                    System.out.println("Incorrect operands.");
-                    System.exit(0);
-                }
-                merge(commands[1]);
+                Merge.merge(commands[1]);
                 break;
-            default:
-                System.out.println("No command with that name exists.");
-                System.exit(0);
         }
     }
-
-    private Commit findLatestCommonAncestor(String currID, String givenID) {
-        HashSet<String> currParents = BFS.bfs(currID);
-        HashSet<String> givenParents = BFS.bfs(givenID);
-        int currCounter = 0;
-        int givenCounter = 0;
-        String curr = null;
-        String given = null;
-        for (String id : currParents) {
-            if (givenParents.contains(id)) {
-                given = id;
-                break;
-            }
-            currCounter += 1;
-        }
-        for (String id : givenParents) {
-            if (currParents.contains(id)) {
-                curr = id;
-                break;
-            }
-            givenCounter += 1;
-        }
-        if (currCounter < givenCounter) {
-            if (curr != null) {
-                return getCommit(curr);
-            }
-            System.out.println("Fix this: ancestor is null");
-            System.exit(0);
-
-        } else if (givenCounter < currCounter) {
-            if (given != null) {
-                return getCommit(given);
-            }
-            System.out.println("Fix this: ancestor is null");
-            System.exit(0);
-        }
-        return getCommit(curr);
-
-    }
-
-
-    private void merge(String branchName) {
-        String headRef = Utils.readContentsAsString(HEADS);
-        int lastSlash = headRef.lastIndexOf('/');
-        String head = headRef.substring(lastSlash + 1);
-        File currFile = new File(BRANCHES, head);
-        File givenFile = new File(BRANCHES, branchName);
-        String currID = Utils.readContentsAsString(currFile);
-        String givenID = Utils.readContentsAsString(givenFile);
-        Commit LCA = findLatestCommonAncestor(currID, givenID);
-//        System.out.println("Latest common ancestor's message: " + latestAncestor.getMessage());
-        String splitPoint = LCA.getCommitID();
-        if (splitPoint.equals(givenID)) {
-            System.out.println("Given branch is an ancestor of the current branch.");
-            System.exit(0);
-        } else if (splitPoint.equals(currID)) {
-            checkoutBranch(branchName);
-            System.out.println("Current branch fast-forwarded.");
-            System.exit(0);
-        }
-        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
-        Commit curr = getCommit(currID);
-        Commit given = getCommit(givenID);
-        for (String fileName : given.getContents().keySet()) {
-//            if (LCA.getContents().containsKey())
-            if (!LCA.getContents().get(fileName).equals(given.getContents().get(fileName))
-                    && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
-                checkoutCommit(givenID, fileName);
-                stageForAdd.put(fileName, given.getContents().get(fileName));
-            }
-            if (!LCA.getContents().containsKey(fileName) && !curr.getContents().containsKey(fileName)) {
-                checkoutFile(fileName);
-                stageForAdd.put(fileName, given.getContents().get(fileName));
-            }
-        }
-
-        for (String fileName : LCA.getContents().keySet()) {
-            if (LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
-                    && !given.getContents().containsKey(fileName)) {
-                remove(fileName);
-            }
-        }
-        boolean encounteredConflict = false;
-        for (String fileName : curr.getContents().keySet()) {
-            if (given.getContents().containsKey(fileName)
-                    && !given.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
-                encounteredConflict = true;
-                File cFile = Utils.join(OBJECTS, curr.getContents().get(fileName));
-                File gFile = Utils.join(OBJECTS, given.getContents().get(fileName));
-                String currentContent = "";
-                String givenContent = "";
-                if (cFile.exists() && gFile.exists()) {
-                    currentContent = Utils.readContentsAsString(cFile);
-                    givenContent = Utils.readContentsAsString(gFile);
-                } else if (cFile.exists()) {
-                    currentContent = Utils.readContentsAsString(cFile);
-                } else if (gFile.exists()) {
-                    givenContent = Utils.readContentsAsString(gFile);
-                }
-                Utils.writeContents(cFile, String.format("<<<<<<< HEAD\n%s=======\n%s>>>>>>>\n", currentContent, givenContent));
-            }
-        }
-        Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
-        Commit mergeCommit = new Commit(String.format("Merged %s into %s.", branchName, head), head, branchName, false);
-        if (encounteredConflict) {
-            System.out.println("Encountered a merge conflict.");
-        }
-
-    }
-
-
-
 
     /** Creates a new Gitlet version-control system in the current directory. This system will
      * automatically start with one commit: a commit that contains no files and has the commit
@@ -271,27 +94,20 @@ public class Gitlet {
      * automatically share this commit (they will all have the same UID) and all commits in all
      * repositories will trace back to it.
      * */
-    private void initialize() {
-        if (!initialized) {
+    private static void initialize() {
+        if (!GITLET_FOLDER.exists()) {
             GITLET_FOLDER.mkdir();
             // <name of the file, id of blob>
             MyHashMap stagedForAdd = new MyHashMap();
             MyHashMap stagedForRmv = new MyHashMap();
-
-            //file saved with ID of commit
             Commit first = new Commit( "initial commit", null, null, true);
-
             STAGING_AREA.mkdir();
-
             Utils.writeObject(STAGE_FOR_ADD, stagedForAdd);
-
             Utils.writeObject(STAGE_FOR_RMV, stagedForRmv);
-            initialized = true;
         } else {
             System.out.println("A Gitlet version-control system already exists in the current directory.");
             System.exit(0);
         }
-
     }
 
     /** Adds a copy of the file as it currently exists to the staging area (see the description of
@@ -303,7 +119,7 @@ public class Gitlet {
      *  is changed, added, and then changed back). The file will no longer be staged for removal
      *  (see gitlet rm), if it was at the time of the command.
      * */
-    private void add(String fileName) {
+    private static void add(String fileName) {
         File fileToAdd = new File(fileName);
         if (!fileToAdd.exists()) {
             System.out.println("File does not exist.");
@@ -327,7 +143,7 @@ public class Gitlet {
 
     /** Gets the blob of the current commit from logs
      * @param blobID : blob ID. */
-    public Blob getBlob(String blobID) {
+    public static Blob getBlob(String blobID) {
         File blobFile = new File(OBJECTS, blobID);
         File[] files = OBJECTS.listFiles();
         if (files != null) {
@@ -372,7 +188,7 @@ public class Gitlet {
      * but weren't tracked by its parent. Finally, files tracked in the current commit may be untracked in the
      * new commit as a result being staged for removal by the rm command (below).
      * */
-    private void commit(String message) {
+    private static void commit(String message) {
         if (message.equals("")) {
             System.out.println("Please enter a commit message.");
             System.exit(0);
@@ -388,7 +204,7 @@ public class Gitlet {
         Commit commit = new Commit(message, parent, secondParent,false);
     }
 
-    private void remove(String fileName) {
+    protected static void remove(String fileName) {
         MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
         Commit curr = getCurrentCommit();
         if (stageForAdd.containsKey(fileName)) {
@@ -408,7 +224,7 @@ public class Gitlet {
         }
     }
 
-    private void showLog() {
+    private static void showLog() {
         File head = new File(Utils.readContentsAsString(HEADS));
         String currID = Utils.readContentsAsString(head);
         Commit curr = getCommit(currID);
@@ -426,7 +242,7 @@ public class Gitlet {
         }
     }
 
-    private void showGlobalLog() {
+    private static void showGlobalLog() {
         File[] allFiles = LOGS.listFiles();
         if (allFiles != null) {
             for (File file : allFiles) {
@@ -438,7 +254,7 @@ public class Gitlet {
         }
     }
 
-    private void find(String commitMsg) {
+    private static void find(String commitMsg) {
         File[] allFiles = LOGS.listFiles();
         String result = "";
         if (allFiles != null) {
@@ -458,12 +274,10 @@ public class Gitlet {
         }
     }
 
-    private void showStatus() {
+    private static void showStatus() {
         MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
         MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
-        String headBranch = Utils.readContentsAsString(HEADS);
-        int lastSlash = headBranch.lastIndexOf('/');
-        String head = headBranch.substring(lastSlash + 1);
+        String head = currBranch();
 
         File[] branchFiles = BRANCHES.listFiles();
         ArrayList<String> branches = new ArrayList<>();
@@ -513,87 +327,10 @@ public class Gitlet {
         System.out.println("\n=== Untracked Files ===\n");
     }
 
-    private void checkout(String commitID, String fileName) {
-        Commit commit = getCommit(commitID);
-        if (commit == null) {
-            System.out.println("No commit with that id exists.");
-            System.exit(0);
-        }
-        String blobID = commit.getContents().get(fileName);
-        if (blobID == null) {
-            System.out.println("File does not exist in that commit.");
-            System.exit(0);
-        }
-        Blob blob = getBlob(blobID);
-        if (blob != null) {
-            String content = blob.getContent();
-            File fileToReplaceWith = new File(fileName);
-            Utils.writeContents(fileToReplaceWith, content);
-        } else {
-            System.out.println("Blob is null");
-        }
-    }
-
-    private void checkoutFile(String fileName) {
-        Commit curr = getCurrentCommit();
-        checkout(curr.getCommitID(), fileName);
-    }
-
-    private void checkoutCommit(String commitID, String fileName) {
-        checkout(commitID, fileName);
-    }
-
-    private Commit getCommitAtBranch(String branchName) {
-        File branch = new File(BRANCHES, branchName);
-        if (!branch.exists()) {
-            System.out.println("No such branch exists.");
-            System.exit(0);
-        }
-        String commitID = Utils.readContentsAsString(branch);
-        return getCommit(commitID);
-    }
-
-    private void checkoutBranch(String branchName) {
-        Commit branchCommit = getCommitAtBranch(branchName);
-        Commit curr = getCurrentCommit(); //maybe null pointer
-        for (String fileName : branchCommit.getContents().keySet()) {
-            if (!curr.getContents().containsKey(fileName)) {
-                System.out.println("There is an untracked file in the way;" +
-                        " delete it, or add and commit it first.");
-                System.exit(0);
-            }
-        }
-
-        String headRef = Utils.readContentsAsString(HEADS);
-        int lastSlash = headRef.lastIndexOf('/');
-        String head = headRef.substring(lastSlash + 1);
-        if (head.equals(branchName)) {
-            System.out.println("No need to checkout the current branch.");
-            System.exit(0);
-        }
-
-        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
-        stageForAdd.clear();
-        Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
-        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
-        stageForRmv.clear();
-        Utils.writeObject(STAGE_FOR_RMV, stageForRmv);
-
-        for (String fileName : curr.getContents().keySet()) {
-            if (!branchCommit.getContents().containsKey(fileName)) {
-                System.out.println(String.format("%s  was deleted!", fileName));
-                Utils.restrictedDelete(fileName);
-            } else {
-                checkout(branchCommit.getCommitID(), fileName);
-            }
-        }
-
-        File newHead = new File(BRANCHES, branchName);
-        Utils.writeContents(HEADS, newHead.getPath());
-    }
 
 
-    private void createBranch(String name) {
+
+    private static void createBranch(String name) {
         File previous = Utils.join(BRANCHES, name);
         if (previous.exists()) {
             System.out.println("A branch with that name already exists.");
@@ -605,16 +342,13 @@ public class Gitlet {
         Utils.writeContents(newBranch, headCommit);
     }
 
-    private void removeBranch(String branchName) {
+    private static void removeBranch(String branchName) {
         File branch = Utils.join(BRANCHES, branchName);
         if (!branch.exists()) {
             System.out.println("A branch with that name does not exist.");
             System.exit(0);
         }
-
-        String headRef = Utils.readContentsAsString(HEADS);
-        int lastSlash = headRef.lastIndexOf('/');
-        String head = headRef.substring(lastSlash + 1);
+        String head = currBranch();
         if (head.equals(branchName)) {
             System.out.println("Cannot remove the current branch.");
             System.exit(0);
@@ -622,32 +356,10 @@ public class Gitlet {
         branch.delete();
     }
 
-    private void reset(String commitID) {
-        Commit commit = getCommit(commitID);
-        Commit curr = getCurrentCommit(); //maybe null pointer
-        for (String fileName : commit.getContents().keySet()) {
-            if (!curr.getContents().containsKey(fileName)) {
-                System.out.println("There is an untracked file in the way;" +
-                        " delete it, or add and commit it first.");
-                System.exit(0);
-            }
-        }
-        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
-        stageForAdd.clear();
-        Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
-        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
-        stageForRmv.clear();
-        Utils.writeObject(STAGE_FOR_RMV, stageForRmv);
-
+    protected static String currBranch() {
         String headRef = Utils.readContentsAsString(HEADS);
         int lastSlash = headRef.lastIndexOf('/');
-        String head = headRef.substring(lastSlash);
-        File headFile = new File(BRANCHES, head);
-        Utils.writeContents(headFile, commitID);
-        for (String fileName : commit.getContents().keySet()) {
-            checkout(commitID, fileName);
-        }
-
+        return headRef.substring(lastSlash + 1);
     }
 
 }
