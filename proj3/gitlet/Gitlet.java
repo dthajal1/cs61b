@@ -151,18 +151,44 @@ public class Gitlet {
     private Commit findLatestCommonAncestor(String currID, String givenID) {
         HashSet<String> currParents = BFS.bfs(currID);
         HashSet<String> givenParents = BFS.bfs(givenID);
-        for (String s : currParents) {
-            if (givenParents.contains(s)) {
-                return getCommit(s);
+        int currCounter = 0;
+        int givenCounter = 0;
+        String curr = null;
+        String given = null;
+        for (String id : currParents) {
+            if (givenParents.contains(id)) {
+                given = id;
+                break;
             }
+            currCounter += 1;
         }
-        System.out.println("They don't have latest common ancestors.");
-        return null;
+        for (String id : givenParents) {
+            if (currParents.contains(id)) {
+                curr = id;
+                break;
+            }
+            givenCounter += 1;
+        }
+        if (currCounter < givenCounter) {
+            if (curr != null) {
+                return getCommit(curr);
+            }
+            System.out.println("Fix this: ancestor is null");
+            System.exit(0);
+
+        } else if (givenCounter < currCounter) {
+            if (given != null) {
+                return getCommit(given);
+            }
+            System.out.println("Fix this: ancestor is null");
+            System.exit(0);
+        }
+        return getCommit(curr);
+
     }
 
 
     private void merge(String branchName) {
-        //If the split point is the same commit as the given branch, then we do nothing; the merge is complete,
         String headRef = Utils.readContentsAsString(HEADS);
         int lastSlash = headRef.lastIndexOf('/');
         String head = headRef.substring(lastSlash + 1);
@@ -170,15 +196,68 @@ public class Gitlet {
         File givenFile = new File(BRANCHES, branchName);
         String currID = Utils.readContentsAsString(currFile);
         String givenID = Utils.readContentsAsString(givenFile);
-        Commit latestAncestor = findLatestCommonAncestor(currID, givenID);
+        Commit LCA = findLatestCommonAncestor(currID, givenID);
 //        System.out.println("Latest common ancestor's message: " + latestAncestor.getMessage());
+        String splitPoint = LCA.getCommitID();
+        if (splitPoint.equals(givenID)) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            System.exit(0);
+        } else if (splitPoint.equals(currID)) {
+            checkoutBranch(branchName);
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        Commit curr = getCommit(currID);
+        Commit given = getCommit(givenID);
+        for (String fileName : given.getContents().keySet()) {
+//            if (LCA.getContents().containsKey())
+            if (!LCA.getContents().get(fileName).equals(given.getContents().get(fileName))
+                    && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
+                checkoutCommit(givenID, fileName);
+                stageForAdd.put(fileName, given.getContents().get(fileName));
+            }
+            if (!LCA.getContents().containsKey(fileName) && !curr.getContents().containsKey(fileName)) {
+                checkoutFile(fileName);
+                stageForAdd.put(fileName, given.getContents().get(fileName));
+            }
+        }
 
-
-
-
-
+        for (String fileName : LCA.getContents().keySet()) {
+            if (LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
+                    && !given.getContents().containsKey(fileName)) {
+                remove(fileName);
+            }
+        }
+        boolean encounteredConflict = false;
+        for (String fileName : curr.getContents().keySet()) {
+            if (given.getContents().containsKey(fileName)
+                    && !given.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
+                encounteredConflict = true;
+                File cFile = Utils.join(OBJECTS, curr.getContents().get(fileName));
+                File gFile = Utils.join(OBJECTS, given.getContents().get(fileName));
+                String currentContent = "";
+                String givenContent = "";
+                if (cFile.exists() && gFile.exists()) {
+                    currentContent = Utils.readContentsAsString(cFile);
+                    givenContent = Utils.readContentsAsString(gFile);
+                } else if (cFile.exists()) {
+                    currentContent = Utils.readContentsAsString(cFile);
+                } else if (gFile.exists()) {
+                    givenContent = Utils.readContentsAsString(gFile);
+                }
+                Utils.writeContents(cFile, String.format("<<<<<<< HEAD\n%s=======\n%s>>>>>>>\n", currentContent, givenContent));
+            }
+        }
+        Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
+        Commit mergeCommit = new Commit(String.format("Merged %s into %s.", branchName, head), head, branchName, false);
+        if (encounteredConflict) {
+            System.out.println("Encountered a merge conflict.");
+        }
 
     }
+
+
 
 
     /** Creates a new Gitlet version-control system in the current directory. This system will
@@ -334,14 +413,17 @@ public class Gitlet {
         String currID = Utils.readContentsAsString(head);
         Commit curr = getCommit(currID);
         while (curr != null) {
-            System.out.println("===\n" +
-                    "commit " + curr.getCommitID() + "\n" +
-                    "Date: " + curr.getTimeStamp() + "\n" +
-                    curr.getMessage() + "\n");
+            if (curr.getSecondParent() != null) {
+                System.out.println(String.format("===\ncommit %s\nMerge: %s %s\nDate:" +
+                                " %s\n%s\n", curr.getCommitID(), curr.getParent().substring(0, 7),
+                        curr.getSecondParent().substring(0, 7), curr.getTimeStamp(), curr.getMessage()));
+            } else {
+                System.out.println(String.format("===\ncommit %s\nDate: %s\n%s\n",
+                        curr.getCommitID(), curr.getTimeStamp(), curr.getMessage()));
+            }
             String parent = curr.getParent();
             curr = getCommit(parent);
         }
-
     }
 
     private void showGlobalLog() {
@@ -350,10 +432,8 @@ public class Gitlet {
             for (File file : allFiles) {
                 String id = file.getName();
                 Commit commit = getCommit(id);
-                System.out.println("===\n" +
-                        "commit " + commit.getCommitID() + "\n" +
-                        "Date: " + commit.getTimeStamp() + "\n" +
-                        commit.getMessage() + "\n");
+                System.out.println(String.format("===\ncommit %s\nDate: %s\n%s\n",
+                        commit.getCommitID(), commit.getTimeStamp(), commit.getMessage()));
             }
         }
     }
@@ -543,7 +623,31 @@ public class Gitlet {
     }
 
     private void reset(String commitID) {
-                //come back
+        Commit commit = getCommit(commitID);
+        Commit curr = getCurrentCommit(); //maybe null pointer
+        for (String fileName : commit.getContents().keySet()) {
+            if (!curr.getContents().containsKey(fileName)) {
+                System.out.println("There is an untracked file in the way;" +
+                        " delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        stageForAdd.clear();
+        Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
+        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
+        stageForRmv.clear();
+        Utils.writeObject(STAGE_FOR_RMV, stageForRmv);
+
+        String headRef = Utils.readContentsAsString(HEADS);
+        int lastSlash = headRef.lastIndexOf('/');
+        String head = headRef.substring(lastSlash);
+        File headFile = new File(BRANCHES, head);
+        Utils.writeContents(headFile, commitID);
+        for (String fileName : commit.getContents().keySet()) {
+            checkout(commitID, fileName);
+        }
+
     }
 
 }
