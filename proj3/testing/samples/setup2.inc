@@ -1,4 +1,4 @@
-1. # Set up one commit with two files.
-2. I setup1.inc
-3. > commit "Two files"
-4. <<<
+# Set up one commit with two files.
+I setup1.inc
+> commit "Two files"
+<<<

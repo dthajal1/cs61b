@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 
 public class Checkout {
+
     protected static void checkout(String commitID, String fileName) {
         Commit commit = Gitlet.getCommit(commitID);
         if (commit == null) {
@@ -15,13 +16,9 @@ public class Checkout {
             System.exit(0);
         }
         Blob blob = Gitlet.getBlob(blobID);
-        if (blob != null) {
-            String content = blob.getContent();
-            File fileToReplaceWith = new File(fileName);
-            Utils.writeContents(fileToReplaceWith, content);
-        } else {
-            System.out.println("Blob is null");
-        }
+        String content = blob.getContent();
+        File fileToReplaceWith = new File(fileName);
+        Utils.writeContents(fileToReplaceWith, content);
     }
 
     protected static void checkoutFile(String fileName) {
@@ -33,76 +30,64 @@ public class Checkout {
         checkout(commitID, fileName);
     }
 
-    protected static Commit getCommitAtBranch(String branchName) {
+    protected static String getCommitIdAtBranch(String branchName) {
         File branch = new File(Gitlet.BRANCHES, branchName);
         if (!branch.exists()) {
             System.out.println("No such branch exists.");
             System.exit(0);
         }
-        String commitID = Utils.readContentsAsString(branch);
-        return Gitlet.getCommit(commitID);
+        return Utils.readContentsAsString(branch);
     }
 
     protected static void checkoutBranch(String branchName) {
-        Commit branchCommit = getCommitAtBranch(branchName);
-        Commit curr = Gitlet.getCurrentCommit(); //maybe null pointer
-        for (String fileName : branchCommit.getContents().keySet()) {
-            if (!curr.getContents().containsKey(fileName)) {
-                System.out.println("There is an untracked file in the way;" +
-                        " delete it, or add and commit it first.");
-                System.exit(0);
-            }
-        }
-
         String head = Gitlet.currBranch();
         if (head.equals(branchName)) {
             System.out.println("No need to checkout the current branch.");
             System.exit(0);
         }
-
-        MyHashMap stageForAdd = Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
-        stageForAdd.clear();
-        Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
-        MyHashMap stageForRmv = Utils.readObject(Gitlet.STAGE_FOR_RMV, MyHashMap.class);
-        stageForRmv.clear();
-        Utils.writeObject(Gitlet.STAGE_FOR_RMV, stageForRmv);
-
-        for (String fileName : curr.getContents().keySet()) {
-            if (!branchCommit.getContents().containsKey(fileName)) {
-                System.out.println(String.format("%s  was deleted!", fileName));
-                Utils.restrictedDelete(fileName);
-            } else {
-                checkout(branchCommit.getCommitID(), fileName);
-            }
-        }
+        String branchCommit = getCommitIdAtBranch(branchName);
+        checkOutReset(branchCommit);
 
         File newHead = new File(Gitlet.BRANCHES, branchName);
         Utils.writeContents(Gitlet.HEADS, newHead.getPath());
     }
 
-    protected static void reset(String commitID) {
-        Commit commit = Gitlet.getCommit(commitID);
-        Commit curr = Gitlet.getCurrentCommit(); //maybe null pointer
-        for (String fileName : commit.getContents().keySet()) {
-            if (!curr.getContents().containsKey(fileName)) {
+    protected static void checkOutReset(String commitID) {
+        Commit branchCommit = Gitlet.getCommit(commitID);
+        Commit curr = Gitlet.getCurrentCommit();
+        for (String fileName : branchCommit.getContents().keySet()) {
+            File file = new File(String.format("./%s", fileName));
+            if (file.exists() && !curr.getContents().containsKey(fileName)) {
                 System.out.println("There is an untracked file in the way;" +
                         " delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
+
+        for (String fileName : curr.getContents().keySet()) {
+            if (!branchCommit.getContents().containsKey(fileName)) {
+                Utils.restrictedDelete(fileName);
+            }
+        }
+
+        for (String fileName : branchCommit.getContents().keySet()) {
+            checkout(branchCommit.getCommitID(), fileName);
+        }
+
         MyHashMap stageForAdd = Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
-        stageForAdd.clear();
-        Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
         MyHashMap stageForRmv = Utils.readObject(Gitlet.STAGE_FOR_RMV, MyHashMap.class);
+        stageForAdd.clear();
         stageForRmv.clear();
+        Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
         Utils.writeObject(Gitlet.STAGE_FOR_RMV, stageForRmv);
+    }
+
+    protected static void reset(String commitID) {
+        checkOutReset(commitID);
 
         String head = Gitlet.currBranch();
         File headFile = new File(Gitlet.BRANCHES, head);
         Utils.writeContents(headFile, commitID);
-        for (String fileName : commit.getContents().keySet()) {
-            Checkout.checkout(commitID, fileName);
-        }
 
     }
 }

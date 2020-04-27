@@ -59,7 +59,7 @@ public class Gitlet {
             case "checkout":
                 if (commands.length == 3 && commands[1].equals("--")) {
                     Checkout.checkoutFile(commands[2]);
-                } else if (commands.length == 4) {
+                } else if (commands.length == 4 && commands[2].equals("--")) {
                     Checkout.checkoutCommit(commands[1], commands[3]);
                 } else if (commands.length == 2){
                     Checkout.checkoutBranch(commands[1]);
@@ -125,20 +125,19 @@ public class Gitlet {
             System.out.println("File does not exist.");
             System.exit(0);
         }
-        Blob blobToAdd = new Blob(fileToAdd);
         MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
-        for (String file : stageForAdd.keySet()) {
-            if (stageForAdd.get(file).equals(blobToAdd.getBlobID())) {
-                stageForAdd.remove(file);
-            } else if (file.equals(fileName)) {
-                stageForAdd.put(fileName, blobToAdd.getBlobID());
-            }
-        }
-        if (!stageForAdd.containsKey(fileName)) {
+        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
+        Blob blobToAdd = new Blob(fileToAdd);
+        Commit curr = getCurrentCommit();
+        if (curr.getContents().containsKey(fileName)
+                && blobToAdd.getBlobID().equals(curr.getContents().get(fileName))) {
+            stageForAdd.remove(fileName);
+            stageForRmv.remove(fileName);
+        } else {
             stageForAdd.put(fileName, blobToAdd.getBlobID());
         }
         Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
-
+        Utils.writeObject(STAGE_FOR_RMV, stageForRmv);
     }
 
     /** Gets the blob of the current commit from logs
@@ -146,14 +145,13 @@ public class Gitlet {
     public static Blob getBlob(String blobID) {
         File blobFile = new File(OBJECTS, blobID);
         File[] files = OBJECTS.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.getName().equals(blobID)) {
-                    return Utils.readObject(blobFile, Blob.class);
-                }
+        for (File file : files) {
+            if (file.getName().equals(blobID)) {
+                return Utils.readObject(blobFile, Blob.class);
             }
         }
-//        System.out.println("throw error: no blob found with given id");
+        System.out.println("No blob found with given id");
+        System.exit(0);
         return null;
     }
 
@@ -174,7 +172,8 @@ public class Gitlet {
                 return Utils.readObject(file, Commit.class);
             }
         }
-//        System.out.println("throw error: No such commit of given ID");
+        System.out.println("No commit with that id exists.");
+        System.exit(0);
         return null;
     }
 
@@ -206,12 +205,12 @@ public class Gitlet {
 
     protected static void remove(String fileName) {
         MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
         Commit curr = getCurrentCommit();
         if (stageForAdd.containsKey(fileName)) {
             stageForAdd.remove(fileName);
             Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
         } else if (curr != null && curr.getContents().containsKey(fileName)) {
-            MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
             stageForRmv.put(fileName, curr.getContents().get(fileName));
             Utils.writeObject(STAGE_FOR_RMV, stageForRmv);
             File fileToDelete = Utils.join(fileName);
@@ -255,20 +254,17 @@ public class Gitlet {
     }
 
     private static void find(String commitMsg) {
+        int counter = 0;
         File[] allFiles = LOGS.listFiles();
-        String result = "";
-        if (allFiles != null) {
-            for (File file : allFiles) {
-                String id = file.getName();
-                Commit commit = getCommit(id);
-                if (commit.getMessage().equals(commitMsg)) {
-                    result = result.concat(commit.getCommitID() + "\n");
-                }
+        for (File file : allFiles) {
+            String id = file.getName();
+            Commit commit = getCommit(id);
+            if (commit.getMessage().equals(commitMsg)) {
+                counter += 1;
+                System.out.println(commit.getCommitID());
             }
         }
-        if (!result.equals("")) {
-            System.out.println(result);
-        } else {
+        if (counter == 0) {
             System.out.println("Found no commit with that message.");
             System.exit(0);
         }

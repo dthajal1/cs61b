@@ -49,6 +49,7 @@ public class Commit implements Serializable {
 
     private void commit() {
         MyHashMap stageForAdd = Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv = Utils.readObject(Gitlet.STAGE_FOR_RMV, MyHashMap.class);
         for (Map.Entry<String, String> d : stageForAdd.entrySet()) {
             if (!_contents.containsKey(d.getKey())) {
                 _contents.put(d.getKey(), d.getValue());
@@ -56,7 +57,9 @@ public class Commit implements Serializable {
                 _contents.replace(d.getKey(), _contents.get(d.getKey()), d.getValue());
             }
         }
+        stageForRmv.clear();
         stageForAdd.clear();
+        Utils.writeObject(Gitlet.STAGE_FOR_RMV, stageForRmv);
         Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
     }
 

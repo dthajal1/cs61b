@@ -64,14 +64,15 @@ public class Merge {
         Commit given = Gitlet.getCommit(givenID);
         for (String fileName : given.getContents().keySet()) {
 //            if (LCA.getContents().containsKey()) //all files has to exist
-            if (!LCA.getContents().get(fileName).equals(given.getContents().get(fileName))
+            if (LCA.getContents().containsKey(fileName) && curr.getContents().containsKey(fileName)
+                    && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))
                     && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
                 Checkout.checkoutCommit(givenID, fileName);
                 stageForAdd.put(fileName, given.getContents().get(fileName));
             }
             if (!LCA.getContents().containsKey(fileName) && !curr.getContents().containsKey(fileName)) {
-                Checkout.checkoutFile(fileName);
-                stageForAdd.put(fileName, given.getContents().get(fileName));
+                Checkout.checkoutCommit(givenID, fileName);
+                stageForAdd.put(fileName, givenID);
             }
         }
 
@@ -80,8 +81,18 @@ public class Merge {
                     && !given.getContents().containsKey(fileName)) {
                 Gitlet.remove(fileName);
             }
+            if (LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
+                    && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
+                Checkout.checkoutCommit(givenID, fileName);
+            }
         }
+
+
         boolean encounteredConflict = false;
+        //if a file is absent in the current head but modified in the branch head //merge conflict
+        //if a file is absent in the branch head but modified in the head /conflict
+        //if a file is modified in both //conflict
+        //if a file was not present at the split and are not the same //conflict
         for (String fileName : curr.getContents().keySet()) {
             if (given.getContents().containsKey(fileName)
                     && !given.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
