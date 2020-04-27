@@ -1,5 +1,5 @@
 # Initialize and add two files.
-I prelude1.inc
+I prelude1.in
 + f.txt wug.txt
 + g.txt notwug.txt
 > add g.txt

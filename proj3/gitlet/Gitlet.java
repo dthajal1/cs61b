@@ -193,7 +193,8 @@ public class Gitlet {
             System.exit(0);
         }
         MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
-        if (stageForAdd.isEmpty()) {
+        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
+        if (stageForAdd.isEmpty() && stageForRmv.isEmpty()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
         }
