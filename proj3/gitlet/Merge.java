@@ -50,7 +50,9 @@ public class Merge {
         String currID = Utils.readContentsAsString(currFile);
         String givenID = Utils.readContentsAsString(givenFile);
         Commit LCA = findLatestCommonAncestor(currID, givenID);
+
         String splitPoint = LCA.getCommitID();
+
         if (splitPoint.equals(givenID)) {
             System.out.println("Given branch is an ancestor of the current branch.");
             System.exit(0);
@@ -59,65 +61,99 @@ public class Merge {
             System.out.println("Current branch fast-forwarded.");
             System.exit(0);
         }
+        boolean encounteredConflict = false;
+
         MyHashMap stageForAdd = Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
+
         Commit curr = Gitlet.getCommit(currID);
         Commit given = Gitlet.getCommit(givenID);
+
         for (String fileName : given.getContents().keySet()) {
-//            if (LCA.getContents().containsKey()) //all files has to exist
-            if (LCA.getContents().containsKey(fileName) && curr.getContents().containsKey(fileName)
-                    && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))
-                    && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
-                Checkout.checkoutCommit(givenID, fileName);
-                stageForAdd.put(fileName, given.getContents().get(fileName));
-            }
-            if (!LCA.getContents().containsKey(fileName) && !curr.getContents().containsKey(fileName)) {
+            //
+            // absent in split point and curr
+            if (!LCA.getContents().containsKey(fileName)
+                    && !curr.getContents().containsKey(fileName)) {
                 Checkout.checkoutCommit(givenID, fileName);
                 stageForAdd.put(fileName, givenID);
             }
         }
 
         for (String fileName : LCA.getContents().keySet()) {
-            if (LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
+            //if abscent in both
+            //
+            // unmodified in curr and absent in given
+            if (curr.getContents().containsKey(fileName)
+                    && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
                     && !given.getContents().containsKey(fileName)) {
                 Gitlet.remove(fileName);
             }
-            if (LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
+            //
+            // unmodified in curr but modified in given
+            if (curr.getContents().containsKey(fileName)
+                    && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
+                    && given.getContents().containsKey(fileName)
                     && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
                 Checkout.checkoutCommit(givenID, fileName);
+                stageForAdd.put(fileName, givenID);
+            }
+            //
+            // both are modified
+            if (curr.getContents().containsKey(fileName)
+                    && given.getContents().containsKey(fileName)
+                    && !LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
+                    && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
+                encounteredConflict = true;
+                handleConflict(curr.getContents().get(fileName), given.getContents().get(fileName));
+            }
+            //
+            // absent in curr but modified in given
+            if (!curr.getContents().containsKey(fileName)
+                    && given.getContents().containsKey(fileName)
+                    && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
+                encounteredConflict = true;
+                handleConflict("", given.getContents().get(fileName));
+            }
+            //
+            // absent in given and modified in curr
+            if (!given.getContents().containsKey(fileName)
+                    && curr.getContents().containsKey(fileName)
+                    && !LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
+                encounteredConflict = true;
+                handleConflict(curr.getContents().get(fileName), "");
             }
         }
 
-
-        boolean encounteredConflict = false;
-        //if a file is absent in the current head but modified in the branch head //merge conflict
-        //if a file is absent in the branch head but modified in the head /conflict
-        //if a file is modified in both //conflict
-        //if a file was not present at the split and are not the same //conflict
         for (String fileName : curr.getContents().keySet()) {
-            if (given.getContents().containsKey(fileName)
+            //
+            // absent in split point, both modified in different ways
+            if (!LCA.getContents().containsKey(fileName)
+                    && given.getContents().containsKey(fileName)
                     && !given.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
                 encounteredConflict = true;
-                File cFile = Utils.join(Gitlet.OBJECTS, curr.getContents().get(fileName));
-                File gFile = Utils.join(Gitlet.OBJECTS, given.getContents().get(fileName));
-                String currentContent = "";
-                String givenContent = "";
-                if (cFile.exists() && gFile.exists()) {
-                    currentContent = Utils.readContentsAsString(cFile);
-                    givenContent = Utils.readContentsAsString(gFile);
-                } else if (cFile.exists()) {
-                    currentContent = Utils.readContentsAsString(cFile);
-                } else if (gFile.exists()) {
-                    givenContent = Utils.readContentsAsString(gFile);
-                }
-                Utils.writeContents(cFile, String.format("<<<<<<< HEAD\n%s=======\n%s>>>>>>>\n", currentContent, givenContent));
+                handleConflict(curr.getContents().get(fileName), given.getContents().get(fileName));
             }
         }
         Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
-        Commit mergeCommit = new Commit(String.format("Merged %s into %s.", branchName, head), head, branchName, false);
+        Commit mergeCommit = new Commit(String.format("Merged %s into %s.", branchName, head), currID, givenID, false);
         if (encounteredConflict) {
             System.out.println("Encountered a merge conflict.");
         }
+    }
 
+    private static void handleConflict(String currBlob, String givenBlob) {
+            File cFile = Utils.join(Gitlet.OBJECTS, currBlob);
+            File gFile = Utils.join(Gitlet.OBJECTS, givenBlob);
+            String currentContent = "";
+            String givenContent = "";
+            if (cFile.exists() && gFile.exists()) {
+                currentContent = Utils.readContentsAsString(cFile);
+                givenContent = Utils.readContentsAsString(gFile);
+            } else if (cFile.exists()) {
+                currentContent = Utils.readContentsAsString(cFile);
+            } else if (gFile.exists()) {
+                givenContent = Utils.readContentsAsString(gFile);
+            }
+            Utils.writeContents(cFile, String.format("<<<<<<< HEAD\n%s=======\n%s>>>>>>>\n", currentContent, givenContent));
     }
 
 }

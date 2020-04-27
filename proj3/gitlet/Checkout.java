@@ -6,10 +6,6 @@ public class Checkout {
 
     protected static void checkout(String commitID, String fileName) {
         Commit commit = Gitlet.getCommit(commitID);
-        if (commit == null) {
-            System.out.println("No commit with that id exists.");
-            System.exit(0);
-        }
         String blobID = commit.getContents().get(fileName);
         if (blobID == null) {
             System.out.println("File does not exist in that commit.");
