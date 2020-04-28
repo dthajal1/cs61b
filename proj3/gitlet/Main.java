@@ -41,6 +41,7 @@ public class Main {
                 }
                 break;
             case "checkout":
+            case "dif":
                 break;
             default:
                 System.out.println("No command with that name exists.");

@@ -41,7 +41,12 @@ public class Commit implements Serializable {
     private void copyFromParent(String secondPar) {
         Commit mySecondParent = Gitlet.getCommit(secondPar);
         Commit myParent = Gitlet.getCurrentCommit();
-        _contents.putAll(myParent._contents);
+        MyHashMap stageForRmv = Utils.readObject(Gitlet.STAGE_FOR_RMV, MyHashMap.class);
+        for (String file : myParent.getContents().keySet()) {
+            if (!stageForRmv.containsKey(file)) {
+                _contents.put(file, myParent.getContents().get(file));
+            }
+        }
         if (mySecondParent != null) {
             _contents.putAll(mySecondParent._contents);
         }

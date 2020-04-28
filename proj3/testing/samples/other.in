@@ -7,3 +7,8 @@ I setup2.in
 <<<
 > rm g.txt
 <<<
+> commit "Add h.txt and remove g.txt"
+<<<
+> checkout other
+<<<
+>

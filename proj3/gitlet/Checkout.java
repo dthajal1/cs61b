@@ -52,7 +52,7 @@ public class Checkout {
         Commit curr = Gitlet.getCurrentCommit();
         Commit branchCommit = Gitlet.getCommit(givenID);
         for (String fileName : branchCommit.getContents().keySet()) {
-            File file = new File(String.format("./%s", fileName));
+            File file = new File(fileName);
             if (file.exists() && !curr.getContents().containsKey(fileName)) {
                 System.out.println("There is an untracked file in the way;" +
                         " delete it, or add and commit it first.");
@@ -65,6 +65,9 @@ public class Checkout {
         checkUntrackedFiles(commitID);
         Commit branchCommit = Gitlet.getCommit(commitID);
         Commit curr = Gitlet.getCurrentCommit();
+
+        int s = branchCommit.getContents().keySet().size();
+        int size = curr.getContents().keySet().size();
 
         for (String fileName : curr.getContents().keySet()) {
             if (!branchCommit.getContents().containsKey(fileName)) {

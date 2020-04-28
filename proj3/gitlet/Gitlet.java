@@ -32,6 +32,9 @@ public class Gitlet {
 
     public static void processCommands(String[] commands) {
         switch (commands[0]) {
+            case "dif":
+                dif(commands[1], commands[2]);
+                break;
             case "init":
                 initialize();
                 break;
@@ -82,6 +85,18 @@ public class Gitlet {
                 break;
         }
     }
+
+    private static void dif(String id1, String id2) {
+        ArrayList<String> result1 = new ArrayList<>();
+        ArrayList<String> result2 = new ArrayList<>();
+        Commit c1 = getCommit(id1);
+        Commit c2 = getCommit(id2);
+        result1.addAll(c1.getContents().keySet());
+        result2.addAll(c2.getContents().keySet());
+        System.out.println("Files in 1st commit: " + result1);
+        System.out.println("Files in 2nd commit: " + result2);
+    }
+
 
     /** Creates a new Gitlet version-control system in the current directory. This system will
      * automatically start with one commit: a commit that contains no files and has the commit
