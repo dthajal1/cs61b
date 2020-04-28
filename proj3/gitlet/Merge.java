@@ -86,41 +86,38 @@ public class Merge {
         Commit given = Gitlet.getCommit(givenID);
 
 
-
-
         for (String fileName : given.getContents().keySet()) {
             //
             // absent in split point and curr
-            if (!LCA.getContents().keySet().contains(fileName)
-                    && !curr.getContents().keySet().contains(fileName)) {
+            if (!LCA.getContents().containsKey(fileName)
+                    && !curr.getContents().containsKey(fileName)) {
                 Checkout.checkoutCommit(givenID, fileName);
                 stageForAdd.put(fileName, givenID);
             }
         }
 
         for (String fileName : LCA.getContents().keySet()) {
-            curr.getContents().keySet().contains(fileName);
             //
             // unmodified in curr and absent in given
-            if (curr.getContents().keySet().contains(fileName)
+            if (curr.getContents().containsKey(fileName)
                     && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
-                    && !given.getContents().keySet().contains(fileName)) {
+                    && !given.getContents().containsKey(fileName)) {
                 Gitlet.remove(fileName);
                 //stage it for removal
             }
             //
             // unmodified in curr but modified in given
-            if (curr.getContents().keySet().contains(fileName)
+            if (curr.getContents().containsKey(fileName)
                     && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
-                    && given.getContents().keySet().contains(fileName)
+                    && given.getContents().containsKey(fileName)
                     && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
                 Checkout.checkoutCommit(givenID, fileName);
                 stageForAdd.put(fileName, givenID);
             }
             //
             // both are modified
-            if (curr.getContents().keySet().contains(fileName)
-                    && given.getContents().keySet().contains(fileName)
+            if (curr.getContents().containsKey(fileName)
+                    && given.getContents().containsKey(fileName)
                     && !LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
                     && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
                 encounteredConflict = true;
@@ -128,16 +125,16 @@ public class Merge {
             }
             //
             // absent in curr but modified in given
-            if (!curr.getContents().keySet().contains(fileName)
-                    && given.getContents().keySet().contains(fileName)
+            if (!curr.getContents().containsKey(fileName)
+                    && given.getContents().containsKey(fileName)
                     && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
                 encounteredConflict = true;
                 handleConflict("", given.getContents().get(fileName));
             }
             //
             // absent in given and modified in curr
-            if (!given.getContents().keySet().contains(fileName)
-                    && curr.getContents().keySet().contains(fileName)
+            if (!given.getContents().containsKey(fileName)
+                    && curr.getContents().containsKey(fileName)
                     && !LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
                 encounteredConflict = true;
                 handleConflict(curr.getContents().get(fileName), "");
@@ -147,8 +144,8 @@ public class Merge {
         for (String fileName : curr.getContents().keySet()) {
             //
             // absent in split point, both modified in different ways
-            if (!LCA.getContents().keySet().contains(fileName)
-                    && given.getContents().keySet().contains(fileName)
+            if (!LCA.getContents().containsKey(fileName)
+                    && given.getContents().containsKey(fileName)
                     && !given.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
                 encounteredConflict = true;
                 handleConflict(curr.getContents().get(fileName), given.getContents().get(fileName));
@@ -162,19 +159,27 @@ public class Merge {
     }
 
     private static void handleConflict(String currBlob, String givenBlob) {
-            File cFile = Utils.join(Gitlet.OBJECTS, currBlob);
-            File gFile = Utils.join(Gitlet.OBJECTS, givenBlob);
-            String currentContent = "";
-            String givenContent = "";
-            if (cFile.exists() && gFile.exists()) {
-                currentContent = Utils.readContentsAsString(cFile);
-                givenContent = Utils.readContentsAsString(gFile);
-            } else if (cFile.exists()) {
-                currentContent = Utils.readContentsAsString(cFile);
-            } else if (gFile.exists()) {
-                givenContent = Utils.readContentsAsString(gFile);
-            }
-            Utils.writeContents(cFile, String.format("<<<<<<< HEAD\n%s=======\n%s>>>>>>>\n", currentContent, givenContent));
+        File cFile = Utils.join(Gitlet.OBJECTS, currBlob);
+        File gFile = Utils.join(Gitlet.OBJECTS, givenBlob);
+        String currentContent = "";
+        String givenContent = "";
+        if (cFile.exists() && gFile.exists()) {
+            currentContent = Utils.readContentsAsString(cFile);
+            givenContent = Utils.readContentsAsString(gFile);
+        } else if (cFile.exists()) {
+            currentContent = Utils.readContentsAsString(cFile);
+        } else if (gFile.exists()) {
+            givenContent = Utils.readContentsAsString(gFile);
+        }
+        Blob blob = Gitlet.getBlob(currBlob);
+        String currFileName = blob.getName();
+        File writeTo = new File(currFileName);
+
+        String result = String.format("<<<<<<< HEAD\n%s\n=======\n%s\n>>>>>>>\n", currentContent, givenContent);
+        Utils.writeContents(writeTo, result);
+        MyHashMap stageForAdd = Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
+        stageForAdd.put(currFileName, currBlob);
+        Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
     }
 
 }

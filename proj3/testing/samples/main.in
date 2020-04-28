@@ -1,9 +1,0 @@
-# Create two branches and merge other into master.
-I setup2.in
-> branch other
-<<<
-+ h.txt wug2.txt
-> add h.txt
-<<<
-> rm g.txt
-<<<
