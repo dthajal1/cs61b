@@ -47,8 +47,27 @@ public class Merge {
         String head = Gitlet.currBranch();
         File currFile = new File(Gitlet.BRANCHES, head);
         File givenFile = new File(Gitlet.BRANCHES, branchName);
+        if (!givenFile.exists()) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        if (head.equals(branchName)) {
+            System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+
+        MyHashMap stageForAdd = Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv = Utils.readObject(Gitlet.STAGE_FOR_RMV, MyHashMap.class);
+        if (!stageForAdd.isEmpty() && !stageForRmv.isEmpty()) {
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        }
+
         String currID = Utils.readContentsAsString(currFile);
         String givenID = Utils.readContentsAsString(givenFile);
+
+        Checkout.checkUntrackedFiles(givenID);
+
         Commit LCA = findLatestCommonAncestor(currID, givenID);
 
         String splitPoint = LCA.getCommitID();
@@ -63,43 +82,45 @@ public class Merge {
         }
         boolean encounteredConflict = false;
 
-        MyHashMap stageForAdd = Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
-
         Commit curr = Gitlet.getCommit(currID);
         Commit given = Gitlet.getCommit(givenID);
+
+
+
 
         for (String fileName : given.getContents().keySet()) {
             //
             // absent in split point and curr
-            if (!LCA.getContents().containsKey(fileName)
-                    && !curr.getContents().containsKey(fileName)) {
+            if (!LCA.getContents().keySet().contains(fileName)
+                    && !curr.getContents().keySet().contains(fileName)) {
                 Checkout.checkoutCommit(givenID, fileName);
                 stageForAdd.put(fileName, givenID);
             }
         }
 
         for (String fileName : LCA.getContents().keySet()) {
-            //if abscent in both
+            curr.getContents().keySet().contains(fileName);
             //
             // unmodified in curr and absent in given
-            if (curr.getContents().containsKey(fileName)
+            if (curr.getContents().keySet().contains(fileName)
                     && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
-                    && !given.getContents().containsKey(fileName)) {
+                    && !given.getContents().keySet().contains(fileName)) {
                 Gitlet.remove(fileName);
+                //stage it for removal
             }
             //
             // unmodified in curr but modified in given
-            if (curr.getContents().containsKey(fileName)
+            if (curr.getContents().keySet().contains(fileName)
                     && LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
-                    && given.getContents().containsKey(fileName)
+                    && given.getContents().keySet().contains(fileName)
                     && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
                 Checkout.checkoutCommit(givenID, fileName);
                 stageForAdd.put(fileName, givenID);
             }
             //
             // both are modified
-            if (curr.getContents().containsKey(fileName)
-                    && given.getContents().containsKey(fileName)
+            if (curr.getContents().keySet().contains(fileName)
+                    && given.getContents().keySet().contains(fileName)
                     && !LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))
                     && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
                 encounteredConflict = true;
@@ -107,16 +128,16 @@ public class Merge {
             }
             //
             // absent in curr but modified in given
-            if (!curr.getContents().containsKey(fileName)
-                    && given.getContents().containsKey(fileName)
+            if (!curr.getContents().keySet().contains(fileName)
+                    && given.getContents().keySet().contains(fileName)
                     && !LCA.getContents().get(fileName).equals(given.getContents().get(fileName))) {
                 encounteredConflict = true;
                 handleConflict("", given.getContents().get(fileName));
             }
             //
             // absent in given and modified in curr
-            if (!given.getContents().containsKey(fileName)
-                    && curr.getContents().containsKey(fileName)
+            if (!given.getContents().keySet().contains(fileName)
+                    && curr.getContents().keySet().contains(fileName)
                     && !LCA.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
                 encounteredConflict = true;
                 handleConflict(curr.getContents().get(fileName), "");
@@ -126,8 +147,8 @@ public class Merge {
         for (String fileName : curr.getContents().keySet()) {
             //
             // absent in split point, both modified in different ways
-            if (!LCA.getContents().containsKey(fileName)
-                    && given.getContents().containsKey(fileName)
+            if (!LCA.getContents().keySet().contains(fileName)
+                    && given.getContents().keySet().contains(fileName)
                     && !given.getContents().get(fileName).equals(curr.getContents().get(fileName))) {
                 encounteredConflict = true;
                 handleConflict(curr.getContents().get(fileName), given.getContents().get(fileName));

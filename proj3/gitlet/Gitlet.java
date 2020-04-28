@@ -211,17 +211,17 @@ public class Gitlet {
         if (stageForAdd.containsKey(fileName)) {
             stageForAdd.remove(fileName);
             Utils.writeObject(STAGE_FOR_ADD, stageForAdd);
-        } else if (curr != null && curr.getContents().containsKey(fileName)) {
+            return;
+        }
+        if (curr != null && curr.getContents().containsKey(fileName)) {
             stageForRmv.put(fileName, curr.getContents().get(fileName));
             Utils.writeObject(STAGE_FOR_RMV, stageForRmv);
-            File fileToDelete = Utils.join(fileName);
+            File fileToDelete = new File(fileName);
             Utils.restrictedDelete(fileToDelete);
-        } else if (curr == null) {
-            System.out.println("Commit is null");
-        } else {
-            System.out.println("No reason to remove the file.");
-            System.exit(0);
+            return;
         }
+        System.out.println("No reason to remove the file.");
+        System.exit(0);
     }
 
     private static void showLog() {

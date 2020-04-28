@@ -48,9 +48,9 @@ public class Checkout {
         Utils.writeContents(Gitlet.HEADS, newHead.getPath());
     }
 
-    protected static void checkOutReset(String commitID) {
-        Commit branchCommit = Gitlet.getCommit(commitID);
+    protected static void checkUntrackedFiles(String givenID) {
         Commit curr = Gitlet.getCurrentCommit();
+        Commit branchCommit = Gitlet.getCommit(givenID);
         for (String fileName : branchCommit.getContents().keySet()) {
             File file = new File(String.format("./%s", fileName));
             if (file.exists() && !curr.getContents().containsKey(fileName)) {
@@ -59,6 +59,12 @@ public class Checkout {
                 System.exit(0);
             }
         }
+    }
+
+    protected static void checkOutReset(String commitID) {
+        checkUntrackedFiles(commitID);
+        Commit branchCommit = Gitlet.getCommit(commitID);
+        Commit curr = Gitlet.getCurrentCommit();
 
         for (String fileName : curr.getContents().keySet()) {
             if (!branchCommit.getContents().containsKey(fileName)) {

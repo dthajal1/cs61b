@@ -18,19 +18,3 @@ I setup2.in
 <<<
 > commit "Add k.txt and remove f.txt"
 <<<
-> checkout master
-<<<
-> merge other
-<<<
-* f.txt
-* g.txt
-= h.txt wug2.txt
-= k.txt wug3.txt
-> log
-===
-${COMMIT_HEAD}
-Merged other into master\.
-
-${ARBLINES}
-<<<*
-I blank-status2.in
