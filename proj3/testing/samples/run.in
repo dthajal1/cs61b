@@ -1,21 +1,59 @@
-# Test special cases of merge.
-I setup2.in
-> branch b1
+# As for test43-criss-cross-merge.in, but we switch the roles of the parents
+# in the first two merges.
+# Criss-cross merge.
+> init
 <<<
-+ h.txt wug2.txt
-> add h.txt
+> branch given
 <<<
-> commit "Add h.txt"
+> checkout given
 <<<
-> branch b2
++ f.txt wug.txt
+> add f.txt
+<<<
+> commit "Add f.txt containing wug.txt"
+<<<
+> branch B
+<<<
+> checkout master
+<<<
++ f.txt notwug.txt
+> add f.txt
+<<<
+> commit "Add f.txt containing notwug.txt"
+<<<
+> checkout given
+<<<
+> merge master
+Encountered a merge conflict.
+<<<
+= f.txt conflict6.txt
++ f.txt notwug.txt
+> add f.txt
+<<<
+> commit "Reset f to notwug.txt"
 <<<
 > rm f.txt
 <<<
-> commit "remove f.txt"
+> commit "given now empty."
 <<<
-> merge b1
-Given branch is an ancestor of the current branch.
+> checkout B
 <<<
-> checkout b2
++ g.txt wug2.txt
+> add g.txt
 <<<
-= f.txt wug.txt
+> commit "Added g.txt"
+<<<
+> checkout master
+<<<
+> merge B
+Encountered a merge conflict.
+<<<
+= f.txt conflict3.txt
++ f.txt wug.txt
+> add f.txt
+<<<
+> commit "Reset f to wug.txt"
+<<<
+> merge given
+Encountered a merge conflict.
+<<<

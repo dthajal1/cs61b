@@ -1,0 +1,39 @@
+> init
+<<<
++ hello.txt hello.txt
++ world.txt world.txt
+> add world.txt
+<<<
+> add hello.txt
+<<<
+> rm hello.txt
+<<<
+> status
+=== Branches ===
+*master
+=== Staged Files ===
+world.txt
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
+> commit "add hello and world and remove hello"
+<<<
+> branch me
+<<<
+> status
+=== Branches ===
+*master
+me
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<

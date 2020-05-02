@@ -3,8 +3,13 @@ package gitlet;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 
+/** Breadth first traversal on commits.
+ * @author Diraj Thajali
+ * */
 public class BFS {
-
+    /** Returns the adjacent parents of the given commitID.
+     * @param commitID id of a commit
+     * @return HashSet of string of adjacent parents of given commitID */
     private static HashSet<String> parents(String commitID) {
         HashSet<String> result = new HashSet<>();
         Commit curr = Gitlet.getCommit(commitID);
@@ -17,6 +22,9 @@ public class BFS {
         return result;
     }
 
+    /** Returns all the parents of given commitID.
+     * @param commitID id of a commit
+     * @return HashSet of String of all the parents of given commitID */
     protected static HashSet<String> bfs(String commitID) {
         HashSet<String> result = new HashSet<>();
         PriorityQueue<String> fringe = new PriorityQueue<>();
