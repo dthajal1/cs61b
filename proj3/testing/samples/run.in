@@ -1,32 +1,21 @@
-# Create two branches and merge other into master with a merge conflict.
+# Test special cases of merge.
 I setup2.in
-> branch other
+> branch b1
 <<<
 + h.txt wug2.txt
 > add h.txt
 <<<
-> rm g.txt
+> commit "Add h.txt"
 <<<
-+ f.txt wug2.txt
-> add f.txt
+> branch b2
 <<<
-> commit "Add h.txt, remove g.txt, and change f.txt"
+> rm f.txt
 <<<
-> checkout other
+> commit "remove f.txt"
 <<<
-+ f.txt notwug.txt
-> add f.txt
+> merge b1
+Given branch is an ancestor of the current branch.
 <<<
-+ k.txt wug3.txt
-> add k.txt
+> checkout b2
 <<<
-> commit "Add k.txt and modify f.txt"
-<<<
-> checkout master
-<<<
-> log
-===
-${COMMIT_HEAD}
-${ARBLINES}
-<<<*
-D MASTER_HEAD "${1}"
+= f.txt wug.txt
