@@ -17,12 +17,15 @@ public class Blob implements Serializable {
     private String _content;
 
     /** Constructor that wraps the given file as an object.
-     * @param file File to be wrapped inside this blob */
-    public Blob(File file) {
+     * @param file File to be wrapped inside this blob
+     * @param temp {@code true} if not to save this blob */
+    public Blob(File file, boolean temp) {
         _name = file.getName();
         _content = Utils.readContentsAsString(file);
         _blobID = Utils.sha1((Object) Utils.serialize(_content));
-        saveBlob();
+        if (!temp) {
+            saveBlob();
+        }
     }
 
     /** Saves this blob for future use. */

@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**  Class that handles all the commands.
  * @author Diraj Thajali
@@ -132,11 +133,11 @@ public class Gitlet {
             System.out.println("File does not exist.");
             System.exit(0);
         }
-        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD,
-                MyHashMap.class);
-        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV,
-                MyHashMap.class);
-        Blob blobToAdd = new Blob(fileToAdd);
+        MyHashMap stageForAdd =
+                Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv =
+                Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
+        Blob blobToAdd = new Blob(fileToAdd, false);
         Commit curr = getCurrentCommit();
         if (stageForAdd.containsKey(fName)
                 && curr.getContents().containsKey(fName)
@@ -205,10 +206,10 @@ public class Gitlet {
             System.out.println("Please enter a commit message.");
             System.exit(0);
         }
-        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD,
-                MyHashMap.class);
-        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV,
-                MyHashMap.class);
+        MyHashMap stageForAdd =
+                Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv =
+                Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
         if (stageForAdd.isEmpty() && stageForRmv.isEmpty()) {
             System.out.println("No changes added to the commit.");
             System.exit(0);
@@ -222,10 +223,10 @@ public class Gitlet {
     /** Removes the file from staging area or deletes the file.
      * @param fileName name of the file to be removed */
     protected static void remove(String fileName) {
-        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD,
-                MyHashMap.class);
-        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV,
-                MyHashMap.class);
+        MyHashMap stageForAdd =
+                Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv =
+                Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
         Commit curr = getCurrentCommit();
         if (stageForAdd.containsKey(fileName)) {
             stageForAdd.remove(fileName);
@@ -305,16 +306,17 @@ public class Gitlet {
 
     /** Prints out the current status. */
     private static void showStatus() {
-        MyHashMap stageForAdd = Utils.readObject(STAGE_FOR_ADD,
-                MyHashMap.class);
-        MyHashMap stageForRmv = Utils.readObject(STAGE_FOR_RMV,
-                MyHashMap.class);
+        MyHashMap stageForAdd =
+                Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv =
+                Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
         String head = currBranch();
 
         File[] branchFiles = BRANCHES.listFiles();
         ArrayList<String> branches = new ArrayList<>();
         ArrayList<String> stagedFiles = new ArrayList<>();
         ArrayList<String> removedFiles = new ArrayList<>();
+
         if (branchFiles != null) {
             for (File branch : branchFiles) {
                 branches.add(branch.getName());
@@ -356,9 +358,80 @@ public class Gitlet {
         for (String s : removedFiles) {
             System.out.println(s);
         }
-        //extra credit //come back for later
         System.out.println("\n=== Modifications Not Staged For Commit ===");
         System.out.println("\n=== Untracked Files ===\n");
+    }
+
+    /** Returns an arrayList of names of files that has been modified
+     * but not staged.
+     * @return an arrayList of names of files that has
+     * been modified but not staged */
+    private static ArrayList<String> modifiedNotStaged() {
+        ArrayList<String> result = new ArrayList<>();
+        MyHashMap stageForAdd =
+                Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        Commit curr = getCurrentCommit();
+        List<String> allFiles = Utils.plainFilenamesIn(".");
+        for (String file : allFiles) {
+            File tempFile = new File(file);
+            Blob temp = new Blob(tempFile, true);
+            if (curr.getContents().containsKey(file)
+                    && !stageForAdd.containsKey(file)
+                    && !curr.getContents().get(file).equals(temp.getBlobID())) {
+                result.add(file);
+            }
+            if (stageForAdd.containsKey(file)
+                    && !stageForAdd.get(file).equals(temp.getBlobID())) {
+                result.add(file);
+            }
+        }
+        return result;
+    }
+
+    /** Returns an arrayList of names of files that has been deleted
+     * but not staged.
+     * @return an arrayList of names of files that has
+     * been deleted but not staged */
+    private static ArrayList<String> deletedNotStaged() {
+        ArrayList<String> result = new ArrayList<>();
+        MyHashMap stageForAdd =
+                Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv =
+                Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
+        Commit curr = getCurrentCommit();
+        List<String> allFiles = Utils.plainFilenamesIn(".");
+        for (String file : curr.getContents().keySet()) {
+            if (!stageForRmv.containsKey(file) && !allFiles.contains(file)) {
+                result.add(file);
+            }
+        }
+        for (String file : stageForAdd.keySet()) {
+            if (!allFiles.contains(file)) {
+                result.add(file);
+            }
+        }
+        result.sort(String::compareTo);
+        return result;
+    }
+
+    /** Returns an arrayList of names of files that are untracked.
+     * @return an arrayList of names of files that are untracked */
+    private static ArrayList<String> untrackedFiles() {
+        MyHashMap stageForAdd =
+                Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv =
+                Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
+        ArrayList<String> result = new ArrayList<>(stageForRmv.keySet());
+        Commit curr = getCurrentCommit();
+        List<String> allFiles = Utils.plainFilenamesIn(".");
+        for (String fileName : allFiles) {
+            if (!stageForAdd.containsKey(fileName)
+                    && curr.getContents().containsKey(fileName)) {
+                result.add(fileName);
+            }
+        }
+        result.sort(String::compareTo);
+        return result;
     }
 
     /** Creates a new branch which points to the current commit.
