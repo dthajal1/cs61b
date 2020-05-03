@@ -22,6 +22,7 @@ public class Main {
         case "log":
         case "global-log":
         case "status":
+        case "m":
             if (args.length != 1) {
                 System.out.println("Incorrect operands.");
                 System.exit(0);

@@ -358,9 +358,28 @@ public class Gitlet {
         for (String s : removedFiles) {
             status.format(s + "%n");
         }
-        status.format("%n=== Modifications Not Staged For Commit ===%n");
-        status.format("%n=== Untracked Files ===%n");
         System.out.println(status.toString());
+        mod();
+    }
+
+    /** Handles the status of modified, deleted and untracked files. */
+    public static void mod() {
+        Formatter result = new Formatter();
+        result.format("=== Modifications Not Staged For Commit ===%n");
+        ArrayList<String> deleted = deletedNotStaged();
+        for (String s : deleted) {
+            result.format(s + " (deleted)" + "%n");
+        }
+        ArrayList<String> modified = modifiedNotStaged();
+        for (String s : modified) {
+            result.format(s + " (modified)" + "%n");
+        }
+        result.format("%n=== Untracked Files ===%n");
+        ArrayList<String> untracked = untrackedFiles();
+        for (String s : untracked) {
+            result.format(s + "%n");
+        }
+        System.out.println(result.toString());
     }
 
     /** Returns an arrayList of names of files that has been modified
@@ -371,13 +390,16 @@ public class Gitlet {
         ArrayList<String> result = new ArrayList<>();
         MyHashMap stageForAdd =
                 Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
+        MyHashMap stageForRmv =
+                Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
         Commit curr = getCurrentCommit();
         List<String> allFiles = Utils.plainFilenamesIn(".");
         for (String file : allFiles) {
             File tempFile = new File(file);
             Blob temp = new Blob(tempFile, true);
-            if (curr.getContents().containsKey(file)
-                    && !stageForAdd.containsKey(file)
+            if (!stageForAdd.containsKey(file)
+                    && !stageForRmv.containsKey(file)
+                    && curr.getContents().containsKey(file)
                     && !curr.getContents().get(file).equals(temp.getBlobID())) {
                 result.add(file);
             }
@@ -427,11 +449,10 @@ public class Gitlet {
         List<String> allFiles = Utils.plainFilenamesIn(".");
         for (String fileName : allFiles) {
             if (!stageForAdd.containsKey(fileName)
-                    && curr.getContents().containsKey(fileName)) {
+                    && !curr.getContents().containsKey(fileName)) {
                 result.add(fileName);
             }
         }
-        result.sort(String::compareTo);
         return result;
     }
 
