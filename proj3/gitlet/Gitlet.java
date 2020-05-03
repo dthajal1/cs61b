@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 
 /**  Class that handles all the commands.
@@ -139,13 +140,12 @@ public class Gitlet {
                 Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
         Blob blobToAdd = new Blob(fileToAdd, false);
         Commit curr = getCurrentCommit();
-        if (stageForAdd.containsKey(fName)
-                && curr.getContents().containsKey(fName)
-                && curr.getContents().get(fName).
-                equals(blobToAdd.getBlobID())) {
+
+        if (curr.getContents().containsKey(fName)
+                && blobToAdd.getBlobID().
+                equals(curr.getContents().get(fName))) {
+            stageForAdd.remove(fName);
             stageForRmv.remove(fName);
-        } else if (stageForAdd.containsKey(fName)) {
-            stageForAdd.replace(fName, blobToAdd.getBlobID());
         } else {
             stageForAdd.put(fName, blobToAdd.getBlobID());
         }
@@ -216,8 +216,7 @@ public class Gitlet {
         }
         File head = new File(Utils.readContentsAsString(HEADS));
         String parent = Utils.readContentsAsString(head);
-        String secondParent = getCommit(parent).getSecondParent();
-        Commit commit = new Commit(message, parent, secondParent, false);
+        Commit commit = new Commit(message, parent, null, false);
     }
 
     /** Removes the file from staging area or deletes the file.
@@ -342,24 +341,26 @@ public class Gitlet {
         }
         removedFiles.sort(String::compareTo);
 
-        System.out.println("=== Branches ===");
+        Formatter status = new Formatter();
+        status.format("=== Branches ===%n");
         for (String s : branches) {
             if (s.equals(head)) {
-                System.out.println(String.format("*%s", s));
+                status.format("*" + s + "%n");
             } else {
-                System.out.println(s);
+                status.format(s + "%n");
             }
         }
-        System.out.println("\n=== Staged Files ===");
+        status.format("%n=== Staged Files ===%n");
         for (String s : stagedFiles) {
-            System.out.println(s);
+            status.format(s + "%n");
         }
-        System.out.println("\n=== Removed Files ===");
+        status.format("%n=== Removed Files ===%n");
         for (String s : removedFiles) {
-            System.out.println(s);
+            status.format(s + "%n");
         }
-        System.out.println("\n=== Modifications Not Staged For Commit ===");
-        System.out.println("\n=== Untracked Files ===\n");
+        status.format("%n=== Modifications Not Staged For Commit ===%n");
+        status.format("%n=== Untracked Files ===%n");
+        System.out.println(status.toString());
     }
 
     /** Returns an arrayList of names of files that has been modified

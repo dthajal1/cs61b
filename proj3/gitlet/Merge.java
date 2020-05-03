@@ -2,7 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.Formatter;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 /** Merge Series.
 * @author Diraj Thajali
@@ -15,22 +15,22 @@ public class Merge {
      * */
     private static Commit findLatestCommonAncestor(String currID,
                                                    String givenID) {
-        HashSet<String> currParents = BFS.bfs(currID);
-        HashSet<String> givenParents = BFS.bfs(givenID);
+        LinkedHashSet<String> currParents = BFS.bfs(currID);
+        LinkedHashSet<String> givenParents = BFS.bfs(givenID);
         int currCounter = 0;
         int givenCounter = 0;
         String curr = null;
         String given = null;
         for (String id : currParents) {
             if (givenParents.contains(id)) {
-                given = id;
+                curr = id;
                 break;
             }
             currCounter += 1;
         }
         for (String id : givenParents) {
             if (currParents.contains(id)) {
-                curr = id;
+                given = id;
                 break;
             }
             givenCounter += 1;
@@ -98,10 +98,12 @@ public class Merge {
     /** Exits with an error message if currID is the same
      * as the id at split point.
      * @param splitPointID commit id at the split point
-     * @param currID commit id of current commit */
-    private static void isCurrent(String splitPointID, String currID) {
+     * @param currID commit id of current commit
+     * @param branchName name of the branch */
+    private static void isCurrent(String splitPointID,
+                                  String currID, String branchName) {
         if (splitPointID.equals(currID)) {
-            Checkout.checkoutBranch(currID);
+            Checkout.checkoutBranch(branchName);
             System.out.println("Current branch fast-forwarded.");
             System.exit(0);
         }
@@ -123,9 +125,10 @@ public class Merge {
         Checkout.checkUntrackedFiles(givenID);
 
         Commit lca = findLatestCommonAncestor(currID, givenID);
+
         String splitPoint = lca.getCommitID();
         isAncestor(splitPoint, givenID);
-        isCurrent(splitPoint, currID);
+        isCurrent(splitPoint, currID, branchName);
 
         Commit curr = Gitlet.getCommit(currID);
         Commit given = Gitlet.getCommit(givenID);

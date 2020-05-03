@@ -1,6 +1,6 @@
 package gitlet;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.PriorityQueue;
 
 /** Breadth first traversal on commits.
@@ -10,8 +10,8 @@ public class BFS {
     /** Returns the adjacent parents of the given commitID.
      * @param commitID id of a commit
      * @return HashSet of string of adjacent parents of given commitID */
-    private static HashSet<String> parents(String commitID) {
-        HashSet<String> result = new HashSet<>();
+    private static LinkedHashSet<String> parents(String commitID) {
+        LinkedHashSet<String> result = new LinkedHashSet<>();
         Commit curr = Gitlet.getCommit(commitID);
         if (curr.getParent() != null) {
             result.add(curr.getParent());
@@ -25,8 +25,8 @@ public class BFS {
     /** Returns all the parents of given commitID.
      * @param commitID id of a commit
      * @return HashSet of String of all the parents of given commitID */
-    protected static HashSet<String> bfs(String commitID) {
-        HashSet<String> result = new HashSet<>();
+    protected static LinkedHashSet<String> bfs(String commitID) {
+        LinkedHashSet<String> result = new LinkedHashSet<>();
         PriorityQueue<String> fringe = new PriorityQueue<>();
         fringe.add(commitID);
         result.add(commitID);
