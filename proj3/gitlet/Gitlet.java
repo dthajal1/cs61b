@@ -393,6 +393,7 @@ public class Gitlet {
         MyHashMap stageForRmv =
                 Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
         Commit curr = getCurrentCommit();
+
         List<String> allFiles = Utils.plainFilenamesIn(".");
         for (String file : allFiles) {
             File tempFile = new File(file);
@@ -444,15 +445,17 @@ public class Gitlet {
                 Utils.readObject(STAGE_FOR_ADD, MyHashMap.class);
         MyHashMap stageForRmv =
                 Utils.readObject(STAGE_FOR_RMV, MyHashMap.class);
-        ArrayList<String> result = new ArrayList<>(stageForRmv.keySet());
+        ArrayList<String> result = new ArrayList<>();
         Commit curr = getCurrentCommit();
         List<String> allFiles = Utils.plainFilenamesIn(".");
         for (String fileName : allFiles) {
             if (!stageForAdd.containsKey(fileName)
+                    && !stageForRmv.containsKey(fileName)
                     && !curr.getContents().containsKey(fileName)) {
                 result.add(fileName);
             }
         }
+
         return result;
     }
 

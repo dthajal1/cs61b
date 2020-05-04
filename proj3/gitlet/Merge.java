@@ -115,6 +115,9 @@ public class Merge {
         String head = Gitlet.currBranch();
         File currFile = new File(Gitlet.BRANCHES, head);
         File givenFile = new File(Gitlet.BRANCHES, branchName);
+        MyHashMap stageForAdd =
+                Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
+
         checkBranchExists(branchName);
         checkEqualsHead(branchName);
         checkForUncommittedChanges();
@@ -133,27 +136,29 @@ public class Merge {
         Commit curr = Gitlet.getCommit(currID);
         Commit given = Gitlet.getCommit(givenID);
 
-        mergeGiven(splitPoint, currID, givenID);
+        mergeGiven(splitPoint, currID, givenID, stageForAdd);
 
-        boolean conflict = false;
+        boolean encounteredConflict = false;
 
         boolean conflictInMergingFromLca =
-                mergeFromLca(splitPoint, currID, givenID);
+                mergeFromLca(splitPoint, currID, givenID, stageForAdd);
 
         for (String fName : curr.getContents().keySet()) {
             if (!lca.getContents().containsKey(fName)
                     && given.getContents().containsKey(fName)
                     && !given.getContents().get(fName).
                     equals(curr.getContents().get(fName))) {
-                conflict = true;
+                encounteredConflict = true;
                 handleConflict(curr.getContents().get(fName),
-                        given.getContents().get(fName));
+                        given.getContents().get(fName), stageForAdd);
             }
         }
+        Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
         Commit mergeCommit =
                 new Commit(String.format("Merged %s into %s.",
                         branchName, head), currID, givenID, false);
-        if (conflict || conflictInMergingFromLca) {
+
+        if (encounteredConflict || conflictInMergingFromLca) {
             System.out.println("Encountered a merge conflict.");
         }
     }
@@ -162,14 +167,15 @@ public class Merge {
      * @param splitPoint commitID at the split point
      * @param currID commitId of the current commit
      * @param givenID commitID of given branch in merge
+     * @param stageForAdd hashMap of files to add to include
+     *                    in this merge commit
      * @return {@code true} if merging from lca encountered merge conflict */
     private static boolean mergeFromLca(String splitPoint,
-                                        String currID, String givenID) {
+                                        String currID, String givenID,
+                                        MyHashMap stageForAdd) {
         Commit given = Gitlet.getCommit(givenID);
         Commit lca = Gitlet.getCommit(splitPoint);
         Commit curr = Gitlet.getCommit(currID);
-        MyHashMap stageForAdd =
-                Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
         boolean conflict = false;
         for (String fName : lca.getContents().keySet()) {
             if (curr.getContents().containsKey(fName)
@@ -195,38 +201,41 @@ public class Merge {
                     equals(given.getContents().get(fName))) {
                 conflict = true;
                 handleConflict(curr.getContents().get(fName),
-                        given.getContents().get(fName));
+                        given.getContents().get(fName), stageForAdd);
+
             }
             if (!curr.getContents().containsKey(fName)
                     && given.getContents().containsKey(fName)
                     && !lca.getContents().get(fName).
                     equals(given.getContents().get(fName))) {
                 conflict = true;
-                handleConflict("dummy!@#$%", given.getContents().get(fName));
+                handleConflict("dummy!@#$%",
+                        given.getContents().get(fName), stageForAdd);
             }
             if (!given.getContents().containsKey(fName)
                     && curr.getContents().containsKey(fName)
                     && !lca.getContents().get(fName).
                     equals(curr.getContents().get(fName))) {
                 conflict = true;
-                handleConflict(curr.getContents().get(fName), "dummy!@#$%");
+                handleConflict(curr.getContents().get(fName),
+                        "dummy!@#$%", stageForAdd);
+
             }
         }
-        Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
         return conflict;
     }
 
     /** Merges to currID from givenID by comparing to splitPoint.
      * @param splitPoint commitID at the split point
      * @param currID commitID of a current commit
-     * @param givenID commitID of a commit at the given branch in merge */
-    private static void mergeGiven(String splitPoint,
-                                   String currID, String givenID) {
+     * @param givenID commitID of a commit at the given branch in merge
+     * @param stageForAdd hashMap of files to add to include in
+     *                    this merge commit */
+    private static void mergeGiven(String splitPoint, String currID,
+                                   String givenID, MyHashMap stageForAdd) {
         Commit given = Gitlet.getCommit(givenID);
         Commit lca = Gitlet.getCommit(splitPoint);
         Commit curr = Gitlet.getCommit(currID);
-        MyHashMap stageForAdd =
-                Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
         for (String fName: given.getContents().keySet()) {
             if (!lca.getContents().containsKey(fName)
                     && !curr.getContents().containsKey(fName)) {
@@ -234,13 +243,16 @@ public class Merge {
                 stageForAdd.put(fName, given.getContents().get(fName));
             }
         }
-        Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
     }
 
     /** Handles the merge conflict.
      * @param currBlob id of current blob
-     * @param givenBlob id of given blob */
-    private static void handleConflict(String currBlob, String givenBlob) {
+     * @param givenBlob id of given blob
+     * @param stageForAdd hashMap of files to add to include
+     *                    in this merge commit */
+    private static void handleConflict(String currBlob,
+                                       String givenBlob,
+                                       MyHashMap stageForAdd) {
         File cFile = Utils.join(Gitlet.OBJECTS, currBlob);
         File gFile = Utils.join(Gitlet.OBJECTS, givenBlob);
         String currentContent = "";
@@ -274,10 +286,7 @@ public class Merge {
 
         Utils.writeContents(writeTo, result.toString());
         Blob blobToWrite = new Blob(writeTo, false);
-        MyHashMap stageForAdd =
-                Utils.readObject(Gitlet.STAGE_FOR_ADD, MyHashMap.class);
         stageForAdd.put(currFileName, blobToWrite.getBlobID());
-        Utils.writeObject(Gitlet.STAGE_FOR_ADD, stageForAdd);
     }
 
 }

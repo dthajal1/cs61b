@@ -45,7 +45,7 @@ public class Commit implements Serializable {
             _contents = new MyHashMap();
         } else {
             _contents = new MyHashMap();
-            copyFromParent(secondParent);
+            copyFromParent();
             commit();
         }
         _secondParent = secondParent;
@@ -54,23 +54,14 @@ public class Commit implements Serializable {
         saveCommit();
     }
 
-    /** Copies the necessary contents to this commit from its parents.
-     * @param secondPar second parent */
-    private void copyFromParent(String secondPar) {
-        Commit mySecondParent = Gitlet.getCommit(secondPar);
+    /** Copies the necessary contents to this commit from its parent. */
+    private void copyFromParent() {
         Commit myParent = Gitlet.getCurrentCommit();
         MyHashMap stageForRmv = Utils.readObject(Gitlet.STAGE_FOR_RMV,
                 MyHashMap.class);
         for (String file : myParent.getContents().keySet()) {
             if (!stageForRmv.containsKey(file)) {
                 _contents.put(file, myParent.getContents().get(file));
-            }
-        }
-        if (mySecondParent != null) {
-            for (String file : mySecondParent.getContents().keySet()) {
-                if (!stageForRmv.containsKey(file)) {
-                    _contents.put(file, mySecondParent.getContents().get(file));
-                }
             }
         }
     }
